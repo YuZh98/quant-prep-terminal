@@ -1,8 +1,8 @@
 # 🟢 QUANT PREP TERMINAL
 
-**Drill quant-finance interviews the way you actually study — read, test, simulate, repeat — all in one offline file. Free, no signup, yours to customize.**
+**Everything you need to cram for a quant interview, crammed into one HTML file.** Cheatsheets, flashcards, and a little lab where you can watch an iron condor lose money in real time. Free, no signup, and you can bend it to your will.
 
-[**▶ Open the live app**](https://yuzh98.github.io/quant-prep-terminal/) · no install · runs in any browser
+[**▶ Open the live app**](https://yuzh98.github.io/quant-prep-terminal/) · no install · runs in any browser · no, it won't email you
 
 ![QUANT PREP TERMINAL — home](docs/01-hero.png)
 
@@ -10,47 +10,53 @@
 
 ## Why this exists
 
-Quant interview prep is scattered across PDFs, half-remembered formulas, and flashcard apps that hide your own notes behind a login. This puts the whole loop — **learn → drill → experiment → track** — in a single HTML file you control. Open it, study, close it. Your cards, pins, and progress stay in your browser. No account, no subscription, no cloud.
+Quant prep is its own unpaid part-time job. The knowledge lives in six different PDFs, two textbooks heavier than your student debt, and a flashcard app that wants $8/month to let you study your *own* notes.
+
+So I put the whole loop — read it, drill it, simulate it, repeat until it sticks — in a single file you actually own. Open it, study, close it. Your cards, your pins, your progress all stay in your browser. No account. No subscription. No "we've updated our privacy policy" emails at 2am.
 
 ## What's inside
 
-### Cheatsheets — learn the math
-Eleven domains — calculus, linear algebra, geometry, probability distributions, combinatorics, stochastic processes, regression, options, financial instruments, Python, and C++ — as bite-size, example-filled cards. One search box covers all of them.
+### Cheatsheets — for the formula you'll absolutely blank on
+Eleven domains: calculus, linear algebra, geometry, probability distributions, combinatorics, stochastic processes, regression, options, financial instruments, Python, and C++. Bite-size cards with worked examples, because "I knew the formula, I just couldn't *recall* it under pressure" is not a thing you get to say in the actual interview. One search box covers all of them.
 
 ![Cheatsheets](docs/02-cheatsheets.png)
 
-### Flashcards — drill the questions
-100+ interview Q&A you can search, filter by topic, and shuffle. Flip to check yourself, then **pin** the tricky ones, **archive** the ones you've mastered, and mark cards **done** for the session — with a live progress count so you can see how far you've gotten.
+### Flashcards — flip, panic, flip back, pretend you knew it
+100+ real interview questions. Search them, filter by topic, shuffle so you can't cheat by memorizing the order. Flip to check yourself, then **pin** the ones that humble you, **archive** the ones you've genuinely nailed, and mark cards **done** for the session so the pile visibly shrinks. (The dopamine is free too.)
 
 ![Flashcards](docs/03-flashcards.png)
 
-### Lab — see it, simulate it
-Build an option payoff leg by leg (Black–Scholes-priced, with live breakeven, max profit/loss, and a P&L crosshair that follows your cursor), or run real Python in the browser to verify a probability answer by simulation.
+### Lab — see it, simulate it, believe it
+Build an option payoff leg by leg — Black–Scholes-priced, with a live breakeven, max profit/loss, and a P&L crosshair that chases your cursor. Or open the Python sandbox and run a *real* simulation in the browser. When the interviewer raises an eyebrow and says "you sure E[flips to get HH] is 6?", you can say "ran it 200,000 times, yeah." That's not arrogance. That's a confidence interval.
 
 ![Lab — payoff explorer](docs/04-lab.png)
 
 ## How to use it
 
-1. **Open** the [live app](https://yuzh98.github.io/quant-prep-terminal/) — or download `index.html` and double-click it.
-2. **Browse** — click a subject tile to jump to its cheatsheet or flashcards.
-3. **Drill** — flip flashcards; mark *done* as you go, *pin* what to revisit, *archive* what you've nailed.
-4. **Experiment** — in the Lab, drag the spot/vol/time sliders, build payoffs, or run a simulation.
-5. **Collect** — everything you pin gathers in the Pinned section at the top.
+1. **Open** the [live app](https://yuzh98.github.io/quant-prep-terminal/) — or download `index.html` and double-click it like it's 2005.
+2. **Browse** — click a subject tile, land on its cheatsheet or flashcards.
+3. **Drill** — flip cards, mark *done* as you go, *pin* what burns you.
+4. **Experiment** — drag the spot/vol/time sliders, build a position, or simulate something to settle a bet with yourself.
+5. **Collect** — anything you pin shows up at the top, ready for the night-before panic review.
 
 ## Make it yours
 
-This is **your** terminal. In the **Workshop** section you can:
+It's *your* terminal, so the **Workshop** lets you:
 
-- Add your own **subjects**, **flashcards**, and **cheatsheet cards**
+- Add your own **subjects**, **flashcards**, and **cheatsheet cards** (the question that stumped you in the last round? Add it. Make it pay.)
 - Archive, restore, or delete anything
-- Everything saves to your browser automatically — no account needed
+- Everything auto-saves to your browser — no login, because the last thing you need is another password
 
-Want to change the design or content wholesale? It's one readable HTML file — **fork it and edit `index.html`**.
+Want to reskin it or gut it entirely? It's one readable HTML file. **Fork it, edit `index.html`, go nuts.**
 
 ## Run it
 
-Nothing to install. Open `index.html` in any modern browser. Web fonts and the in-browser Python runtime load from a CDN (so those features need a connection); everything else works offline.
+Nothing to install — open `index.html` in any modern browser. The fonts and the Python runtime load from a CDN, so those bits want an internet connection; everything else works on a plane, in a bunker, or during the campus wifi outage right before your mock interview.
 
 ## License
 
-Free for personal, non-commercial use under **Creative Commons Attribution-NonCommercial 4.0** (CC BY-NC 4.0) — study with it, share it, build on it; just give credit and keep it non-commercial. See [LICENSE](LICENSE).
+Free for personal, non-commercial use under **CC BY-NC 4.0**. Study with it, share it, build on it — just give credit and don't sell my flashcards back to me. See [LICENSE](LICENSE).
+
+---
+
+*Built by someone who was also prepping for quant interviews. If it helps you land the offer, a ⭐ is a perfectly acceptable thank-you.*
