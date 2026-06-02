@@ -53,6 +53,10 @@ Want to reskin it or gut it entirely? It's one readable HTML file. **Fork it, ed
 
 Nothing to install — open `index.html` in any modern browser. The fonts and the Python runtime load from a CDN, so those bits want an internet connection; everything else works on a plane, in a bunker, or during the campus wifi outage right before your mock interview.
 
+## More on the way
+
+This is an early release, not the finished article. More cheatsheets, more flashcards, and more lab toys are coming — the whole thing is data-driven, so most of it shows up as new cards, not a new app. Check back, or ⭐ the repo to get nagged when it grows.
+
 ## License
 
 Free for personal, non-commercial use under **CC BY-NC 4.0**. Study with it, share it, build on it — just give credit and don't sell my flashcards back to me. See [LICENSE](LICENSE).
