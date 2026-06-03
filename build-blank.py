@@ -46,7 +46,7 @@ def main() -> None:
     # 2. Cheatsheet section note — no longer "11 quant domains".
     h = replace_once(
         h,
-        "Didactic, example-filled references across 11 quant domains. Click a topic to switch.",
+        "Didactic, example-filled references spanning every quant subject. Pick a topic to switch.",
         "Your own reference library — build cheatsheet cards in the Workshop below; each new topic gets its own tab.",
         "cheat-sec-note",
     )
