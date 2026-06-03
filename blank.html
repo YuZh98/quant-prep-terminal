@@ -122,6 +122,7 @@
   .pay-ctrl .pbtn:hover{color:var(--text); border-color:var(--neon-dim)}
   .pay-ctrl .pbtn.on{background:var(--neon); color:#04140d; border-color:var(--neon); box-shadow:var(--shadow-neon); font-weight:700}
   #payoff{width:100%; height:auto; display:block}
+  #distplot,#mmplot,#regplot{width:100%; height:auto; display:block; margin-top:4px}
   .pay-desc{font-family:'Share Tech Mono',monospace; font-size:13px; color:var(--text-dim); margin-top:10px; min-height:38px}
   .pay-desc b{color:var(--neon-2)}
 
@@ -336,6 +337,20 @@
   @keyframes blink{50%{opacity:0}}
   @keyframes glitch{0%,92%,100%{clip-path:inset(0 0 55% 0);transform:translate(2px,-1px)}94%{clip-path:inset(40% 0 20% 0);transform:translate(-3px,1px)}96%{clip-path:inset(10% 0 70% 0);transform:translate(3px,1px)}}
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  .mm-controls{display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; margin-bottom:14px}
+  .mm-fld{display:flex; flex-direction:column; gap:6px; font-family:'Share Tech Mono',monospace; font-size:10.5px; letter-spacing:1.5px; text-transform:uppercase; color:var(--cyan)}
+  .mm-num{width:80px; background:var(--panel); border:1px solid var(--line); color:var(--neon-2); font-family:'Share Tech Mono',monospace; font-size:15px; padding:7px 9px; border-radius:8px}
+  .mm-seg{display:flex; gap:6px}
+  .mm-seg .seg{padding:7px 13px}
+  .mm-go{cursor:pointer; font-family:'Share Tech Mono',monospace; font-size:13px; padding:9px 16px; border-radius:24px; border:1px solid var(--neon); background:var(--neon); color:#04140d; font-weight:700; box-shadow:var(--shadow-neon)}
+  .mm-reset{cursor:pointer; font-family:'Share Tech Mono',monospace; font-size:12.5px; padding:9px 14px; border-radius:24px; border:1px solid var(--line); background:var(--panel); color:var(--text-dim)}
+  .mm-reset:hover{color:var(--text); border-color:var(--magenta)}
+  .mm-result{font-family:'Share Tech Mono',monospace; font-size:14px; color:var(--text); background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:11px 14px; margin-bottom:12px; min-height:20px}
+  .mm-result .neg, .mm-log .neg{color:var(--magenta)}
+  .mm-result b, .mm-log b{color:var(--neon-2)}
+  .mm-result .neg b{color:var(--magenta)}
+  .mm-dice{font-size:20px; color:var(--neon); margin-right:8px; letter-spacing:2px; vertical-align:middle}
+  .mm-log{font-family:'Share Tech Mono',monospace; font-size:12px; color:var(--text-dim); margin-top:12px; display:flex; flex-direction:column; gap:3px; max-height:190px; overflow-y:auto}
 </style>
 </head>
 <body>
@@ -404,9 +419,12 @@
   <!-- ===== LAB ===== -->
   <section id="lab">
     <div class="sec-head"><span class="no">05</span><h2>Lab</h2><span class="ln"></span></div>
-    <p class="sec-note">Build intuition by <b>visualizing</b> and <b>simulating</b> — an option-payoff explorer and an in-browser Python sandbox. Switch tools below.</p>
+    <p class="sec-note">Build intuition by <b>visualizing</b> and <b>simulating</b> — an option-payoff explorer, a distribution explorer, a market-making game, a linear-regression simulator, and an in-browser Python sandbox. Switch tools below.</p>
     <div class="lab-tabs" id="labtabs">
       <span class="labtab on" data-l="payoff">▤ payoff explorer</span>
+      <span class="labtab" data-l="dist">∿ distributions</span>
+      <span class="labtab" data-l="mm">⚄ market maker</span>
+      <span class="labtab" data-l="reg">▦ regression</span>
       <span class="labtab" data-l="sim">▶ python sandbox</span>
     </div>
     <div class="lab-panel" data-lab="payoff">
@@ -431,6 +449,43 @@
         <div class="pay-readout" id="payreadout"></div>
         <div class="pay-desc" id="paydesc"></div>
       </div>
+    </div>
+    </div>
+    <div class="lab-panel" data-lab="dist" style="display:none">
+    <p class="sec-note">Common probability distributions — pick a family, drag its parameters, watch the density and moments update live. Continuous families draw a smooth PDF; discrete families draw a PMF as bars.</p>
+    <div class="panel">
+      <div class="pay-ctrl" id="distpick"></div>
+      <div class="pay-sliders" id="distsliders"></div>
+      <svg id="distplot" viewBox="0 0 720 320" preserveAspectRatio="xMidYMid meet" role="img" aria-label="distribution density"></svg>
+      <div class="pay-readout" id="diststats"></div>
+      <div class="pay-desc" id="distdesc"></div>
+    </div>
+    </div>
+    <div class="lab-panel" data-lab="mm" style="display:none">
+    <p class="sec-note">Make a market and survive the flow. A hidden fair value is the sum of the dice — you know its EV, not the roll. Quote a <b>bid</b> and an <b>ask</b>: <b>informed</b> traders know the value and pick you off, while <b>noise</b> traders trade either way but walk if your quote is too wide. Too tight and the informed bleed you; too wide and nobody trades.</p>
+    <div class="panel">
+      <div class="mm-controls">
+        <div class="mm-fld">dice<div class="mm-seg" id="mmdice"></div></div>
+        <div class="mm-fld">your bid<input class="mm-num" id="mmbid" type="number" step="0.5" value="6"></div>
+        <div class="mm-fld">your ask<input class="mm-num" id="mmask" type="number" step="0.5" value="8"></div>
+        <div class="mm-fld" style="min-width:170px">informed flow <span id="mmpinfv" style="color:var(--neon-2)">40%</span><input type="range" id="mmpinf" min="0" max="90" step="5" value="40" style="accent-color:var(--neon);width:100%"></div>
+        <span class="mm-go" id="mmnext">▶ quote &amp; trade</span>
+        <span class="mm-reset" id="mmreset">reset</span>
+      </div>
+      <div class="mm-result" id="mmresult">// set a bid &amp; ask, then quote. Fair EV = <b id="mmfair">7.0</b>.</div>
+      <div class="pay-readout" id="mmstats"></div>
+      <div class="mm-log" id="mmlog"></div>
+      <div class="pay-desc">Edge math: against <b>noise</b> flow your expected profit per fill is your distance from EV; against <b>informed</b> flow you lose. Widening cuts adverse selection but also cuts noise volume — the sweet spot is a moderate market centred on EV.</div>
+    </div>
+    </div>
+    <div class="lab-panel" data-lab="reg" style="display:none">
+    <p class="sec-note">Linear regression by simulation — set the TRUE intercept, slope, noise level, and sample size, then watch ordinary least squares try to recover them. The fit chases the truth; crank the noise and the estimates wobble.</p>
+    <div class="panel">
+      <div class="pay-sliders" id="regsliders"></div>
+      <div class="pay-ctrl"><span class="seg on" id="regtrue">show true line</span><span class="pay-add" id="regresample">↻ resample noise</span></div>
+      <svg id="regplot" viewBox="0 0 720 340" preserveAspectRatio="xMidYMid meet" role="img" aria-label="regression scatter and fit"></svg>
+      <div class="pay-readout" id="regstats"></div>
+      <div class="pay-desc" id="regeq"></div>
     </div>
     </div>
     <div class="lab-panel" data-lab="sim" style="display:none">
@@ -720,6 +775,225 @@ function initPayoff(){
   $('#payadd').onclick=()=>{PX.legs.push({t:'call',d:1,K:Math.round(PX.S0),q:1});renderLegs();drawPayoff();};
   $('#paypin').onclick=()=>{const a=$('#payctrl .pbtn.on'); pinSnapshot({type:'pay', title:'Payoff · '+(a?a.dataset.k:'custom')+' (σ'+Math.round(PX.sig*100)+'% · T'+PX.T.toFixed(2)+'y · S₀'+PX.S0+')', svg:$('#payoff').outerHTML.replace('id="payoff"',''), readout:$('#payreadout').innerHTML});};
   renderLegs(); drawPayoff(); setupResizers(); setupCrosshair();
+}
+
+/* ---- distribution explorer ---- */
+function lgamma(z){
+  const c=[0.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];
+  if(z<0.5) return Math.log(Math.PI/Math.sin(Math.PI*z))-lgamma(1-z);
+  z-=1; let x=c[0]; for(let i=1;i<9;i++)x+=c[i]/(z+i); const t=z+7.5;
+  return 0.5*Math.log(2*Math.PI)+(z+0.5)*Math.log(t)-t+Math.log(x);
+}
+const DISTS={
+  normal:{name:'Normal',type:'cont',
+    params:[{k:'mu',label:'μ',min:-5,max:5,step:0.1,val:0},{k:'sig',label:'σ',min:0.2,max:4,step:0.1,val:1}],
+    pdf:(x,p)=>Math.exp(-0.5*((x-p.mu)/p.sig)**2)/(p.sig*Math.sqrt(2*Math.PI)),
+    range:p=>[p.mu-4*p.sig,p.mu+4*p.sig],
+    mom:p=>({mean:p.mu,vr:p.sig*p.sig,skew:0,kurt:0}),
+    desc:'The bell curve. Symmetric, skewness 0, excess kurtosis 0 — the reference every other shape is compared against.'},
+  lognormal:{name:'Lognormal',type:'cont',
+    params:[{k:'mu',label:'μ',min:-1,max:1.5,step:0.05,val:0},{k:'sig',label:'σ',min:0.1,max:1.2,step:0.05,val:0.5}],
+    pdf:(x,p)=>x<=0?0:Math.exp(-0.5*((Math.log(x)-p.mu)/p.sig)**2)/(x*p.sig*Math.sqrt(2*Math.PI)),
+    range:p=>[0,Math.exp(p.mu+3*p.sig)],
+    mom:p=>{const s2=p.sig*p.sig,e=Math.exp; return {mean:e(p.mu+s2/2),vr:(e(s2)-1)*e(2*p.mu+s2),skew:(e(s2)+2)*Math.sqrt(e(s2)-1),kurt:e(4*s2)+2*e(3*s2)+3*e(2*s2)-6};},
+    desc:'Log of the variable is normal: positive and right-skewed. The standard model for stock prices and other multiplicative quantities.'},
+  expo:{name:'Exponential',type:'cont',
+    params:[{k:'lam',label:'λ',min:0.2,max:3,step:0.1,val:1}],
+    pdf:(x,p)=>x<0?0:p.lam*Math.exp(-p.lam*x),
+    range:p=>[0,7/p.lam],
+    mom:p=>({mean:1/p.lam,vr:1/(p.lam*p.lam),skew:2,kurt:6}),
+    desc:'Waiting time between memoryless events. Skewness is fixed at 2 and excess kurtosis at 6, whatever λ is.'},
+  uniform:{name:'Uniform',type:'cont',
+    params:[{k:'a',label:'a',min:-5,max:4,step:0.1,val:0},{k:'b',label:'b',min:-4,max:6,step:0.1,val:1}],
+    pdf:(x,p)=>{const a=Math.min(p.a,p.b),b=Math.max(p.a,p.b); return (x>=a&&x<=b)?1/((b-a)||1e-9):0;},
+    range:p=>{const a=Math.min(p.a,p.b),b=Math.max(p.a,p.b),pad=((b-a)*0.2)||1; return [a-pad,b+pad];},
+    mom:p=>{const a=Math.min(p.a,p.b),b=Math.max(p.a,p.b); return {mean:(a+b)/2,vr:(b-a)**2/12,skew:0,kurt:-1.2};},
+    desc:'Flat density on [a,b]. Skewness 0, excess kurtosis −1.2 (platykurtic — flatter-tailed than the normal).'},
+  poisson:{name:'Poisson',type:'disc',
+    params:[{k:'lam',label:'λ',min:0.5,max:18,step:0.5,val:4}],
+    pmf:(k,p)=>Math.exp(k*Math.log(p.lam)-p.lam-lgamma(k+1)),
+    krange:p=>[0,Math.ceil(p.lam+4*Math.sqrt(p.lam)+3)],
+    mom:p=>({mean:p.lam,vr:p.lam,skew:1/Math.sqrt(p.lam),kurt:1/p.lam}),
+    desc:'Counts of rare events in a fixed interval. Mean = variance = λ; skewness and kurtosis shrink as λ grows (→ normal).'},
+  binom:{name:'Binomial',type:'disc',
+    params:[{k:'n',label:'n',min:1,max:40,step:1,val:20},{k:'p',label:'p',min:0.02,max:0.98,step:0.02,val:0.5}],
+    pmf:(k,p)=>{const n=Math.round(p.n); if(k<0||k>n)return 0; return Math.exp(lgamma(n+1)-lgamma(k+1)-lgamma(n-k+1)+k*Math.log(p.p)+(n-k)*Math.log(1-p.p));},
+    krange:p=>[0,Math.round(p.n)],
+    mom:p=>{const n=Math.round(p.n),q=1-p.p,v=n*p.p*q; return {mean:n*p.p,vr:v,skew:(1-2*p.p)/Math.sqrt(v),kurt:(1-6*p.p*q)/v};},
+    desc:'Successes in n independent trials. Symmetric at p=0.5; skews as p departs from ½, and approaches normal as n grows.'},
+  studt:{name:'Student-t',type:'cont',
+    params:[{k:'nu',label:'ν',min:1,max:30,step:1,val:5}],
+    pdf:(x,p)=>{const nu=p.nu; return Math.exp(lgamma((nu+1)/2)-lgamma(nu/2))/Math.sqrt(nu*Math.PI)*Math.pow(1+x*x/nu,-(nu+1)/2);},
+    range:p=>[-5,5],
+    mom:p=>{const nu=p.nu; return {mean:nu>1?0:NaN,vr:nu>2?nu/(nu-2):Infinity,skew:nu>3?0:NaN,kurt:nu>4?6/(nu-4):Infinity};},
+    desc:'Heavy-tailed bell. Fatter tails than the normal for small ν; variance is infinite for ν≤2 and it converges to the normal as ν→∞.'},
+};
+function fmtN(v){ if(v===Infinity)return '∞'; if(v!==v||!isFinite(v))return '—'; const a=Math.abs(v); if(a!==0&&(a<1e-3||a>=1e4))return v.toExponential(2); return (Math.round(v*1000)/1000).toString(); }
+const DS={key:'normal',p:{}};
+function loadDistParams(){const d=DISTS[DS.key]; DS.p={}; d.params.forEach(pr=>DS.p[pr.k]=pr.val);}
+function drawDist(){
+  const d=DISTS[DS.key], p=DS.p, W=720,H=320,padL=44,padR=16,padT=16,padB=30, baseY=H-padB;
+  const sxX=(x,lo,hi)=>padL+(x-lo)/(hi-lo)*(W-padL-padR);
+  const m=d.mom(p);
+  let g='<defs><linearGradient id="dgPos" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#27ff9e" stop-opacity=".30"/><stop offset="100%" stop-color="#27ff9e" stop-opacity="0"/></linearGradient></defs>';
+  if(d.type==='cont'){
+    let [lo,hi]=d.range(p); if(!(hi>lo))hi=lo+1;
+    const N=220, xs=[], ys=[]; for(let i=0;i<=N;i++){const x=lo+(hi-lo)*i/N; xs.push(x); ys.push(Math.max(0,d.pdf(x,p)));}
+    const ymax=Math.max(...ys,1e-9)*1.12;
+    const sy=y=>padT+(1-y/ymax)*(H-padT-padB);
+    g+=`<line x1="${padL}" y1="${baseY}" x2="${W-padR}" y2="${baseY}" stroke="#19e6ff" stroke-opacity=".5"/>`;
+    if(isFinite(m.mean)&&m.mean>=lo&&m.mean<=hi){const xm=sxX(m.mean,lo,hi); g+=`<line x1="${xm}" y1="${padT}" x2="${xm}" y2="${baseY}" stroke="#ffcb47" stroke-opacity=".6" stroke-dasharray="3 4"/><text x="${xm+3}" y="${padT+10}" fill="#ffcb47" font-family="Share Tech Mono" font-size="10">μ=${fmtN(m.mean)}</text>`;}
+    const dd=xs.map((x,i)=>`${i?'L':'M'}${sxX(x,lo,hi).toFixed(1)},${sy(ys[i]).toFixed(1)}`).join(' ');
+    g+=`<path d="${dd} L${sxX(hi,lo,hi).toFixed(1)},${baseY} L${sxX(lo,lo,hi).toFixed(1)},${baseY} Z" fill="url(#dgPos)"/>`;
+    g+=`<path d="${dd}" fill="none" stroke="#27ff9e" stroke-width="2.3" style="filter:drop-shadow(0 0 5px rgba(39,255,158,.5))"/>`;
+    [lo,(lo+hi)/2,hi].forEach(t=>{const x=sxX(t,lo,hi); g+=`<text x="${x.toFixed(1)}" y="${baseY+16}" fill="#5fa985" font-family="Share Tech Mono" font-size="10" text-anchor="middle">${fmtN(t)}</text>`;});
+    g+=`<text x="${padL-6}" y="${padT+9}" fill="#5fa985" font-family="Share Tech Mono" font-size="10" text-anchor="end">f(x)</text>`;
+  } else {
+    let [k0,k1]=d.krange(p); k1=Math.min(k1,60); const ks=[]; for(let k=k0;k<=k1;k++)ks.push(k);
+    const ps=ks.map(k=>d.pmf(k,p)); const ymax=Math.max(...ps,1e-9)*1.12;
+    const n=ks.length, slot=(W-padL-padR)/n, bw=Math.max(1,slot*0.7);
+    g+=`<line x1="${padL}" y1="${baseY}" x2="${W-padR}" y2="${baseY}" stroke="#19e6ff" stroke-opacity=".5"/>`;
+    if(isFinite(m.mean)){const xm=padL+(m.mean-k0+0.5)*slot; if(xm>=padL&&xm<=W-padR)g+=`<line x1="${xm.toFixed(1)}" y1="${padT}" x2="${xm.toFixed(1)}" y2="${baseY}" stroke="#ffcb47" stroke-opacity=".6" stroke-dasharray="3 4"/><text x="${(xm+3).toFixed(1)}" y="${padT+10}" fill="#ffcb47" font-family="Share Tech Mono" font-size="10">μ=${fmtN(m.mean)}</text>`;}
+    ks.forEach((k,i)=>{const x=padL+i*slot+(slot-bw)/2, h=(ps[i]/ymax)*(H-padT-padB), y=baseY-h; g+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0,h).toFixed(1)}" rx="1.5" fill="#27ff9e" fill-opacity=".5" stroke="#27ff9e" stroke-opacity=".9"/>`;});
+    const step=Math.ceil(n/16); ks.forEach((k,i)=>{ if(i%step)return; const x=padL+i*slot+slot/2; g+=`<text x="${x.toFixed(1)}" y="${baseY+16}" fill="#5fa985" font-family="Share Tech Mono" font-size="10" text-anchor="middle">${k}</text>`;});
+    g+=`<text x="${padL-6}" y="${padT+9}" fill="#5fa985" font-family="Share Tech Mono" font-size="10" text-anchor="end">P(k)</text>`;
+  }
+  document.getElementById('distplot').outerHTML='<svg id="distplot" viewBox="0 0 720 320" preserveAspectRatio="xMidYMid meet" role="img" aria-label="distribution density">'+g+'</svg>';
+  const sd=Math.sqrt(m.vr);
+  $('#diststats').innerHTML=
+    `<span class="ro">mean <b>${fmtN(m.mean)}</b></span>`+
+    `<span class="ro">variance <b>${fmtN(m.vr)}</b></span>`+
+    `<span class="ro">std dev <b>${fmtN(sd)}</b></span>`+
+    `<span class="ro">skewness <b>${fmtN(m.skew)}</b></span>`+
+    `<span class="ro">excess kurtosis <b>${fmtN(m.kurt)}</b></span>`;
+  $('#distdesc').innerHTML=d.desc;
+}
+function buildDistSliders(){
+  const d=DISTS[DS.key], w=$('#distsliders'); w.innerHTML='';
+  d.params.forEach(pr=>{const lab=document.createElement('label'); lab.innerHTML=`${pr.label} <input type="range" data-k="${pr.k}" min="${pr.min}" max="${pr.max}" step="${pr.step}" value="${DS.p[pr.k]}"><span>${DS.p[pr.k]}</span>`; w.appendChild(lab);});
+  w.querySelectorAll('input').forEach(inp=>inp.oninput=()=>{DS.p[inp.dataset.k]=+inp.value; inp.nextElementSibling.textContent=inp.value; drawDist();});
+}
+function initDist(){
+  $('#distpick').innerHTML=Object.keys(DISTS).map((k,i)=>`<span class="pbtn${i===0?' on':''}" data-k="${k}">${DISTS[k].name}</span>`).join('');
+  $('#distpick').querySelectorAll('.pbtn').forEach(b=>b.onclick=()=>{$('#distpick').querySelectorAll('.pbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');DS.key=b.dataset.k;loadDistParams();buildDistSliders();drawDist();});
+  loadDistParams(); buildDistSliders(); drawDist();
+}
+
+/* ---- market-making game (dice adverse selection) ---- */
+const MMG={dice:2, bid:6, ask:8, pInf:0.4, cum:0, rounds:0, trades:0, adverse:0, log:[]};
+const DIE=['⚀','⚁','⚂','⚃','⚄','⚅'];
+function mmFair(){return MMG.dice*3.5;}
+function mmRoll(){const r=[]; let s=0; for(let i=0;i<MMG.dice;i++){const d=1+Math.floor(Math.random()*6); r.push(d); s+=d;} return {r,s};}
+// counterparty arrives: informed (knows V, picks you off) with prob pInf, else noise
+// (random side, but fills less often the further your quote sits from fair). Pure — no DOM.
+function mmTrade(B,A,V){
+  const mid=mmFair(), maxAway=MMG.dice*2;
+  if(Math.random()<MMG.pInf){
+    if(V>A) return {side:'sell',price:A,ctype:'informed'};
+    if(V<B) return {side:'buy', price:B,ctype:'informed'};
+    return {side:null,ctype:'informed'};
+  }
+  if(Math.random()<0.5){ const fp=Math.max(0,Math.min(1,1-(A-mid)/maxAway)); if(Math.random()<fp) return {side:'sell',price:A,ctype:'noise'}; }
+  else { const fp=Math.max(0,Math.min(1,1-(mid-B)/maxAway)); if(Math.random()<fp) return {side:'buy',price:B,ctype:'noise'}; }
+  return {side:null,ctype:'noise'};
+}
+// counterparty SELL = they lifted your ask → you are short @price → P&L = price - V
+// counterparty BUY  = they hit your bid  → you are long  @price → P&L = V - price
+function mmPnl(t,V){ if(!t.side) return 0; return t.side==='sell' ? (t.price-V) : (V-t.price); }
+function mmRO(label,val,neg){return `<span class="ro${neg?' neg':''}">${label} <b>${val}</b></span>`;}
+function mmStats(){
+  const fr=MMG.rounds?Math.round(MMG.trades/MMG.rounds*100)+'%':'—';
+  const ed=MMG.trades?((MMG.cum/MMG.trades>=0?'+':'')+(MMG.cum/MMG.trades).toFixed(2)):'—';
+  $('#mmstats').innerHTML=
+    mmRO('fair EV', mmFair().toFixed(1))+
+    mmRO('cum P&L', (MMG.cum>=0?'+':'')+MMG.cum.toFixed(2), MMG.cum<0)+
+    mmRO('rounds', MMG.rounds)+
+    mmRO('fill rate', fr)+
+    mmRO('adverse fills', MMG.adverse, MMG.adverse>0)+
+    mmRO('edge / trade', ed, MMG.trades>0 && MMG.cum<0);
+}
+function renderMMLog(){
+  const el=$('#mmlog'); if(!el)return;
+  el.innerHTML = MMG.log.slice(0,9).map(e=>e).join('');
+}
+function mmRound(){
+  const B=MMG.bid, A=MMG.ask;
+  if(!(A>B)){ $('#mmresult').innerHTML='<span class="neg">ask must be above bid — tighten up.</span>'; return; }
+  const roll=mmRoll(); const V=roll.s; const dice=roll.r.map(d=>DIE[d-1]).join(' ');
+  const t=mmTrade(B,A,V); const pnl=mmPnl(t,V); const traded=!!t.side;
+  MMG.rounds++;
+  if(traded){ MMG.cum+=pnl; MMG.trades++; if(t.ctype==='informed')MMG.adverse++; }
+  let who;
+  if(!traded) who='<span style="color:var(--text-faint)">no trade — the market walked away</span>';
+  else if(t.side==='sell') who=`${t.ctype} trader <b>LIFTS your ask</b> @ ${A.toFixed(1)} — you are SHORT`;
+  else who=`${t.ctype} trader <b>HITS your bid</b> @ ${B.toFixed(1)} — you are LONG`;
+  const ptxt = traded ? `<b class="${pnl>=0?'':'neg'}">${pnl>=0?'+':''}${pnl.toFixed(2)}</b>` : '—';
+  $('#mmresult').innerHTML=`<span class="mm-dice">${dice}</span> V=<b>${V}</b> · ${who} · round P&L ${ptxt}`;
+  MMG.log.unshift(`<div>r${MMG.rounds} · ${dice} V=${V} · B${B.toFixed(1)}/A${A.toFixed(1)} · ${traded?(t.ctype+' '+(t.side==='sell'?'lift':'hit')):'no trade'} · <b class="${pnl>=0?'':'neg'}">${traded?(pnl>=0?'+':'')+pnl.toFixed(2):'—'}</b></div>`);
+  mmStats(); renderMMLog();
+}
+function initMM(){
+  $('#mmdice').innerHTML=[2,3].map(d=>`<span class="seg${d===2?' on':''}" data-d="${d}">${d} dice</span>`).join('');
+  $('#mmdice').querySelectorAll('.seg').forEach(s=>s.onclick=()=>{$('#mmdice').querySelectorAll('.seg').forEach(x=>x.classList.remove('on'));s.classList.add('on');MMG.dice=+s.dataset.d; const fe=document.getElementById('mmfair'); if(fe)fe.textContent=mmFair().toFixed(1); mmStats();});
+  $('#mmbid').onchange=e=>MMG.bid=+e.target.value;
+  $('#mmask').onchange=e=>MMG.ask=+e.target.value;
+  $('#mmpinf').oninput=e=>{MMG.pInf=+e.target.value/100; $('#mmpinfv').textContent=e.target.value+'%';};
+  $('#mmnext').onclick=()=>{MMG.bid=+$('#mmbid').value; MMG.ask=+$('#mmask').value; mmRound();};
+  $('#mmreset').onclick=()=>{MMG.cum=0;MMG.rounds=0;MMG.trades=0;MMG.adverse=0;MMG.log=[]; $('#mmresult').innerHTML='// game reset. Fair EV = <b id="mmfair">'+mmFair().toFixed(1)+'</b>.'; mmStats(); renderMMLog();};
+  mmStats(); renderMMLog();
+}
+
+/* ---- linear regression simulator ---- */
+const REG={a:2, b:1.5, sig:2, n:60, showTrue:true, data:null, fit:null};
+const REGP=[{k:'a',label:'α (intercept)',min:-5,max:10,step:0.5},{k:'b',label:'β (slope)',min:-3,max:3,step:0.1},{k:'sig',label:'noise σ',min:0,max:5,step:0.25},{k:'n',label:'n points',min:10,max:200,step:5}];
+function randn(){let u=0,v=0; while(!u)u=Math.random(); while(!v)v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function regGen(){const {a,b,sig,n}=REG, xs=[], ys=[]; for(let i=0;i<n;i++){const x=Math.random()*10; xs.push(x); ys.push(a+b*x+sig*randn());} REG.data={xs,ys};}
+function regFit(){
+  const {xs,ys}=REG.data, n=xs.length;
+  const mx=xs.reduce((s,x)=>s+x,0)/n, my=ys.reduce((s,y)=>s+y,0)/n;
+  let sxx=0,sxy=0,syy=0; for(let i=0;i<n;i++){const dx=xs[i]-mx,dy=ys[i]-my; sxx+=dx*dx; sxy+=dx*dy; syy+=dy*dy;}
+  const b=sxy/sxx, a=my-b*mx;
+  let ssr=0; for(let i=0;i<n;i++){const e=ys[i]-(a+b*xs[i]); ssr+=e*e;}
+  const r2=syy>0?1-ssr/syy:1, r=(sxx>0&&syy>0)?sxy/Math.sqrt(sxx*syy):0, rse=n>2?Math.sqrt(ssr/(n-2)):NaN;
+  return {a,b,r2,r,rse};
+}
+function drawReg(){
+  const {xs,ys}=REG.data, f=regFit(); REG.fit=f;
+  const W=720,H=340,padL=46,padR=16,padT=16,padB=32, baseY=H-padB, xmin=0,xmax=10;
+  let ymin=Math.min(...ys), ymax=Math.max(...ys);
+  const fy0=f.a+f.b*xmin, fy1=f.a+f.b*xmax; ymin=Math.min(ymin,fy0,fy1); ymax=Math.max(ymax,fy0,fy1);
+  if(REG.showTrue){const ty0=REG.a+REG.b*xmin,ty1=REG.a+REG.b*xmax; ymin=Math.min(ymin,ty0,ty1); ymax=Math.max(ymax,ty0,ty1);}
+  const pad=((ymax-ymin)*0.1)||1; ymin-=pad; ymax+=pad;
+  const sx=x=>padL+(x-xmin)/(xmax-xmin)*(W-padL-padR);
+  const sy=y=>padT+(ymax-y)/(ymax-ymin)*(H-padT-padB);
+  let g='';
+  g+=`<line x1="${padL}" y1="${baseY}" x2="${W-padR}" y2="${baseY}" stroke="#19e6ff" stroke-opacity=".4"/>`;
+  g+=`<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${baseY}" stroke="#19e6ff" stroke-opacity=".4"/>`;
+  if(REG.showTrue) g+=`<line x1="${sx(xmin).toFixed(1)}" y1="${sy(REG.a+REG.b*xmin).toFixed(1)}" x2="${sx(xmax).toFixed(1)}" y2="${sy(REG.a+REG.b*xmax).toFixed(1)}" stroke="#ffcb47" stroke-width="1.6" stroke-opacity=".85" stroke-dasharray="6 5"/>`;
+  xs.forEach((x,i)=>{g+=`<circle cx="${sx(x).toFixed(1)}" cy="${sy(ys[i]).toFixed(1)}" r="3" fill="#27ff9e" fill-opacity=".5" stroke="#27ff9e" stroke-opacity=".85"/>`;});
+  g+=`<line x1="${sx(xmin).toFixed(1)}" y1="${sy(f.a+f.b*xmin).toFixed(1)}" x2="${sx(xmax).toFixed(1)}" y2="${sy(f.a+f.b*xmax).toFixed(1)}" stroke="#ff2d95" stroke-width="2.4" style="filter:drop-shadow(0 0 5px rgba(255,45,149,.5))"/>`;
+  g+=`<text x="${W-padR}" y="${baseY+16}" fill="#5fa985" font-family="Share Tech Mono" font-size="10" text-anchor="end">x →</text>`;
+  g+=`<text x="${padL-6}" y="${padT+9}" fill="#5fa985" font-family="Share Tech Mono" font-size="10" text-anchor="end">y</text>`;
+  document.getElementById('regplot').outerHTML='<svg id="regplot" viewBox="0 0 720 340" preserveAspectRatio="xMidYMid meet" role="img" aria-label="regression scatter and fit">'+g+'</svg>';
+  $('#regstats').innerHTML=
+    `<span class="ro">slope β̂ <b>${fmtN(f.b)}</b></span>`+
+    `<span class="ro">intercept α̂ <b>${fmtN(f.a)}</b></span>`+
+    `<span class="ro">R² <b>${f.r2.toFixed(3)}</b></span>`+
+    `<span class="ro">corr r <b>${fmtN(f.r)}</b></span>`+
+    `<span class="ro">resid SE <b>${fmtN(f.rse)}</b></span>`;
+  const strength=f.r2>=0.9?'very strong':f.r2>=0.7?'strong':f.r2>=0.4?'moderate':f.r2>=0.15?'weak':'negligible';
+  $('#regeq').innerHTML=`Fit: <b>ŷ = ${f.a.toFixed(2)} ${f.b>=0?'+':'−'} ${Math.abs(f.b).toFixed(2)}·x</b> · R² ${f.r2.toFixed(3)} (${strength} linear relationship). True line y = ${REG.a.toFixed(2)} ${REG.b>=0?'+':'−'} ${Math.abs(REG.b).toFixed(2)}·x. <b>Magenta</b> = OLS fit, <b>amber dashed</b> = truth — raise σ and the estimate drifts off the true slope.`;
+}
+function buildRegSliders(){
+  const w=$('#regsliders'); w.innerHTML='';
+  REGP.forEach(pr=>{const lab=document.createElement('label'); lab.innerHTML=`${pr.label} <input type="range" data-k="${pr.k}" min="${pr.min}" max="${pr.max}" step="${pr.step}" value="${REG[pr.k]}"><span>${REG[pr.k]}</span>`; w.appendChild(lab);});
+  w.querySelectorAll('input').forEach(inp=>inp.oninput=()=>{REG[inp.dataset.k]=+inp.value; inp.nextElementSibling.textContent=inp.value; regGen(); drawReg();});
+}
+function initReg(){
+  buildRegSliders();
+  $('#regtrue').onclick=()=>{REG.showTrue=!REG.showTrue; $('#regtrue').classList.toggle('on',REG.showTrue); drawReg();};
+  $('#regresample').onclick=()=>{regGen(); drawReg();};
+  regGen(); drawReg();
 }
 
 /* ---- utilities ---- */
@@ -1123,7 +1397,7 @@ if(labtabs){labtabs.querySelectorAll('.labtab').forEach(t=>t.addEventListener('c
 }));}
 
 /* ---- init ---- */
-loadUserContent(); buildStats(); buildTiles(); buildFilters(); render(); addCkPins(); renderPins(); refreshPinButtons(); initPayoff(); colorizeBlocks(); initWorkshop();
+loadUserContent(); buildStats(); buildTiles(); buildFilters(); render(); addCkPins(); renderPins(); refreshPinButtons(); initPayoff(); initDist(); initMM(); initReg(); colorizeBlocks(); initWorkshop();
 $('#pinclear').addEventListener('click',()=>{pins=[]; savePins(); renderPins(); refreshPinButtons();});
 </script>
 </body>
