@@ -368,6 +368,10 @@
   .pay-mode .seg{font-family:'Share Tech Mono',monospace; font-size:11.5px; cursor:pointer; padding:7px 12px; border-radius:22px; border:1px solid var(--line); background:var(--panel); color:var(--text-dim); transition:.15s}
   .pay-mode .seg:hover{color:var(--text); border-color:var(--neon-dim)}
   .pay-mode .seg.on{background:var(--neon); color:#04140d; border-color:var(--neon); font-weight:700}
+  .reg-grid{grid-template-columns:var(--regw,300px) 8px minmax(0,1fr)}
+  .dist-fun .seg{font-family:'Share Tech Mono',monospace; font-size:12px; cursor:pointer; padding:7px 12px; border-radius:22px; border:1px solid var(--line); background:var(--panel); color:var(--text-dim); transition:.15s}
+  .dist-fun .seg:hover{color:var(--text); border-color:var(--neon-dim)}
+  .dist-fun .seg.on{background:var(--neon); color:#04140d; border-color:var(--neon); font-weight:700}
 </style>
 </head>
 <body>
@@ -511,13 +515,24 @@
     </div>
     </div>
     <div class="lab-panel" data-lab="reg" style="display:none">
-    <p class="sec-note">Linear regression by simulation — set the TRUE intercept, slope, noise level, and sample size, then watch ordinary least squares try to recover them. The fit chases the truth; crank the noise and the estimates wobble.</p>
-    <div class="panel">
-      <div class="pay-sliders" id="regsliders"></div>
-      <div class="pay-ctrl"><span class="seg on" id="regtrue">show true line</span><span class="pay-add" id="regresample">↻ resample noise</span></div>
-      <svg id="regplot" viewBox="0 0 720 340" preserveAspectRatio="xMidYMid meet" role="img" aria-label="regression scatter and fit"></svg>
-      <div class="pay-readout" id="regstats"></div>
-      <div class="pay-desc" id="regeq"></div>
+    <p class="sec-note">Linear regression is the quant's workhorse — factor models (CAPM / Fama–French β), signal research (regress returns on features), and the whole bias–variance story live here. Set the TRUE line, add noise, vary the sample size, and watch ordinary least squares try to recover it.</p>
+    <div class="panel pay-grid reg-grid">
+      <div class="pay-controls">
+        <div class="pay-side-h">▸ control center</div>
+        <div class="pay-sliders" id="regsliders"></div>
+        <div class="dist-fun">
+          <span class="mm-go" id="regresample">↻ resample</span>
+          <span class="seg on" id="regtrue">show true line</span>
+        </div>
+      </div>
+      <div class="lab-resizer" data-split="reg"></div>
+      <div class="pay-output reg-output">
+        <div class="pay-side-h" style="display:flex;align-items:center;gap:8px">▸ fit <span class="pin-btn pin-act" id="regpin" style="margin-left:auto">PIN view</span></div>
+        <div class="pay-cross" id="regcross"></div><div class="pay-tip" id="regtip"></div>
+        <svg id="regplot" viewBox="0 0 720 340" preserveAspectRatio="xMidYMid meet" role="img" aria-label="regression scatter and fit"></svg>
+        <div class="pay-readout" id="regstats"></div>
+        <div class="pay-desc" id="regeq"></div>
+      </div>
     </div>
     </div>
     <div class="lab-panel" data-lab="sim" style="display:none">
@@ -769,18 +784,19 @@ function drawPayoff(){
 }
 function setupResizers(){
   document.querySelectorAll('.lab-resizer').forEach(rz=>{
-    const grid=rz.parentElement, which=rz.dataset.split, vn={pay:'--payw',rep:'--repw',dist:'--distw'}[which];
+    const grid=rz.parentElement, which=rz.dataset.split, vn={pay:'--payw',rep:'--repw',dist:'--distw',reg:'--regw'}[which];
     rz.addEventListener('mousedown',e=>{
       e.preventDefault(); document.body.style.userSelect='none'; document.body.style.cursor='col-resize';
       const rect=grid.getBoundingClientRect();
       function mv(ev){let w=ev.clientX-rect.left; w=Math.max(180,Math.min(rect.width-220,w)); grid.style.setProperty(vn,w+'px');}
-      function up(){document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);document.body.style.userSelect='';document.body.style.cursor='';try{localStorage.setItem('qpl'+vn,grid.style.getPropertyValue(vn));}catch(e){} if(which==='pay')drawPayoff(); else if(which==='dist')drawDist();}
+      function up(){document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);document.body.style.userSelect='';document.body.style.cursor='';try{localStorage.setItem('qpl'+vn,grid.style.getPropertyValue(vn));}catch(e){} if(which==='pay')drawPayoff(); else if(which==='dist')drawDist(); else if(which==='reg')drawReg();}
       document.addEventListener('mousemove',mv); document.addEventListener('mouseup',up);
     });
   });
   try{const pw=localStorage.getItem('qpl--payw'); const pg=document.querySelector('.pay-grid'); if(pw&&pg)pg.style.setProperty('--payw',pw);
       const rw=localStorage.getItem('qpl--repw'); const rg=document.querySelector('.repl'); if(rw&&rg)rg.style.setProperty('--repw',rw);
-      const dw=localStorage.getItem('qpl--distw'); const dg=document.querySelector('.dist-grid'); if(dw&&dg)dg.style.setProperty('--distw',dw);}catch(e){}
+      const dw=localStorage.getItem('qpl--distw'); const dg=document.querySelector('.dist-grid'); if(dw&&dg)dg.style.setProperty('--distw',dw);
+      const gw=localStorage.getItem('qpl--regw'); const gg=document.querySelector('.reg-grid'); if(gw&&gg)gg.style.setProperty('--regw',gw);}catch(e){}
 }
 function setupCrosshair(){
   const out=document.querySelector('.pay-output'); if(!out)return;
@@ -1056,6 +1072,7 @@ function initMM(){
 
 /* ---- linear regression simulator ---- */
 const REG={a:2, b:1.5, sig:2, n:60, showTrue:true, data:null, fit:null};
+let regView=null;
 const REGP=[{k:'a',label:'α (intercept)',min:-5,max:10,step:0.5},{k:'b',label:'β (slope)',min:-3,max:3,step:0.1},{k:'sig',label:'noise σ',min:0,max:5,step:0.25},{k:'n',label:'n points',min:10,max:200,step:5}];
 function randn(){let u=0,v=0; while(!u)u=Math.random(); while(!v)v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
 function regGen(){const {a,b,sig,n}=REG, xs=[], ys=[]; for(let i=0;i<n;i++){const x=Math.random()*10; xs.push(x); ys.push(a+b*x+sig*randn());} REG.data={xs,ys};}
@@ -1086,6 +1103,7 @@ function drawReg(){
   g+=`<text x="${W-padR}" y="${baseY+16}" fill="#5fa985" font-family="Share Tech Mono" font-size="10" text-anchor="end">x →</text>`;
   g+=`<text x="${padL-6}" y="${padT+9}" fill="#5fa985" font-family="Share Tech Mono" font-size="10" text-anchor="end">y</text>`;
   document.getElementById('regplot').outerHTML='<svg id="regplot" viewBox="0 0 720 340" preserveAspectRatio="xMidYMid meet" role="img" aria-label="regression scatter and fit">'+g+'</svg>';
+  regView={xmin,xmax,padL,padR,a:f.a,b:f.b};
   $('#regstats').innerHTML=
     `<span class="ro">slope β̂ <b>${fmtN(f.b)}</b></span>`+
     `<span class="ro">intercept α̂ <b>${fmtN(f.a)}</b></span>`+
@@ -1093,18 +1111,33 @@ function drawReg(){
     `<span class="ro">corr r <b>${fmtN(f.r)}</b></span>`+
     `<span class="ro">resid SE <b>${fmtN(f.rse)}</b></span>`;
   const strength=f.r2>=0.9?'very strong':f.r2>=0.7?'strong':f.r2>=0.4?'moderate':f.r2>=0.15?'weak':'negligible';
-  $('#regeq').innerHTML=`Fit: <b>ŷ = ${f.a.toFixed(2)} ${f.b>=0?'+':'−'} ${Math.abs(f.b).toFixed(2)}·x</b> · R² ${f.r2.toFixed(3)} (${strength} linear relationship). True line y = ${REG.a.toFixed(2)} ${REG.b>=0?'+':'−'} ${Math.abs(REG.b).toFixed(2)}·x. <b>Magenta</b> = OLS fit, <b>amber dashed</b> = truth — raise σ and the estimate drifts off the true slope.`;
+  $('#regeq').innerHTML=`Fit: <b>ŷ = ${f.a.toFixed(2)} ${f.b>=0?'+':'−'} ${Math.abs(f.b).toFixed(2)}·x</b> · R² ${f.r2.toFixed(3)} (${strength} linear relationship). True line y = ${REG.a.toFixed(2)} ${REG.b>=0?'+':'−'} ${Math.abs(REG.b).toFixed(2)}·x. <b>Magenta</b> = OLS fit, <b>amber dashed</b> = truth. Raise σ (or shrink n) and β̂ drifts off the true slope — that <b>sampling variability</b> is exactly why a fitted backtest/factor relationship may not hold out of sample. More data tightens β̂; R² is the variance explained, not whether the fit is right.`;
 }
 function buildRegSliders(){
   const w=$('#regsliders'); w.innerHTML='';
   REGP.forEach(pr=>{const lab=document.createElement('label'); lab.innerHTML=`${pr.label} <input type="range" data-k="${pr.k}" min="${pr.min}" max="${pr.max}" step="${pr.step}" value="${REG[pr.k]}"><span>${REG[pr.k]}</span>`; w.appendChild(lab);});
   w.querySelectorAll('input').forEach(inp=>inp.oninput=()=>{REG[inp.dataset.k]=+inp.value; inp.nextElementSibling.textContent=inp.value; regGen(); drawReg();});
 }
+function setupRegCrosshair(){
+  const out=document.querySelector('.reg-output'); if(!out)return;
+  const cross=document.getElementById('regcross'),tip=document.getElementById('regtip'),Wv=720;
+  out.addEventListener('mousemove',e=>{
+    const svg=out.querySelector('#regplot'),v=regView; if(!svg||!v){cross.style.display='none';tip.style.display='none';return;}
+    const r=svg.getBoundingClientRect(),cssX=e.clientX-r.left,vbx=cssX/r.width*Wv;
+    if(cssX<0||cssX>r.width||vbx<v.padL||vbx>Wv-v.padR){cross.style.display='none';tip.style.display='none';return;}
+    const x=v.xmin+(vbx-v.padL)/(Wv-v.padL-v.padR)*(v.xmax-v.xmin), yhat=v.a+v.b*x;
+    const o=out.getBoundingClientRect(),X=r.left-o.left+cssX,Y=r.top-o.top;
+    cross.style.display='block';cross.style.left=X+'px';cross.style.top=Y+'px';cross.style.height=r.height+'px';
+    tip.style.display='block';tip.style.left=X+'px';tip.style.top=(Y+4)+'px';tip.textContent='x '+x.toFixed(2)+'  ·  ŷ '+yhat.toFixed(2);
+  });
+  out.addEventListener('mouseleave',()=>{cross.style.display='none';tip.style.display='none';});
+}
 function initReg(){
   buildRegSliders();
   $('#regtrue').onclick=()=>{REG.showTrue=!REG.showTrue; $('#regtrue').classList.toggle('on',REG.showTrue); drawReg();};
   $('#regresample').onclick=()=>{regGen(); drawReg();};
-  regGen(); drawReg();
+  $('#regpin').onclick=()=>{const f=REG.fit; pinSnapshot({type:'reg', title:'Regression · β̂='+fmtN(f.b)+' α̂='+fmtN(f.a)+' R²='+f.r2.toFixed(2)+' (σ='+REG.sig+', n='+REG.n+')', svg:$('#regplot').outerHTML.replace('id="regplot"',''), readout:$('#regstats').innerHTML});};
+  regGen(); drawReg(); setupRegCrosshair();
 }
 
 /* ---- utilities ---- */
@@ -1466,6 +1499,8 @@ function renderPins(){
       inner=`<div class="ptag">payoff lab</div><div class="q" style="font-size:14px">${p.title||'payoff'}</div>`+(p.svg||'')+`<div class="pay-readout" style="margin-top:8px">${p.readout||''}</div>`;
     } else if(p.type==='dist'){
       inner=`<div class="ptag">distribution lab</div><div class="q" style="font-size:14px">${p.title||'distribution'}</div>`+(p.svg||'')+`<div class="pay-readout" style="margin-top:8px">${p.readout||''}</div>`;
+    } else if(p.type==='reg'){
+      inner=`<div class="ptag">regression lab</div><div class="q" style="font-size:14px">${p.title||'regression'}</div>`+(p.svg||'')+`<div class="pay-readout" style="margin-top:8px">${p.readout||''}</div>`;
     } else if(p.type==='code'){
       const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
       inner=`<div class="ptag">sim · python${p.ts?' · '+p.ts:''}</div>`+
