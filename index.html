@@ -362,6 +362,12 @@
   .pay-readout .ro.samp{border-color:var(--magenta); color:var(--magenta)}
   .pay-readout .ro.samp b{color:#ff7ab8}
   .pay-desc .samp-note{color:var(--magenta)}
+  .ro-break{flex-basis:100%; height:0; margin:0; padding:0; border:0}
+  .dist-formula{font-family:'Share Tech Mono',monospace; font-size:13px; color:var(--cyan); margin:10px 0 2px; padding:8px 11px; border:1px dashed var(--line); border-radius:8px; background:rgba(25,230,255,.05)}
+  .pay-mode{display:flex; gap:6px; flex-wrap:wrap; margin:0 0 14px}
+  .pay-mode .seg{font-family:'Share Tech Mono',monospace; font-size:11.5px; cursor:pointer; padding:7px 12px; border-radius:22px; border:1px solid var(--line); background:var(--panel); color:var(--text-dim); transition:.15s}
+  .pay-mode .seg:hover{color:var(--text); border-color:var(--neon-dim)}
+  .pay-mode .seg.on{background:var(--neon); color:#04140d; border-color:var(--neon); font-weight:700}
 </style>
 </head>
 <body>
@@ -2657,11 +2663,12 @@ auto n = std::count_if(book.begin(), book.end(),
       <span class="labtab" data-l="sim">▶ python sandbox</span>
     </div>
     <div class="lab-panel" data-lab="payoff">
-    <p class="sec-note">Interactive option-payoff explorer — pick a structure or build your own legs, tune spot / vol / time, read breakeven, max-profit & max-loss live. Premiums are Black–Scholes-priced at S₀.</p>
+    <p class="sec-note">Interactive option-payoff explorer — pick a structure or build your own legs, tune spot / vol / time, read breakeven, max-profit & max-loss live. Toggle <b>net P&L</b> (folds in the Black–Scholes premium) vs <b>payoff only</b> (gross intrinsic value — the textbook diagram).</p>
     <div class="panel pay-grid">
       <div class="pay-controls">
         <div class="pay-side-h">▸ control center</div>
         <div class="pay-ctrl" id="payctrl"></div>
+        <div class="pay-mode" id="paymode"><span class="seg on" data-v="net">net P&amp;L (incl. premium)</span><span class="seg" data-v="gross">payoff only</span></div>
         <div class="pay-sliders">
           <label>Spot S₀ <input type="range" id="sl-s0" min="50" max="150" step="1" value="100"><span id="v-s0">100</span></label>
           <label>Vol σ <input type="range" id="sl-sig" min="5" max="80" step="1" value="20"><span id="v-sig">20%</span></label>
@@ -2698,6 +2705,7 @@ auto n = std::count_if(book.begin(), book.end(),
         <div class="pay-side-h" style="display:flex;align-items:center;gap:8px">▸ density <span class="pin-btn pin-act" id="distpin" style="margin-left:auto">PIN view</span></div>
         <div class="pay-cross" id="distcross"></div><div class="pay-tip" id="disttip"></div>
         <svg id="distplot" viewBox="0 0 720 340" preserveAspectRatio="xMidYMid meet" role="img" aria-label="distribution density"></svg>
+        <div class="dist-formula" id="distformula"></div>
         <div class="pay-readout" id="diststats"></div>
         <div class="pay-desc" id="distdesc"></div>
       </div>
@@ -3148,10 +3156,10 @@ const PAYSET={
   'collar':[{t:'stock',d:1,K:0,q:1},{t:'put',d:1,K:95,q:1},{t:'call',d:-1,K:110,q:1}],
   'risk reversal':[{t:'put',d:-1,K:90,q:1},{t:'call',d:1,K:110,q:1}],
 };
-const PX={S0:100,sig:0.20,T:0.25,r:0.0,legs:JSON.parse(JSON.stringify(PAYSET['long call']))};
+const PX={S0:100,sig:0.20,T:0.25,r:0.0,netPrem:true,legs:JSON.parse(JSON.stringify(PAYSET['long call']))};
 function legPrem(l){return l.t==='stock'?0:payBS(PX.S0,l.K,PX.r,PX.sig,PX.T,l.t==='call');}
 function legIntr(l,S){return l.t==='stock'?(S-PX.S0):Math.max(l.t==='call'?S-l.K:l.K-S,0);}
-function pnlAt(S){let v=0;PX.legs.forEach(l=>{const q=l.d*(l.q||1);v+=q*legIntr(l,S)-q*legPrem(l);});return v;}
+function pnlAt(S){let v=0;PX.legs.forEach(l=>{const q=l.d*(l.q||1);v+=q*legIntr(l,S)-(PX.netPrem?q*legPrem(l):0);});return v;}
 function netDebit(){let v=0;PX.legs.forEach(l=>{v+=l.d*(l.q||1)*legPrem(l);});return v;}
 function renderLegs(){
   const w=$('#paylegs'); w.innerHTML='';
@@ -3201,11 +3209,13 @@ function drawPayoff(){
   const maxL=lossUn?'\u2212\u221e':'$'+Math.min(...ys).toFixed(2);
   const nd=netDebit();
   $('#payreadout').innerHTML=
-    `<span class="ro">net ${nd>=0?'debit':'credit'} <b>$${Math.abs(nd).toFixed(2)}</b></span>`+
+    (PX.netPrem?`<span class="ro">net ${nd>=0?'debit':'credit'} <b>$${Math.abs(nd).toFixed(2)}</b></span>`:`<span class="ro">premium <b>ignored</b></span>`)+
     `<span class="ro">max profit <b>${maxP}</b></span>`+
     `<span class="ro neg">max loss <b>${maxL}</b></span>`+
     `<span class="ro">breakeven <b>${bes.length?bes.map(x=>'$'+x.toFixed(1)).join(' , '):'\u2014'}</b></span>`;
-  $('#paydesc').innerHTML='Curve = P&amp;L at <b>expiry</b> vs spot. Dashed magenta = strikes, dotted amber = entry spot, cyan dashed = breakeven line. Premiums priced by Black\u2013Scholes at the sliders above.';
+  $('#paydesc').innerHTML = PX.netPrem
+    ? 'Curve = <b>net P&amp;L at expiry</b> = option payoff − premium. The <b>premium</b> is the up-front cost of each leg, priced by Black\u2013Scholes from the σ / T / S\u2080 sliders — so the curve shifts <b>down</b> for what you buy and <b>up</b> for what you sell. Dashed magenta = strikes, dotted amber = entry spot, cyan dashed = breakeven.'
+    : 'Curve = <b>gross payoff at expiry</b> (intrinsic value only) — what the position is worth at expiry, <b>ignoring the premium</b> paid or received. The classic textbook payoff diagram. Toggle to <b>net P&amp;L</b> to fold in the Black\u2013Scholes cost. Dashed magenta = strikes, dotted amber = entry spot.';
 }
 function setupResizers(){
   document.querySelectorAll('.lab-resizer').forEach(rz=>{
@@ -3247,6 +3257,7 @@ function initPayoff(){
   $('#sl-t').oninput=e=>{PX.T=+e.target.value/100;$('#v-t').textContent=(+e.target.value/100).toFixed(2)+'y';drawPayoff();};
   $('#payadd').onclick=()=>{PX.legs.push({t:'call',d:1,K:Math.round(PX.S0),q:1});renderLegs();drawPayoff();};
   $('#paypin').onclick=()=>{const a=$('#payctrl .pbtn.on'); pinSnapshot({type:'pay', title:'Payoff · '+(a?a.dataset.k:'custom')+' (σ'+Math.round(PX.sig*100)+'% · T'+PX.T.toFixed(2)+'y · S₀'+PX.S0+')', svg:$('#payoff').outerHTML.replace('id="payoff"',''), readout:$('#payreadout').innerHTML});};
+  $('#paymode').querySelectorAll('.seg').forEach(s=>s.onclick=()=>{$('#paymode').querySelectorAll('.seg').forEach(x=>x.classList.remove('on'));s.classList.add('on');PX.netPrem=(s.dataset.v==='net');drawPayoff();});
   renderLegs(); drawPayoff(); setupResizers(); setupCrosshair();
 }
 
@@ -3258,56 +3269,77 @@ function lgamma(z){
   return 0.5*Math.log(2*Math.PI)+(z+0.5)*Math.log(t)-t+Math.log(x);
 }
 const DISTS={
-  normal:{name:'Normal',type:'cont',
+  normal:{name:'Normal',type:'cont',formula:'f(x) = 1/(σ√(2π)) · e^(−(x−μ)²/2σ²)   ·   μ = mean, σ = std dev',
     params:[{k:'mu',label:'μ',min:-5,max:5,step:0.1,val:0},{k:'sig',label:'σ',min:0.2,max:4,step:0.1,val:1}],
     pdf:(x,p)=>Math.exp(-0.5*((x-p.mu)/p.sig)**2)/(p.sig*Math.sqrt(2*Math.PI)),
     range:p=>[p.mu-4*p.sig,p.mu+4*p.sig],
     mom:p=>({mean:p.mu,vr:p.sig*p.sig,skew:0,kurt:0}),
     sample:p=>p.mu+p.sig*randn(),
     desc:'The bell curve. Symmetric, skewness 0, excess kurtosis 0 — the reference every other shape is compared against.'},
-  lognormal:{name:'Lognormal',type:'cont',
+  lognormal:{name:'Lognormal',type:'cont',formula:'f(x) = 1/(xσ√(2π)) · e^(−(ln x−μ)²/2σ²),  x&gt;0   ·   μ, σ are the mean/std of ln x',
     params:[{k:'mu',label:'μ',min:-1,max:1.5,step:0.05,val:0},{k:'sig',label:'σ',min:0.1,max:1.2,step:0.05,val:0.5}],
     pdf:(x,p)=>x<=0?0:Math.exp(-0.5*((Math.log(x)-p.mu)/p.sig)**2)/(x*p.sig*Math.sqrt(2*Math.PI)),
     range:p=>[0,Math.exp(p.mu+3*p.sig)],
     mom:p=>{const s2=p.sig*p.sig,e=Math.exp; return {mean:e(p.mu+s2/2),vr:(e(s2)-1)*e(2*p.mu+s2),skew:(e(s2)+2)*Math.sqrt(e(s2)-1),kurt:e(4*s2)+2*e(3*s2)+3*e(2*s2)-6};},
     sample:p=>Math.exp(p.mu+p.sig*randn()),
     desc:'Log of the variable is normal: positive and right-skewed. The standard model for stock prices and other multiplicative quantities.'},
-  expo:{name:'Exponential',type:'cont',
+  expo:{name:'Exponential',type:'cont',formula:'f(x) = λ·e^(−λx),  x ≥ 0   ·   λ = rate (mean 1/λ)',
     params:[{k:'lam',label:'λ',min:0.2,max:3,step:0.1,val:1}],
     pdf:(x,p)=>x<0?0:p.lam*Math.exp(-p.lam*x),
     range:p=>[0,7/p.lam],
     mom:p=>({mean:1/p.lam,vr:1/(p.lam*p.lam),skew:2,kurt:6}),
     sample:p=>-Math.log(1-Math.random())/p.lam,
     desc:'Waiting time between memoryless events. Skewness is fixed at 2 and excess kurtosis at 6, whatever λ is.'},
-  uniform:{name:'Uniform',type:'cont',
+  uniform:{name:'Uniform',type:'cont',formula:'f(x) = 1/(b−a)  on  a ≤ x ≤ b',
     params:[{k:'a',label:'a',min:-5,max:4,step:0.1,val:0},{k:'b',label:'b',min:-4,max:6,step:0.1,val:1}],
     pdf:(x,p)=>{const a=Math.min(p.a,p.b),b=Math.max(p.a,p.b); return (x>=a&&x<=b)?1/((b-a)||1e-9):0;},
     range:p=>{const a=Math.min(p.a,p.b),b=Math.max(p.a,p.b),pad=((b-a)*0.2)||1; return [a-pad,b+pad];},
     mom:p=>{const a=Math.min(p.a,p.b),b=Math.max(p.a,p.b); return {mean:(a+b)/2,vr:(b-a)**2/12,skew:0,kurt:-1.2};},
     sample:p=>{const a=Math.min(p.a,p.b),b=Math.max(p.a,p.b); return a+(b-a)*Math.random();},
     desc:'Flat density on [a,b]. Skewness 0, excess kurtosis −1.2 (platykurtic — flatter-tailed than the normal).'},
-  poisson:{name:'Poisson',type:'disc',
+  poisson:{name:'Poisson',type:'disc',formula:'P(k) = λ^k · e^(−λ) / k!   ·   λ = mean rate (k = 0,1,2,…)',
     params:[{k:'lam',label:'λ',min:0.5,max:18,step:0.5,val:4}],
     pmf:(k,p)=>Math.exp(k*Math.log(p.lam)-p.lam-lgamma(k+1)),
     krange:p=>[0,Math.ceil(p.lam+4*Math.sqrt(p.lam)+3)],
     mom:p=>({mean:p.lam,vr:p.lam,skew:1/Math.sqrt(p.lam),kurt:1/p.lam}),
     sample:p=>{const L=Math.exp(-p.lam); let k=0,pr=1; do{k++; pr*=Math.random();}while(pr>L); return k-1;},
     desc:'Counts of rare events in a fixed interval. Mean = variance = λ; skewness and kurtosis shrink as λ grows (→ normal).'},
-  binom:{name:'Binomial',type:'disc',
+  binom:{name:'Binomial',type:'disc',formula:'P(k) = C(n,k) · p^k · (1−p)^(n−k)   ·   n = trials, p = success prob',
     params:[{k:'n',label:'n',min:1,max:40,step:1,val:20},{k:'p',label:'p',min:0.02,max:0.98,step:0.02,val:0.5}],
     pmf:(k,p)=>{const n=Math.round(p.n); if(k<0||k>n)return 0; return Math.exp(lgamma(n+1)-lgamma(k+1)-lgamma(n-k+1)+k*Math.log(p.p)+(n-k)*Math.log(1-p.p));},
     krange:p=>[0,Math.round(p.n)],
     mom:p=>{const n=Math.round(p.n),q=1-p.p,v=n*p.p*q; return {mean:n*p.p,vr:v,skew:(1-2*p.p)/Math.sqrt(v),kurt:(1-6*p.p*q)/v};},
     sample:p=>{const n=Math.round(p.n); let s=0; for(let i=0;i<n;i++) if(Math.random()<p.p)s++; return s;},
     desc:'Successes in n independent trials. Symmetric at p=0.5; skews as p departs from ½, and approaches normal as n grows.'},
-  studt:{name:'Student-t',type:'cont',
+  studt:{name:'Student-t',type:'cont',formula:'f(x) ∝ (1 + x²/ν)^(−(ν+1)/2)   ·   ν = degrees of freedom',
     params:[{k:'nu',label:'ν',min:1,max:30,step:1,val:5}],
     pdf:(x,p)=>{const nu=p.nu; return Math.exp(lgamma((nu+1)/2)-lgamma(nu/2))/Math.sqrt(nu*Math.PI)*Math.pow(1+x*x/nu,-(nu+1)/2);},
     range:p=>[-5,5],
     mom:p=>{const nu=p.nu; return {mean:nu>1?0:NaN,vr:nu>2?nu/(nu-2):Infinity,skew:nu>3?0:NaN,kurt:nu>4?6/(nu-4):Infinity};},
     sample:p=>{const nu=p.nu; let c=0; for(let i=0;i<nu;i++){const z=randn(); c+=z*z;} return randn()/Math.sqrt(c/nu);},
     desc:'Heavy-tailed bell. Fatter tails than the normal for small ν; variance is infinite for ν≤2 and it converges to the normal as ν→∞.'},
+  gamma:{name:'Gamma',type:'cont',formula:'f(x) = x^(k−1)·e^(−x/θ) / (Γ(k)·θ^k),  x&gt;0   ·   k = shape, θ = scale (mean kθ)',
+    params:[{k:'k',label:'k (shape)',min:0.5,max:12,step:0.5,val:2},{k:'th',label:'θ (scale)',min:0.2,max:4,step:0.1,val:1}],
+    pdf:(x,p)=>x<=0?0:Math.exp((p.k-1)*Math.log(x)-x/p.th-lgamma(p.k)-p.k*Math.log(p.th)),
+    range:p=>[0, p.k*p.th+4*Math.sqrt(p.k)*p.th],
+    mom:p=>({mean:p.k*p.th,vr:p.k*p.th*p.th,skew:2/Math.sqrt(p.k),kurt:6/p.k}),
+    sample:p=>sampleGamma(p.k,p.th),
+    desc:'Waiting time for k Poisson events (sum of k exponentials when k is an integer). Shape k sets the skew (2/√k); scale θ stretches it. k=1 is the exponential; large k → normal.'},
+  beta:{name:'Beta',type:'cont',formula:'f(x) = x^(α−1)·(1−x)^(β−1) / B(α,β),  0≤x≤1   ·   α,β = shape; B(α,β)=Γ(α)Γ(β)/Γ(α+β)',
+    params:[{k:'a',label:'α',min:0.5,max:8,step:0.5,val:2},{k:'b',label:'β',min:0.5,max:8,step:0.5,val:2}],
+    pdf:(x,p)=>(x<=0||x>=1)?0:Math.exp((p.a-1)*Math.log(x)+(p.b-1)*Math.log(1-x)-(lgamma(p.a)+lgamma(p.b)-lgamma(p.a+p.b))),
+    range:p=>[0,1],
+    mom:p=>{const a=p.a,b=p.b,s=a+b; return {mean:a/s,vr:a*b/(s*s*(s+1)),skew:2*(b-a)*Math.sqrt(s+1)/((s+2)*Math.sqrt(a*b)),kurt:6*((a-b)*(a-b)*(s+1)-a*b*(s+2))/(a*b*(s+2)*(s+3))};},
+    sample:p=>{const x=sampleGamma(p.a,1),y=sampleGamma(p.b,1); return x/(x+y);},
+    desc:'Distribution on [0,1] — the conjugate prior for a probability/proportion. α−1, β−1 act like prior successes/failures. α=β=1 is uniform; α=β large concentrates at ½; α≠β skews it.'},
 };
+function sampleGamma(a,th){
+  if(a<1) return sampleGamma(1+a,th)*Math.pow(Math.random(),1/a);
+  const d=a-1/3, c=1/Math.sqrt(9*d);
+  for(;;){ let x,v; do{ x=randn(); v=1+c*x; }while(v<=0); v=v*v*v; const u=Math.random();
+    if(u<1-0.0331*x*x*x*x) return d*v*th;
+    if(Math.log(u)<0.5*x*x+d*(1-v+Math.log(v))) return d*v*th; }
+}
 function fmtN(v){ if(v===Infinity)return '∞'; if(v!==v||!isFinite(v))return '—'; const a=Math.abs(v); if(a!==0&&(a<1e-3||a>=1e4))return v.toExponential(2); return (Math.round(v*1000)/1000).toString(); }
 const DS={key:'normal',p:{}};
 let SAMP=[], sampAnim=null, distView=null;
@@ -3355,9 +3387,10 @@ function drawDist(){
   }
   distView=view;
   document.getElementById('distplot').outerHTML='<svg id="distplot" viewBox="0 0 720 340" preserveAspectRatio="xMidYMid meet" role="img" aria-label="distribution density">'+g+'</svg>';
+  {const fe=document.getElementById('distformula'); if(fe)fe.innerHTML=d.formula||'';}
   const sd=Math.sqrt(m.vr);
   let chips=`<span class="ro">mean <b>${fmtN(m.mean)}</b></span><span class="ro">variance <b>${fmtN(m.vr)}</b></span><span class="ro">std dev <b>${fmtN(sd)}</b></span><span class="ro">skewness <b>${fmtN(m.skew)}</b></span><span class="ro">excess kurtosis <b>${fmtN(m.kurt)}</b></span>`;
-  if(SAMP.length){ const n=SAMP.length, mu=SAMP.reduce((a,b)=>a+b,0)/n, vr=SAMP.reduce((a,b)=>a+(b-mu)*(b-mu),0)/n; chips+=`<span class="ro samp">n <b>${n.toLocaleString()}</b></span><span class="ro samp">x̄ <b>${fmtN(mu)}</b></span><span class="ro samp">s² <b>${fmtN(vr)}</b></span>`; }
+  if(SAMP.length){ const n=SAMP.length, mu=SAMP.reduce((a,b)=>a+b,0)/n, vr=SAMP.reduce((a,b)=>a+(b-mu)*(b-mu),0)/n; chips+=`<span class="ro-break"></span><span class="ro samp">n <b>${n.toLocaleString()}</b></span><span class="ro samp">x̄ <b>${fmtN(mu)}</b></span><span class="ro samp">s² <b>${fmtN(vr)}</b></span>`; }
   $('#diststats').innerHTML=chips;
   $('#distdesc').innerHTML=d.desc+(SAMP.length?` <span class="samp-note">▸ magenta = ${SAMP.length.toLocaleString()} Monte-Carlo draws; watch x̄ and s² home in on the theoretical mean &amp; variance (law of large numbers).</span>`:'');
 }
