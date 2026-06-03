@@ -144,7 +144,7 @@
   .util{font-family:'Share Tech Mono',monospace; font-size:12px; cursor:pointer; color:var(--cyan); border:1px solid rgba(25,230,255,.3); padding:8px 12px; border-radius:8px; background:rgba(25,230,255,.05); transition:.16s}
   .util:hover{background:var(--cyan); color:#04140d}
   .filters{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px}
-  .fbtn{font-family:'Share Tech Mono',monospace; font-size:12.5px; cursor:pointer; user-select:none; padding:7px 13px; border-radius:24px; border:1px solid var(--line); background:var(--panel); color:var(--text-dim); transition:.16s}
+  .fbtn{font-family:'Share Tech Mono',monospace; font-size:12.5px; text-transform:uppercase; cursor:pointer; user-select:none; padding:7px 13px; border-radius:24px; border:1px solid var(--line); background:var(--panel); color:var(--text-dim); transition:.16s}
   .fbtn:hover{color:var(--text); border-color:var(--neon-dim)}
   .fbtn.on{background:var(--neon); color:#04140d; border-color:var(--neon); box-shadow:var(--shadow-neon); font-weight:700}
   .fbtn .n{opacity:.6; margin-left:4px}
@@ -229,7 +229,7 @@
 
   /* cheatsheets */
   .cheatnav{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px}
-  .ctab{font-family:'Share Tech Mono',monospace; font-size:12.5px; cursor:pointer; padding:8px 14px; border-radius:24px; border:1px solid var(--line); background:var(--panel); color:var(--text-dim); transition:.16s}
+  .ctab{font-family:'Share Tech Mono',monospace; font-size:12.5px; text-transform:uppercase; cursor:pointer; padding:8px 14px; border-radius:24px; border:1px solid var(--line); background:var(--panel); color:var(--text-dim); transition:.16s}
   .ctab:hover{color:var(--text); border-color:var(--neon-dim)}
   .ctab.on{background:var(--neon); color:#04140d; border-color:var(--neon); font-weight:700; box-shadow:var(--shadow-neon)}
   .cheat{display:none}
@@ -416,24 +416,24 @@
     <p class="sec-note">Didactic, example-filled references spanning every quant subject. Pick a topic to switch.</p>
     <label class="search" style="max-width:440px; margin-bottom:16px"><span class="ic">⌕</span><input id="cheatsearch" type="text" placeholder="search all cheatsheets…"></label>
     <div class="cheatnav" id="cheatnav">
-      <span class="ctab on" data-t="calculus">Calculus</span>
-      <span class="ctab" data-t="linalg">Linear Algebra</span>
-      <span class="ctab" data-t="geometry">Geometry</span>
-      <span class="ctab" data-t="combinatorics">Combinatorics</span>
-      <span class="ctab" data-t="probability">Probability</span>
-      <span class="ctab" data-t="distributions">Probability Distributions</span>
-      <span class="ctab" data-t="statistics">Statistics</span>
-      <span class="ctab" data-t="regression">Regression</span>
-      <span class="ctab" data-t="stochastic">Stochastic Processes</span>
-      <span class="ctab" data-t="timeseries">Time Series</span>
-      <span class="ctab" data-t="options">Options</span>
-      <span class="ctab" data-t="instruments">Financial Instruments &amp; Facilities</span>
-      <span class="ctab" data-t="microstructure">Market Microstructure</span>
-      <span class="ctab" data-t="python">Python</span>
-      <span class="ctab" data-t="cpp">C++</span>
       <span class="ctab" data-t="algorithms">Algorithms</span>
       <span class="ctab" data-t="brainteasers">Brainteasers</span>
+      <span class="ctab" data-t="cpp">C++</span>
+      <span class="ctab on" data-t="calculus">Calculus</span>
+      <span class="ctab" data-t="combinatorics">Combinatorics</span>
+      <span class="ctab" data-t="distributions">Distributions</span>
+      <span class="ctab" data-t="geometry">Geometry</span>
+      <span class="ctab" data-t="instruments">Instruments</span>
+      <span class="ctab" data-t="linalg">Linear Algebra</span>
       <span class="ctab" data-t="mentalmath">Mental Math</span>
+      <span class="ctab" data-t="microstructure">Microstructure</span>
+      <span class="ctab" data-t="options">Options &amp; Vol</span>
+      <span class="ctab" data-t="probability">Probability</span>
+      <span class="ctab" data-t="python">Python</span>
+      <span class="ctab" data-t="regression">Regression</span>
+      <span class="ctab" data-t="statistics">Statistics</span>
+      <span class="ctab" data-t="stochastic">Stochastic Processes</span>
+      <span class="ctab" data-t="timeseries">Time Series</span>
     </div>
     <div class="cheat-wrap">
     <div class="cheat" data-topic="probability">
@@ -675,6 +675,30 @@
 </div>
     </div>
     <div class="cheat" data-topic="algorithms">
+<div class="ck wide">
+  <div class="ck-h">Bitwise Operators &amp; Bit Tricks</div>
+  <div class="ck-b">
+    Six operators acting on the binary representation. <span class="k">&amp; AND · | OR · ^ XOR · ~ NOT · &lt;&lt; left shift · &gt;&gt; right shift.</span> Shifts are fast multiply/divide by powers of two.
+    <table>
+      <tr><th>Op</th><th>Example</th><th>Result</th><th>Meaning</th></tr>
+      <tr><td>&amp; AND</td><td><code>5 &amp; 3 = 0101 &amp; 0011</code></td><td><code>0001 = 1</code></td><td>1 only where both bits are 1</td></tr>
+      <tr><td>| OR</td><td><code>5 | 3 = 0101 | 0011</code></td><td><code>0111 = 7</code></td><td>1 where either bit is 1</td></tr>
+      <tr><td>^ XOR</td><td><code>5 ^ 3 = 0101 ^ 0011</code></td><td><code>0110 = 6</code></td><td>1 where the bits differ</td></tr>
+      <tr><td>~ NOT</td><td><code>~5</code></td><td><code>−6</code></td><td>flip every bit (~x = −x−1)</td></tr>
+      <tr><td>&lt;&lt; shift</td><td><code>1 &lt;&lt; 4</code></td><td><code>16</code></td><td>x &lt;&lt; n = x·2ⁿ</td></tr>
+      <tr><td>&gt;&gt; shift</td><td><code>20 &gt;&gt; 2</code></td><td><code>5</code></td><td>x &gt;&gt; n = ⌊x / 2ⁿ⌋</td></tr>
+    </table>
+    <b>Tricks worth memorizing:</b>
+    <ul>
+      <li><code>x &amp; 1</code> tests odd/even; <code>x &amp; (x−1)</code> clears the lowest set bit, so <code>x &amp; (x−1) == 0</code> tests a power of two.</li>
+      <li><code>x &amp; (−x)</code> isolates the lowest set bit; popcount via Brian Kernighan loops <code>x &amp;= x−1</code> and counts iterations.</li>
+      <li>Set / clear / toggle / read bit k: <code>x | (1&lt;&lt;k)</code> · <code>x &amp; ~(1&lt;&lt;k)</code> · <code>x ^ (1&lt;&lt;k)</code> · <code>(x &gt;&gt; k) &amp; 1</code>.</li>
+      <li>XOR identities <code>x^x=0</code>, <code>x^0=x</code>: find the lone unpaired element by XOR-ing the whole array; swap two ints with no temp via three XORs.</li>
+      <li>Enumerate every subset of an n-element set as bitmasks <code>0 … (1&lt;&lt;n)−1</code> — the backbone of bitmask DP (e.g. held-Karp TSP over subsets).</li>
+    </ul>
+    <div class="eg"><b>Example.</b> Array <code>[4,1,2,1,2]</code>, every value paired but one. <code>4^1^2^1^2 = 4</code> — the pairs cancel, leaving the unique element, in O(n) time and O(1) space.</div>
+  </div>
+</div>
 <div class="ck">
   <div class="ck-h">Big-O: the rules that actually get tested</div>
   <div class="ck-b">
@@ -787,6 +811,17 @@
 </div>
     </div>
     <div class="cheat" data-topic="mentalmath">
+<div class="ck wide">
+  <div class="ck-h">Squares &amp; Cubes, n = 1 … 20</div>
+  <div class="ck-b">
+    Memorize cold — they recur in estimation, variance, and "what's the root" problems, and let you recognize roots instantly.
+    <b>Squares (n^2):</b>
+    <div class="mono" style="line-height:1.95">1^2=1 · 2^2=4 · 3^2=9 · 4^2=16 · 5^2=25 · 6^2=36 · 7^2=49 · 8^2=64 · 9^2=81 · 10^2=100 · 11^2=121 · 12^2=144 · 13^2=169 · 14^2=196 · 15^2=225 · 16^2=256 · 17^2=289 · 18^2=324 · 19^2=361 · 20^2=400</div>
+    <b>Cubes (n^3):</b>
+    <div class="mono" style="line-height:1.95">1^3=1 · 2^3=8 · 3^3=27 · 4^3=64 · 5^3=125 · 6^3=216 · 7^3=343 · 8^3=512 · 9^3=729 · 10^3=1000 · 11^3=1331 · 12^3=1728 · 13^3=2197 · 14^3=2744 · 15^3=3375 · 16^3=4096 · 17^3=4913 · 18^3=5832 · 19^3=6859 · 20^3=8000</div>
+    <div class="eg"><b>Use.</b> See 2197 → recognize 13^3, so ∛2197 = 13; spotting 169 = 13^2 or 361 = 19^2 speeds square-root and factoring guesses.</div>
+  </div>
+</div>
 <div class="ck">
   <div class="ck-h">Percent of: x% of y = y% of x</div>
   <div class="ck-b">
@@ -1267,6 +1302,43 @@
 
     <div class="cheat" data-topic="distributions">
 <div class="ck wide">
+  <div class="ck-h">Two Dice — Sum &amp; Product Tables</div>
+  <div class="ck-b">
+    Roll two fair dice: 36 equally likely ordered outcomes (each 1/36). Rows = first die, columns = second; the corner shows the operator.
+    <div class="grid" style="grid-template-columns:1fr 1fr; gap:18px; align-items:start">
+      <div>
+        <b>Sum (d₁ + d₂)</b>
+        <table>
+          <tr><th>+</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr>
+          <tr><th>1</th><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr>
+          <tr><th>2</th><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td></tr>
+          <tr><th>3</th><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td></tr>
+          <tr><th>4</th><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td></tr>
+          <tr><th>5</th><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td></tr>
+          <tr><th>6</th><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td></tr>
+        </table>
+      </div>
+      <div>
+        <b>Product (d₁ × d₂)</b>
+        <table>
+          <tr><th>×</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr>
+          <tr><th>1</th><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td></tr>
+          <tr><th>2</th><td>2</td><td>4</td><td>6</td><td>8</td><td>10</td><td>12</td></tr>
+          <tr><th>3</th><td>3</td><td>6</td><td>9</td><td>12</td><td>15</td><td>18</td></tr>
+          <tr><th>4</th><td>4</td><td>8</td><td>12</td><td>16</td><td>20</td><td>24</td></tr>
+          <tr><th>5</th><td>5</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td></tr>
+          <tr><th>6</th><td>6</td><td>12</td><td>18</td><td>24</td><td>30</td><td>36</td></tr>
+        </table>
+      </div>
+    </div>
+    <ul>
+      <li><b>Sum:</b> most likely is <b>7</b> (6/36 = 1/6); the pmf is triangular over 2…12, symmetric about 7.</li>
+      <li><b>Product:</b> ranges 1…36 and is far from uniform — odd only when both dice are odd, so P(product odd) = 9/36 = 1/4.</li>
+    </ul>
+    <div class="eg"><b>Example.</b> P(sum = 5) = 4/36 (1-4, 2-3, 3-2, 4-1); P(product = 12) = 4/36 (2-6, 6-2, 3-4, 4-3).</div>
+  </div>
+</div>
+<div class="ck wide">
   <div class="ck-h">Master Table — Discrete Distributions</div>
   <div class="ck-b">
     Conventions stated explicitly (the usual trap is geometric/neg-binomial counting).
@@ -1393,6 +1465,31 @@
     </div>
 
     <div class="cheat" data-topic="combinatorics">
+<div class="ck wide">
+  <div class="ck-h">Poker Hand Probabilities — 5 cards from 52</div>
+  <div class="ck-b">
+    Total hands = C(52,5) = <b>2,598,960</b>. Each probability is count / 2,598,960; the counts sum to exactly that total.
+    <table>
+      <tr><th>Hand</th><th>Count</th><th>How to count it</th><th>Prob</th></tr>
+      <tr><td>Royal flush</td><td>4</td><td>the one A-K-Q-J-10 run, one per suit: 4</td><td>0.000154%</td></tr>
+      <tr><td>Straight flush (excl. royal)</td><td>36</td><td>10 high-card runs × 4 suits = 40, minus 4 royals</td><td>0.00139%</td></tr>
+      <tr><td>Four of a kind</td><td>624</td><td>13 ranks × C(48,1) for the 5th card = 13·48</td><td>0.0240%</td></tr>
+      <tr><td>Full house</td><td>3,744</td><td>13·C(4,3) trips × 12·C(4,2) pair = 13·4·12·6</td><td>0.1441%</td></tr>
+      <tr><td>Flush (excl. str. flush)</td><td>5,108</td><td>4·C(13,5) single-suit hands = 5,148, minus 40 straight flushes</td><td>0.1965%</td></tr>
+      <tr><td>Straight (excl. str. flush)</td><td>10,200</td><td>10 runs × 4⁵ suit picks = 10,240, minus 40</td><td>0.3925%</td></tr>
+      <tr><td>Three of a kind</td><td>54,912</td><td>13·C(4,3) trips × C(12,2)·4² two off-ranks = 13·4·66·16</td><td>2.1128%</td></tr>
+      <tr><td>Two pair</td><td>123,552</td><td>C(13,2)·C(4,2)² pairs × 44 kicker = 78·36·44</td><td>4.7539%</td></tr>
+      <tr><td>One pair</td><td>1,098,240</td><td>13·C(4,2) pair × C(12,3)·4³ kickers = 13·6·220·64</td><td>42.257%</td></tr>
+      <tr><td>High card</td><td>1,302,540</td><td>everything else: 2,598,960 − all the above</td><td>50.118%</td></tr>
+    </table>
+    <ul>
+      <li><b>"x of a kind"</b> = choose the rank (13), choose which x of its 4 suits (C(4,x)), then fill the other 5−x cards with distinct off-ranks so the hand isn't accidentally upgraded.</li>
+      <li><b>"excl." rows</b> subtract the rarer hand they contain: a straight flush is also a straight and a flush, so it's removed from both to avoid double counting.</li>
+      <li><b>Straights</b> let the ace be high or low — A-2-3-4-5 up to 10-J-Q-K-A is 10 runs; a wrap-around like Q-K-A-2-3 does not count.</li>
+    </ul>
+    <div class="eg"><b>Example — full house.</b> Pick the trip rank (13) and 3 of its 4 suits (C(4,3)=4); pick a different pair rank (12) and 2 of its 4 suits (C(4,2)=6): 13·4·12·6 = 3,744, so P ≈ 0.144%.</div>
+  </div>
+</div>
 <div class="ck">
   <div class="ck-h">Permutations vs Combinations</div>
   <div class="ck-b">
@@ -3194,7 +3291,8 @@ function counts(){const m={all:DECK.length};for(const k in DOMAINS)m[k]=DECK.fil
 function buildFilters(){
   const c=counts();
   let html=`<span class="fbtn on" data-cat="all">ALL<span class="n">${c.all}</span></span>`;
-  for(const k in DOMAINS) html+=`<span class="fbtn" data-cat="${k}">${DOMAINS[k].name.toUpperCase()}<span class="n">${c[k]}</span></span>`;
+  const ks=Object.keys(DOMAINS).sort((a,b)=>DOMAINS[a].name.localeCompare(DOMAINS[b].name));
+  for(const k of ks) html+=`<span class="fbtn" data-cat="${k}">${DOMAINS[k].name.toUpperCase()}<span class="n">${c[k]}</span></span>`;
   filtersEl.innerHTML=html;
   filtersEl.querySelectorAll('.fbtn').forEach(b=>b.addEventListener('click',()=>{
     filtersEl.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('on'));

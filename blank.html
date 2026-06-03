@@ -144,7 +144,7 @@
   .util{font-family:'Share Tech Mono',monospace; font-size:12px; cursor:pointer; color:var(--cyan); border:1px solid rgba(25,230,255,.3); padding:8px 12px; border-radius:8px; background:rgba(25,230,255,.05); transition:.16s}
   .util:hover{background:var(--cyan); color:#04140d}
   .filters{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px}
-  .fbtn{font-family:'Share Tech Mono',monospace; font-size:12.5px; cursor:pointer; user-select:none; padding:7px 13px; border-radius:24px; border:1px solid var(--line); background:var(--panel); color:var(--text-dim); transition:.16s}
+  .fbtn{font-family:'Share Tech Mono',monospace; font-size:12.5px; text-transform:uppercase; cursor:pointer; user-select:none; padding:7px 13px; border-radius:24px; border:1px solid var(--line); background:var(--panel); color:var(--text-dim); transition:.16s}
   .fbtn:hover{color:var(--text); border-color:var(--neon-dim)}
   .fbtn.on{background:var(--neon); color:#04140d; border-color:var(--neon); box-shadow:var(--shadow-neon); font-weight:700}
   .fbtn .n{opacity:.6; margin-left:4px}
@@ -229,7 +229,7 @@
 
   /* cheatsheets */
   .cheatnav{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px}
-  .ctab{font-family:'Share Tech Mono',monospace; font-size:12.5px; cursor:pointer; padding:8px 14px; border-radius:24px; border:1px solid var(--line); background:var(--panel); color:var(--text-dim); transition:.16s}
+  .ctab{font-family:'Share Tech Mono',monospace; font-size:12.5px; text-transform:uppercase; cursor:pointer; padding:8px 14px; border-radius:24px; border:1px solid var(--line); background:var(--panel); color:var(--text-dim); transition:.16s}
   .ctab:hover{color:var(--text); border-color:var(--neon-dim)}
   .ctab.on{background:var(--neon); color:#04140d; border-color:var(--neon); font-weight:700; box-shadow:var(--shadow-neon)}
   .cheat{display:none}
@@ -633,7 +633,8 @@ function counts(){const m={all:DECK.length};for(const k in DOMAINS)m[k]=DECK.fil
 function buildFilters(){
   const c=counts();
   let html=`<span class="fbtn on" data-cat="all">ALL<span class="n">${c.all}</span></span>`;
-  for(const k in DOMAINS) html+=`<span class="fbtn" data-cat="${k}">${DOMAINS[k].name.toUpperCase()}<span class="n">${c[k]}</span></span>`;
+  const ks=Object.keys(DOMAINS).sort((a,b)=>DOMAINS[a].name.localeCompare(DOMAINS[b].name));
+  for(const k of ks) html+=`<span class="fbtn" data-cat="${k}">${DOMAINS[k].name.toUpperCase()}<span class="n">${c[k]}</span></span>`;
   filtersEl.innerHTML=html;
   filtersEl.querySelectorAll('.fbtn').forEach(b=>b.addEventListener('click',()=>{
     filtersEl.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('on'));
