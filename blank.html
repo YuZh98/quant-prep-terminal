@@ -373,6 +373,15 @@
   .dist-fun .seg{font-family:'Share Tech Mono',monospace; font-size:12px; cursor:pointer; padding:7px 12px; border-radius:22px; border:1px solid var(--line); background:var(--panel); color:var(--text-dim); transition:.15s}
   .dist-fun .seg:hover{color:var(--text); border-color:var(--neon-dim)}
   .dist-fun .seg.on{background:var(--neon); color:#04140d; border-color:var(--neon); font-weight:700}
+  /* cyberpunk subject buttons (cheat tabs + flashcard filter pills) */
+  .ctab,.fbtn{border-radius:2px; letter-spacing:.06em; position:relative; overflow:hidden;
+    clip-path:polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 9px 100%, 0 calc(100% - 9px));
+    transition:color .16s, background .16s, box-shadow .16s, transform .12s, border-color .16s}
+  .ctab::before,.fbtn::before{content:''; position:absolute; left:0; top:0; height:100%; width:2px; background:var(--neon-dim); opacity:.5; transition:.16s}
+  .ctab:hover,.fbtn:hover{transform:translateY(-1px); border-color:var(--neon); box-shadow:0 0 13px rgba(39,255,158,.22), inset 0 0 0 1px rgba(39,255,158,.12)}
+  .ctab:hover::before,.fbtn:hover::before{width:3px; opacity:1; box-shadow:0 0 8px var(--neon)}
+  .ctab.on,.fbtn.on{transform:translateY(-1px); text-shadow:none}
+  .ctab.on::before,.fbtn.on::before{background:#04140d; opacity:.55; width:3px; box-shadow:none}
 </style>
 </head>
 <body>
@@ -1274,6 +1283,54 @@ C=bs(S,K,r,sig,T,True); P=bs(S,K,r,sig,T,False)
 print("C - P       =", round(C-P,6))
 print("S - K*e^-rT =", round(S-K*math.exp(-r*T),6))
 print("parity holds:", abs((C-P)-(S-K*math.exp(-r*T))) < 1e-9)`},
+  {name:'Monte-Carlo π (≈3.1416)', code:`import random
+n=1000000; inside=0
+for _ in range(n):
+    x,y = random.random(), random.random()
+    if x*x + y*y <= 1.0: inside += 1      # quarter-circle / square = π/4
+print("pi ≈", round(4*inside/n,4), " | theory 3.1416")`},
+  {name:'Two dice: P(sum=7) (1/6)', code:`import random
+n=600000; c=0
+for _ in range(n):
+    if random.randint(1,6) + random.randint(1,6) == 7: c += 1
+print("P(sum = 7) ≈", round(c/n,4), " | theory 1/6 ≈ 0.1667")`},
+  {name:'Craps pass-line (≈49.3%)', code:`import random
+def roll(): return random.randint(1,6) + random.randint(1,6)
+def play():
+    c = roll()
+    if c in (7,11): return True            # natural — win
+    if c in (2,3,12): return False         # craps — lose
+    point = c                              # else: roll for the point
+    while True:
+        r = roll()
+        if r == point: return True
+        if r == 7:     return False        # seven-out
+def run(n=400000):
+    return sum(play() for _ in range(n)) / n
+print("P(pass-line win) ≈", round(run(),4), " | theory 0.4929")`},
+  {name:'Poker: P(one pair) (≈42.3%)', code:`import random
+from collections import Counter
+deck = [(r,s) for r in range(13) for s in range(4)]
+def is_one_pair(hand):
+    cnt = sorted(Counter(r for r,_ in hand).values(), reverse=True)
+    return cnt[0] == 2 and cnt[1] == 1     # exactly one pair, nothing better
+def run(n=300000):
+    return sum(is_one_pair(random.sample(deck,5)) for _ in range(n)) / n
+print("P(exactly one pair) ≈", round(run(),4), " | theory 0.4226")`},
+  {name:'Airplane 100 seats (½)', code:`import random
+def run(seats=100, trials=30000):
+    own = 0
+    for _ in range(trials):
+        free = set(range(seats))
+        free.discard(random.randrange(seats))   # passenger 0 sits at random
+        for p in range(1, seats):
+            if p in free:                         # own seat free — take it
+                free.discard(p)
+                if p == seats-1: own += 1         # last passenger got their seat
+            else:                                 # taken — sit randomly
+                free.discard(random.choice(tuple(free)))
+    return own/trials
+print("P(passenger 100 gets own seat) ≈", round(run(),4), " | theory 0.5")`},
 ];
 // left-panel problem statements, indexed parallel to PRESETS[]
 const PROB=[
@@ -1289,6 +1346,11 @@ const PROB=[
   `<p>An ant on a corner of a cube walks along edges to a <b>uniformly random neighbor</b> each step. Expected steps to reach the <b>opposite</b> corner?</p><div class="exp">Expected: <b>10 steps</b></div>`,
   `<p>Black–Scholes price of an <b>at-the-money</b> call (S=K=100, r=0, σ=20%, T=1) vs the trader's rule-of-thumb <b>0.4·S·σ·√T</b>. How close is the approximation?</p><div class="exp">Expected: <b>≈ 0.3% error</b> — the rule of thumb is excellent</div>`,
   `<p>Verify <b>put–call parity</b>, C − P = S − K·e^(−rT), holds exactly on Black–Scholes prices (S=100, K=110, r=3%, σ=25%, T=½).</p><div class="exp">Expected: <b>both sides equal</b> — it's an identity</div>`,
+  `<p>Estimate <b>π</b> by Monte Carlo: drop points in the unit square; the fraction inside the quarter-circle is π/4.</p><div class="exp">Expected: <b>≈ 3.1416</b></div>`,
+  `<p>Roll <b>two fair dice</b>. Probability the <b>sum is 7</b> — and why is 7 the single most likely total?</p><div class="exp">Expected: <b>6/36 = 1/6 ≈ 0.1667</b></div>`,
+  `<p>Craps <b>pass-line</b>: win on a come-out 7/11, lose on 2/3/12, else repeat your <b>point</b> before a 7. Probability of winning?</p><div class="exp">Expected: <b>244/495 ≈ 0.4929</b></div>`,
+  `<p>Deal a 5-card poker hand from 52. Probability of <b>exactly one pair</b> (and nothing better)?</p><div class="exp">Expected: <b>1,098,240 / 2,598,960 ≈ 0.4226</b></div>`,
+  `<p>100 passengers board; #1 sits at <b>random</b>, each other takes their own seat if free, else a random one. P(passenger 100 gets their own seat)?</p><div class="exp">Expected: <b>1/2</b></div>`,
 ];
 const codeEl=$('#pycode'), outEl=$('#pyout'), statusEl=$('#pystatus'), runBtn=$('#pyrun');
 const preEl=document.querySelector('.editor-wrap .hl'), hlEl=$('#hlcode');
@@ -1356,9 +1418,9 @@ const cheatnav=document.getElementById('cheatnav');
 if(cheatnav){
   cheatnav.addEventListener('click',e=>{
     const t=e.target.closest('.ctab'); if(!t)return;
-    const k=t.dataset.t;
+    const k=t.dataset.t, showAll=(k==='__all');
     cheatnav.querySelectorAll('.ctab').forEach(x=>x.classList.toggle('on',x===t));
-    document.querySelectorAll('.cheat-wrap .cheat').forEach(p=>p.classList.toggle('on',p.dataset.topic===k));
+    document.querySelectorAll('.cheat-wrap .cheat').forEach(p=>p.classList.toggle('on',showAll||p.dataset.topic===k));
   });
 }
 

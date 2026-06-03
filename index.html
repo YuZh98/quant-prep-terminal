@@ -373,6 +373,15 @@
   .dist-fun .seg{font-family:'Share Tech Mono',monospace; font-size:12px; cursor:pointer; padding:7px 12px; border-radius:22px; border:1px solid var(--line); background:var(--panel); color:var(--text-dim); transition:.15s}
   .dist-fun .seg:hover{color:var(--text); border-color:var(--neon-dim)}
   .dist-fun .seg.on{background:var(--neon); color:#04140d; border-color:var(--neon); font-weight:700}
+  /* cyberpunk subject buttons (cheat tabs + flashcard filter pills) */
+  .ctab,.fbtn{border-radius:2px; letter-spacing:.06em; position:relative; overflow:hidden;
+    clip-path:polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 9px 100%, 0 calc(100% - 9px));
+    transition:color .16s, background .16s, box-shadow .16s, transform .12s, border-color .16s}
+  .ctab::before,.fbtn::before{content:''; position:absolute; left:0; top:0; height:100%; width:2px; background:var(--neon-dim); opacity:.5; transition:.16s}
+  .ctab:hover,.fbtn:hover{transform:translateY(-1px); border-color:var(--neon); box-shadow:0 0 13px rgba(39,255,158,.22), inset 0 0 0 1px rgba(39,255,158,.12)}
+  .ctab:hover::before,.fbtn:hover::before{width:3px; opacity:1; box-shadow:0 0 8px var(--neon)}
+  .ctab.on,.fbtn.on{transform:translateY(-1px); text-shadow:none}
+  .ctab.on::before,.fbtn.on::before{background:#04140d; opacity:.55; width:3px; box-shadow:none}
 </style>
 </head>
 <body>
@@ -416,6 +425,7 @@
     <p class="sec-note">Didactic, example-filled references spanning every quant subject. Pick a topic to switch.</p>
     <label class="search" style="max-width:440px; margin-bottom:16px"><span class="ic">⌕</span><input id="cheatsearch" type="text" placeholder="search all cheatsheets…"></label>
     <div class="cheatnav" id="cheatnav">
+      <span class="ctab" data-t="__all">All</span>
       <span class="ctab" data-t="algorithms">Algorithms</span>
       <span class="ctab" data-t="brainteasers">Brainteasers</span>
       <span class="ctab" data-t="cpp">C++</span>
@@ -1470,17 +1480,17 @@
   <div class="ck-b">
     Total hands = C(52,5) = <b>2,598,960</b>. Each probability is count / 2,598,960; the counts sum to exactly that total.
     <table>
-      <tr><th>Hand</th><th>Count</th><th>How to count it</th><th>Prob</th></tr>
-      <tr><td>Royal flush</td><td>4</td><td>the one A-K-Q-J-10 run, one per suit: 4</td><td>0.000154%</td></tr>
-      <tr><td>Straight flush (excl. royal)</td><td>36</td><td>10 high-card runs × 4 suits = 40, minus 4 royals</td><td>0.00139%</td></tr>
-      <tr><td>Four of a kind</td><td>624</td><td>13 ranks × C(48,1) for the 5th card = 13·48</td><td>0.0240%</td></tr>
-      <tr><td>Full house</td><td>3,744</td><td>13·C(4,3) trips × 12·C(4,2) pair = 13·4·12·6</td><td>0.1441%</td></tr>
-      <tr><td>Flush (excl. str. flush)</td><td>5,108</td><td>4·C(13,5) single-suit hands = 5,148, minus 40 straight flushes</td><td>0.1965%</td></tr>
-      <tr><td>Straight (excl. str. flush)</td><td>10,200</td><td>10 runs × 4⁵ suit picks = 10,240, minus 40</td><td>0.3925%</td></tr>
-      <tr><td>Three of a kind</td><td>54,912</td><td>13·C(4,3) trips × C(12,2)·4² two off-ranks = 13·4·66·16</td><td>2.1128%</td></tr>
-      <tr><td>Two pair</td><td>123,552</td><td>C(13,2)·C(4,2)² pairs × 44 kicker = 78·36·44</td><td>4.7539%</td></tr>
-      <tr><td>One pair</td><td>1,098,240</td><td>13·C(4,2) pair × C(12,3)·4³ kickers = 13·6·220·64</td><td>42.257%</td></tr>
-      <tr><td>High card</td><td>1,302,540</td><td>everything else: 2,598,960 − all the above</td><td>50.118%</td></tr>
+      <tr><th>Hand</th><th>Count</th><th>Combos — C(n,k) form</th><th>How to count it</th><th>Prob</th></tr>
+      <tr><td>Royal flush</td><td>4</td><td><code>C(4,1)</code></td><td>the one A-K-Q-J-10 run, one per suit</td><td>0.000154%</td></tr>
+      <tr><td>Straight flush (excl. royal)</td><td>36</td><td><code>10·C(4,1) − 4</code></td><td>10 runs × 4 suits = 40, minus 4 royals</td><td>0.00139%</td></tr>
+      <tr><td>Four of a kind</td><td>624</td><td><code>C(13,1) C(4,4) C(48,1)</code></td><td>rank × all 4 suits × any 5th card</td><td>0.0240%</td></tr>
+      <tr><td>Full house</td><td>3,744</td><td><code>C(13,1) C(4,3) C(12,1) C(4,2)</code></td><td>trip rank+suits × different pair rank+suits</td><td>0.1441%</td></tr>
+      <tr><td>Flush (excl. str. flush)</td><td>5,108</td><td><code>C(4,1) C(13,5) − 40</code></td><td>suit × any 5 ranks, minus straight flushes</td><td>0.1965%</td></tr>
+      <tr><td>Straight (excl. str. flush)</td><td>10,200</td><td><code>10·C(4,1)⁵ − 40</code></td><td>10 runs × any suit per card, minus straight flushes</td><td>0.3925%</td></tr>
+      <tr><td>Three of a kind</td><td>54,912</td><td><code>C(13,1) C(4,3) C(12,2) C(4,1)²</code></td><td>trip × two distinct off-ranks, one suit each</td><td>2.1128%</td></tr>
+      <tr><td>Two pair</td><td>123,552</td><td><code>C(13,2) C(4,2)² C(11,1) C(4,1)</code></td><td>two pair ranks+suits × kicker rank+suit</td><td>4.7539%</td></tr>
+      <tr><td>One pair</td><td>1,098,240</td><td><code>C(13,1) C(4,2) C(12,3) C(4,1)³</code></td><td>pair rank+suits × three distinct kickers</td><td>42.257%</td></tr>
+      <tr><td>High card</td><td>1,302,540</td><td><code>[C(13,5)−10][C(4,1)⁵−4]</code></td><td>any 5 ranks (not a run) × any suits (not all one)</td><td>50.118%</td></tr>
     </table>
     <ul>
       <li><b>"x of a kind"</b> = choose the rank (13), choose which x of its 4 suits (C(4,x)), then fill the other 5−x cards with distinct off-ranks so the hand isn't accidentally upgraded.</li>
@@ -3932,6 +3942,54 @@ C=bs(S,K,r,sig,T,True); P=bs(S,K,r,sig,T,False)
 print("C - P       =", round(C-P,6))
 print("S - K*e^-rT =", round(S-K*math.exp(-r*T),6))
 print("parity holds:", abs((C-P)-(S-K*math.exp(-r*T))) < 1e-9)`},
+  {name:'Monte-Carlo π (≈3.1416)', code:`import random
+n=1000000; inside=0
+for _ in range(n):
+    x,y = random.random(), random.random()
+    if x*x + y*y <= 1.0: inside += 1      # quarter-circle / square = π/4
+print("pi ≈", round(4*inside/n,4), " | theory 3.1416")`},
+  {name:'Two dice: P(sum=7) (1/6)', code:`import random
+n=600000; c=0
+for _ in range(n):
+    if random.randint(1,6) + random.randint(1,6) == 7: c += 1
+print("P(sum = 7) ≈", round(c/n,4), " | theory 1/6 ≈ 0.1667")`},
+  {name:'Craps pass-line (≈49.3%)', code:`import random
+def roll(): return random.randint(1,6) + random.randint(1,6)
+def play():
+    c = roll()
+    if c in (7,11): return True            # natural — win
+    if c in (2,3,12): return False         # craps — lose
+    point = c                              # else: roll for the point
+    while True:
+        r = roll()
+        if r == point: return True
+        if r == 7:     return False        # seven-out
+def run(n=400000):
+    return sum(play() for _ in range(n)) / n
+print("P(pass-line win) ≈", round(run(),4), " | theory 0.4929")`},
+  {name:'Poker: P(one pair) (≈42.3%)', code:`import random
+from collections import Counter
+deck = [(r,s) for r in range(13) for s in range(4)]
+def is_one_pair(hand):
+    cnt = sorted(Counter(r for r,_ in hand).values(), reverse=True)
+    return cnt[0] == 2 and cnt[1] == 1     # exactly one pair, nothing better
+def run(n=300000):
+    return sum(is_one_pair(random.sample(deck,5)) for _ in range(n)) / n
+print("P(exactly one pair) ≈", round(run(),4), " | theory 0.4226")`},
+  {name:'Airplane 100 seats (½)', code:`import random
+def run(seats=100, trials=30000):
+    own = 0
+    for _ in range(trials):
+        free = set(range(seats))
+        free.discard(random.randrange(seats))   # passenger 0 sits at random
+        for p in range(1, seats):
+            if p in free:                         # own seat free — take it
+                free.discard(p)
+                if p == seats-1: own += 1         # last passenger got their seat
+            else:                                 # taken — sit randomly
+                free.discard(random.choice(tuple(free)))
+    return own/trials
+print("P(passenger 100 gets own seat) ≈", round(run(),4), " | theory 0.5")`},
 ];
 // left-panel problem statements, indexed parallel to PRESETS[]
 const PROB=[
@@ -3947,6 +4005,11 @@ const PROB=[
   `<p>An ant on a corner of a cube walks along edges to a <b>uniformly random neighbor</b> each step. Expected steps to reach the <b>opposite</b> corner?</p><div class="exp">Expected: <b>10 steps</b></div>`,
   `<p>Black–Scholes price of an <b>at-the-money</b> call (S=K=100, r=0, σ=20%, T=1) vs the trader's rule-of-thumb <b>0.4·S·σ·√T</b>. How close is the approximation?</p><div class="exp">Expected: <b>≈ 0.3% error</b> — the rule of thumb is excellent</div>`,
   `<p>Verify <b>put–call parity</b>, C − P = S − K·e^(−rT), holds exactly on Black–Scholes prices (S=100, K=110, r=3%, σ=25%, T=½).</p><div class="exp">Expected: <b>both sides equal</b> — it's an identity</div>`,
+  `<p>Estimate <b>π</b> by Monte Carlo: drop points in the unit square; the fraction inside the quarter-circle is π/4.</p><div class="exp">Expected: <b>≈ 3.1416</b></div>`,
+  `<p>Roll <b>two fair dice</b>. Probability the <b>sum is 7</b> — and why is 7 the single most likely total?</p><div class="exp">Expected: <b>6/36 = 1/6 ≈ 0.1667</b></div>`,
+  `<p>Craps <b>pass-line</b>: win on a come-out 7/11, lose on 2/3/12, else repeat your <b>point</b> before a 7. Probability of winning?</p><div class="exp">Expected: <b>244/495 ≈ 0.4929</b></div>`,
+  `<p>Deal a 5-card poker hand from 52. Probability of <b>exactly one pair</b> (and nothing better)?</p><div class="exp">Expected: <b>1,098,240 / 2,598,960 ≈ 0.4226</b></div>`,
+  `<p>100 passengers board; #1 sits at <b>random</b>, each other takes their own seat if free, else a random one. P(passenger 100 gets their own seat)?</p><div class="exp">Expected: <b>1/2</b></div>`,
 ];
 const codeEl=$('#pycode'), outEl=$('#pyout'), statusEl=$('#pystatus'), runBtn=$('#pyrun');
 const preEl=document.querySelector('.editor-wrap .hl'), hlEl=$('#hlcode');
@@ -4014,9 +4077,9 @@ const cheatnav=document.getElementById('cheatnav');
 if(cheatnav){
   cheatnav.addEventListener('click',e=>{
     const t=e.target.closest('.ctab'); if(!t)return;
-    const k=t.dataset.t;
+    const k=t.dataset.t, showAll=(k==='__all');
     cheatnav.querySelectorAll('.ctab').forEach(x=>x.classList.toggle('on',x===t));
-    document.querySelectorAll('.cheat-wrap .cheat').forEach(p=>p.classList.toggle('on',p.dataset.topic===k));
+    document.querySelectorAll('.cheat-wrap .cheat').forEach(p=>p.classList.toggle('on',showAll||p.dataset.topic===k));
   });
 }
 
