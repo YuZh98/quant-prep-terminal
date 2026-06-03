@@ -49,6 +49,10 @@ It's *your* terminal, so the **Workshop** lets you:
 
 Want to reskin it or gut it entirely? It's one readable HTML file. **Fork it, edit `index.html`, go nuts.**
 
+### Prefer a clean slate?
+
+If you'd rather build your *own* deck from scratch — no pre-loaded cheatsheets or flashcards getting in your way — open [**`blank.html`**](https://yuzh98.github.io/quant-prep-terminal/blank.html) ([live](https://yuzh98.github.io/quant-prep-terminal/blank.html)). Same terminal, same Lab, zero seed content. Everything you add in the Workshop is yours alone. It's generated from `index.html` by `build-blank.py`, so it never drifts from the real thing.
+
 ## Run it
 
 Nothing to install — open `index.html` in any modern browser. The fonts and the Python runtime load from a CDN, so those bits want an internet connection; everything else works on a plane, in a bunker, or during the campus wifi outage right before your mock interview.
