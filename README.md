@@ -30,7 +30,7 @@ Eighteen subjects across five groups — math (calculus, linear algebra, geometr
 Five tools in one tabbed workbench:
 
 - **Payoff explorer** — build an option position leg by leg, Black–Scholes-priced, with a live breakeven, max profit/loss, and a P&L crosshair that chases your cursor.
-- **Distribution explorer** — pick from seven distributions (normal, lognormal, exponential, uniform, Poisson, binomial, Student-t), drag the parameters, and watch the density and its moments move.
+- **Distribution explorer** — pick from nine distributions (normal, lognormal, exponential, uniform, Poisson, binomial, Student-t, gamma, beta), drag the parameters, watch the density/PMF and analytic moments move, then throw Monte-Carlo samples at it and watch the histogram converge.
 - **Market maker** — a dice market-making game: quote a bid/ask, get picked off by informed flow or paid by noise, and learn the hard way why tight isn't always smart.
 - **Regression simulator** — set a true line, crank the noise, and watch OLS try to find it. R², residuals, the works.
 - **Python sandbox** — run a *real* simulation in the browser. When the interviewer raises an eyebrow and says "you sure E[flips to get HH] is 6?", you can say "ran it 200,000 times, yeah." That's not arrogance. That's a confidence interval.
