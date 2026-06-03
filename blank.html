@@ -454,7 +454,7 @@
       <div class="pay-controls">
         <div class="pay-side-h">▸ control center</div>
         <div class="pay-ctrl" id="payctrl"></div>
-        <div class="pay-mode" id="paymode"><span class="seg on" data-v="net">net P&amp;L (incl. premium)</span><span class="seg" data-v="gross">payoff only</span></div>
+        <div class="pay-mode"><span class="seg on" id="paymode">premium: included</span></div>
         <div class="pay-sliders">
           <label>Spot S₀ <input type="range" id="sl-s0" min="50" max="150" step="1" value="100"><span id="v-s0">100</span></label>
           <label>Vol σ <input type="range" id="sl-sig" min="5" max="80" step="1" value="20"><span id="v-sig">20%</span></label>
@@ -778,9 +778,10 @@ function drawPayoff(){
     `<span class="ro">max profit <b>${maxP}</b></span>`+
     `<span class="ro neg">max loss <b>${maxL}</b></span>`+
     `<span class="ro">breakeven <b>${bes.length?bes.map(x=>'$'+x.toFixed(1)).join(' , '):'\u2014'}</b></span>`;
-  $('#paydesc').innerHTML = PX.netPrem
-    ? 'Curve = <b>net P&amp;L at expiry</b> = option payoff − premium. The <b>premium</b> is the up-front cost of each leg, priced by Black\u2013Scholes from the σ / T / S\u2080 sliders — so the curve shifts <b>down</b> for what you buy and <b>up</b> for what you sell. Dashed magenta = strikes, dotted amber = entry spot, cyan dashed = breakeven.'
-    : 'Curve = <b>gross payoff at expiry</b> (intrinsic value only) — what the position is worth at expiry, <b>ignoring the premium</b> paid or received. The classic textbook payoff diagram. Toggle to <b>net P&amp;L</b> to fold in the Black\u2013Scholes cost. Dashed magenta = strikes, dotted amber = entry spot.';
+  $('#paydesc').innerHTML = (PX.netPrem
+    ? '<b>Curve</b> = net P&amp;L at expiry = option payoff − premium.<br><b>Premium</b> = the up-front Black\u2013Scholes cost of each leg (from the σ / T / S\u2080 sliders) — options you <b>buy</b> shift the curve down, options you <b>sell</b> shift it up.'
+    : '<b>Curve</b> = gross payoff at expiry (intrinsic value only) — <b>premium ignored</b>.<br>The classic textbook payoff diagram; toggle premium back on to fold in the Black\u2013Scholes cost.')
+    + '<br><span style="color:#ff2d95">magenta dashed</span> = strikes &nbsp;·&nbsp; <span style="color:#ffcb47">amber dotted</span> = entry spot &nbsp;·&nbsp; <span style="color:#19e6ff">cyan dashed</span> = breakeven.';
 }
 function setupResizers(){
   document.querySelectorAll('.lab-resizer').forEach(rz=>{
@@ -823,7 +824,7 @@ function initPayoff(){
   $('#sl-t').oninput=e=>{PX.T=+e.target.value/100;$('#v-t').textContent=(+e.target.value/100).toFixed(2)+'y';drawPayoff();};
   $('#payadd').onclick=()=>{PX.legs.push({t:'call',d:1,K:Math.round(PX.S0),q:1});renderLegs();drawPayoff();};
   $('#paypin').onclick=()=>{const a=$('#payctrl .pbtn.on'); pinSnapshot({type:'pay', title:'Payoff · '+(a?a.dataset.k:'custom')+' (σ'+Math.round(PX.sig*100)+'% · T'+PX.T.toFixed(2)+'y · S₀'+PX.S0+')', svg:$('#payoff').outerHTML.replace('id="payoff"',''), readout:$('#payreadout').innerHTML});};
-  $('#paymode').querySelectorAll('.seg').forEach(s=>s.onclick=()=>{$('#paymode').querySelectorAll('.seg').forEach(x=>x.classList.remove('on'));s.classList.add('on');PX.netPrem=(s.dataset.v==='net');drawPayoff();});
+  $('#paymode').onclick=()=>{PX.netPrem=!PX.netPrem; $('#paymode').classList.toggle('on',PX.netPrem); $('#paymode').textContent=PX.netPrem?'premium: included':'premium: ignored'; drawPayoff();};
   renderLegs(); drawPayoff(); setupResizers(); setupCrosshair();
 }
 
@@ -1097,21 +1098,23 @@ function drawReg(){
   let g='';
   g+=`<line x1="${padL}" y1="${baseY}" x2="${W-padR}" y2="${baseY}" stroke="#19e6ff" stroke-opacity=".4"/>`;
   g+=`<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${baseY}" stroke="#19e6ff" stroke-opacity=".4"/>`;
-  if(REG.showTrue) g+=`<line x1="${sx(xmin).toFixed(1)}" y1="${sy(REG.a+REG.b*xmin).toFixed(1)}" x2="${sx(xmax).toFixed(1)}" y2="${sy(REG.a+REG.b*xmax).toFixed(1)}" stroke="#ffcb47" stroke-width="1.6" stroke-opacity=".85" stroke-dasharray="6 5"/>`;
-  xs.forEach((x,i)=>{g+=`<circle cx="${sx(x).toFixed(1)}" cy="${sy(ys[i]).toFixed(1)}" r="3" fill="#27ff9e" fill-opacity=".5" stroke="#27ff9e" stroke-opacity=".85"/>`;});
+  if(REG.showTrue) g+=`<line x1="${sx(xmin).toFixed(1)}" y1="${sy(REG.a+REG.b*xmin).toFixed(1)}" x2="${sx(xmax).toFixed(1)}" y2="${sy(REG.a+REG.b*xmax).toFixed(1)}" stroke="#27ff9e" stroke-width="1.8" stroke-opacity=".9" stroke-dasharray="7 5"/>`;
+  xs.forEach((x,i)=>{g+=`<circle cx="${sx(x).toFixed(1)}" cy="${sy(ys[i]).toFixed(1)}" r="3" fill="#ff2d95" fill-opacity=".45" stroke="#ff2d95" stroke-opacity=".8"/>`;});
   g+=`<line x1="${sx(xmin).toFixed(1)}" y1="${sy(f.a+f.b*xmin).toFixed(1)}" x2="${sx(xmax).toFixed(1)}" y2="${sy(f.a+f.b*xmax).toFixed(1)}" stroke="#ff2d95" stroke-width="2.4" style="filter:drop-shadow(0 0 5px rgba(255,45,149,.5))"/>`;
   g+=`<text x="${W-padR}" y="${baseY+16}" fill="#5fa985" font-family="Share Tech Mono" font-size="10" text-anchor="end">x →</text>`;
   g+=`<text x="${padL-6}" y="${padT+9}" fill="#5fa985" font-family="Share Tech Mono" font-size="10" text-anchor="end">y</text>`;
   document.getElementById('regplot').outerHTML='<svg id="regplot" viewBox="0 0 720 340" preserveAspectRatio="xMidYMid meet" role="img" aria-label="regression scatter and fit">'+g+'</svg>';
   regView={xmin,xmax,padL,padR,a:f.a,b:f.b};
   $('#regstats').innerHTML=
-    `<span class="ro">slope β̂ <b>${fmtN(f.b)}</b></span>`+
-    `<span class="ro">intercept α̂ <b>${fmtN(f.a)}</b></span>`+
-    `<span class="ro">R² <b>${f.r2.toFixed(3)}</b></span>`+
-    `<span class="ro">corr r <b>${fmtN(f.r)}</b></span>`+
-    `<span class="ro">resid SE <b>${fmtN(f.rse)}</b></span>`;
+    `<span class="ro samp">slope β̂ <b>${fmtN(f.b)}</b></span>`+
+    `<span class="ro samp">intercept α̂ <b>${fmtN(f.a)}</b></span>`+
+    `<span class="ro samp">R² <b>${f.r2.toFixed(3)}</b></span>`+
+    `<span class="ro samp">corr r <b>${fmtN(f.r)}</b></span>`+
+    `<span class="ro samp">resid SE <b>${fmtN(f.rse)}</b></span>`;
   const strength=f.r2>=0.9?'very strong':f.r2>=0.7?'strong':f.r2>=0.4?'moderate':f.r2>=0.15?'weak':'negligible';
-  $('#regeq').innerHTML=`Fit: <b>ŷ = ${f.a.toFixed(2)} ${f.b>=0?'+':'−'} ${Math.abs(f.b).toFixed(2)}·x</b> · R² ${f.r2.toFixed(3)} (${strength} linear relationship). True line y = ${REG.a.toFixed(2)} ${REG.b>=0?'+':'−'} ${Math.abs(REG.b).toFixed(2)}·x. <b>Magenta</b> = OLS fit, <b>amber dashed</b> = truth. Raise σ (or shrink n) and β̂ drifts off the true slope — that <b>sampling variability</b> is exactly why a fitted backtest/factor relationship may not hold out of sample. More data tightens β̂; R² is the variance explained, not whether the fit is right.`;
+  $('#regeq').innerHTML=`<b>Fit:</b> ŷ = ${f.a.toFixed(2)} ${f.b>=0?'+':'−'} ${Math.abs(f.b).toFixed(2)}·x &nbsp;·&nbsp; R² ${f.r2.toFixed(3)} (${strength} linear relationship) &nbsp;·&nbsp; true line y = ${REG.a.toFixed(2)} ${REG.b>=0?'+':'−'} ${Math.abs(REG.b).toFixed(2)}·x.`
+    + `<br><span style="color:#ff2d95">magenta dots</span> = your noisy sample &nbsp;·&nbsp; <span style="color:#ff2d95">magenta line</span> = OLS fit &nbsp;·&nbsp; <span style="color:#27ff9e">green dashed</span> = the true line.`
+    + `<br>Raise σ or shrink n → β̂ drifts off the truth (<b>sampling variability</b>) — why a fitted backtest/factor loading may not hold out of sample. R² = variance explained, not whether the fit is right.`;
 }
 function buildRegSliders(){
   const w=$('#regsliders'); w.innerHTML='';
