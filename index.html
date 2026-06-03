@@ -50,6 +50,7 @@
   nav .brand b{color:var(--cyan)}
   nav a{font-family:'Share Tech Mono',monospace; font-size:12.5px; color:var(--text-dim); text-decoration:none; padding:5px 10px; border:1px solid transparent; border-radius:8px; transition:.18s;}
   nav a:hover{color:var(--bg); background:var(--neon); box-shadow:var(--shadow-neon)}
+  nav a.on{color:var(--bg); background:var(--neon); box-shadow:var(--shadow-neon)}
 
   header{padding:70px 0 30px; position:relative}
   .kicker{font-family:'Share Tech Mono',monospace; color:var(--neon-2); letter-spacing:4px; font-size:13px; text-transform:uppercase; opacity:0; animation:fade .6s .1s forwards}
@@ -477,6 +478,19 @@
   <div class="ck-h">Symmetry, conditioning & classic interview tactics</div>
   <div class="ck-b">
     <ul><li>Symmetry: if outcomes are exchangeable, <code>P(A before B)=½</code>; the k-th of n shuffled items is uniform over positions.</li><li>States & recursion: define E from each state, condition on the first step, solve the linear system.</li><li>Poisson-process / memoryless framing: 'who arrives first' among independent exponentials is proportional to rates.</li><li><span class="k">Before computing, ask: can symmetry, linearity, or a one-step recursion collapse this?</span></li><li>Reflection/complement: count the easy complement when the event itself is messy.</li></ul><div class="eg"><b>Example.</b> Shuffle a deck; P(ace of spades above king of hearts)? By symmetry between two distinguished cards, <code>=½</code> — no counting.</div>
+  </div>
+</div>
+    <div class="ck">
+  <div class="ck-h">Covariance, Correlation, Conditioning</div>
+  <div class="ck-b">
+    <code>Cov(X,Y)=E[XY]−E[X]E[Y]</code>; <code>ρ = Cov/(σ_X σ_Y) ∈ [−1,1]</code>.
+    <ul>
+      <li><code>Var(aX+bY) = a²Var(X)+b²Var(Y)+2ab·Cov(X,Y)</code>.</li>
+      <li>Law of total variance: <code>Var(X)=E[Var(X|Y)]+Var(E[X|Y])</code>.</li>
+      <li>Tower: <code>E[X]=E[E[X|Y]]</code>.</li>
+      <li>Bivariate normal: <code>E[Y|X=x]=μ_Y+ρ(σ_Y/σ_X)(x−μ_X)</code>.</li>
+    </ul>
+    <div class="eg"><b>Example.</b> Two assets σ=20% each, ρ=0.5, equal weights. Portfolio var = 0.25·0.04+0.25·0.04+2·0.25·(0.5·0.04) = 0.02+0.01 = 0.03, so σ_p ≈ 17.3% — diversification benefit vs 20%.</div>
   </div>
 </div>
     </div>
@@ -1058,13 +1072,15 @@
   <div class="ck-b">
     Every matrix factors as <code>A = UΣVᵀ</code>: <code>U, V</code> orthogonal, <code>Σ</code> diagonal of singular values <code>σ₁ ≥ σ₂ ≥ … ≥ 0</code>.
     <ul>
-      <li>Singular values = <code>√</code> of eigenvalues of <code>AᵀA</code>; <code>rank = #nonzero σ</code>.</li>
-      <li><span class="k">Best rank-k approximation: keep the top k singular triples (Eckart–Young).</span> Basis for PCA and compression.</li>
+      <li>Singular values = <code>√</code> eigenvalues of <code>AᵀA</code>; <code>rank = #nonzero σ</code>. Basis for PCA and compression.</li>
+      <li><span class="k">Eckart–Young: the best rank-k approximation is the top-k truncation <code>A_k = Σᵢ₌₁ᵏ σᵢuᵢvᵢᵀ</code></span> — optimal in both spectral and Frobenius norm.</li>
+      <li>Error <code>‖A−A_k‖₂ = σ_{k+1}</code>, <code>‖A−A_k‖_F = √(Σ_{i>k} σᵢ²)</code>. Energy captured = <code>Σᵢ₌₁ᵏσᵢ² / Σσᵢ²</code> (scree / variance-explained).</li>
+      <li>Storage drops from <code>mn</code> to <code>k(m+n+1)</code> — the win when σ decays fast.</li>
     </ul>
-    <div class="eg"><b>Example.</b> A 1000×1000 image with <code>σ</code> decaying fast: keeping the top 50 triples stores ~50·(1000+1000) ≈ 100K numbers vs 1M — a 10× compression with little visible loss.</div>
+    <div class="eg"><b>Example.</b> A 1000×1000 image with fast-decaying σ: top-50 triples store ≈ 50·2000 = 100K vs 1M numbers (~10× compression). A rank-1 signal in tiny noise has σ₁≫σ₂; truncating to k=1 denoises, residual = σ₂.</div>
   </div>
 </div>
-<div class="ck">
+    <div class="ck">
   <div class="ck-h">Solving Ax = b (and why not invert)</div>
   <div class="ck-b">
     Solve directly via factorization — never form <code>A⁻¹</code> (slower, less stable, destroys sparsity).
@@ -1109,15 +1125,7 @@
     <ul><li><code>κ(A)=σ_max/σ_min</code> (2-norm); for symmetric, <code>=|λ|_max/|λ|_min</code>.</li><li>Measures sensitivity: relative error in <code>x</code> solving <code>Ax=b</code> can be up to <code>κ(A)</code> × relative error in <code>b</code> or A.</li><li>Rule of thumb: lose about <code>log₁₀κ</code> digits of accuracy; <code>κ≈10¹⁶</code> in double precision means the answer is garbage.</li><li>Normal equations square it: <code>κ(AᵀA)=κ(A)²</code> — why QR/SVD beats forming <code>AᵀA</code> for least squares.</li><li><span class="k">High κ = nearly singular = collinear features; fix with regularization or drop/orthogonalize columns.</span></li></ul><div class="eg"><b>Example.</b> Ridge adds <code>λI</code>: solving <code>(AᵀA+λI)x</code> shifts every eigenvalue up by λ, capping κ at <code>(σ_max²+λ)/(σ_min²+λ)</code> — strictly better-conditioned.</div>
   </div>
 </div>
-<div class="ck">
-  <div class="ck-h">Low-Rank Approximation & Eckart–Young</div>
-  <div class="ck-b">
-    <ul><li>Truncated SVD: keep top k singular triplets, <code>A_k=Σᵢ₌₁ᵏ σᵢuᵢvᵢᵀ</code>.</li><li><span class="k">Eckart–Young: A_k is the BEST rank-k approximation in both spectral and Frobenius norm.</span></li><li>Error: <code>‖A−A_k‖₂=σ_{k+1}</code>; <code>‖A−A_k‖_F=√(Σ_{i>k}σᵢ²)</code>.</li><li>Energy captured by k components = <code>Σᵢ₌₁ᵏσᵢ² / Σσᵢ²</code> — the scree/variance-explained ratio.</li><li>Storage drops from <code>mn</code> to <code>k(m+n+1)</code>: the win when σ decay is fast.</li></ul><div class="eg"><b>Example.</b> A rank-1 signal buried in tiny noise has σ₁≫σ₂; truncating to k=1 denoises optimally and the residual norm is exactly σ₂.</div>
-  </div>
-</div>
-    </div>
-
-    <div class="cheat" data-topic="geometry">
+<div class="cheat" data-topic="geometry">
 <div class="ck">
   <div class="ck-h">Distance, Dot/Cross Product & Angle</div>
   <div class="ck-b">
@@ -1205,17 +1213,6 @@
   </div>
 </div>
 <div class="ck">
-  <div class="ck-h">Classic Quant Geometry/Probability Puzzles</div>
-  <div class="ck-b">
-    <ul>
-      <li><b>Broken stick.</b> Break a unit stick at two uniform random points; probability the three pieces form a triangle? Each piece must be <code>&lt; ½</code>. <span class="k">Answer: <code>1/4</code>.</span></li>
-      <li><b>Two random points on a unit segment.</b> Expected distance between them = <code>1/3</code>.</li>
-      <li><b>Bertrand-style / chord:</b> always pin down the sampling rule first — "random" is ambiguous in geometry.</li>
-    </ul>
-    <div class="eg"><b>Example (broken stick).</b> Pieces are <code>x</code>, <code>y−x</code>, <code>1−y</code>. Triangle inequalities reduce to "no piece exceeds ½." Plotting the valid region in the unit square gives area <code>1/4</code>.</div>
-  </div>
-</div>
-<div class="ck">
   <div class="ck-h">Pythagoras, Triples & 3D Diagonals</div>
   <div class="ck-b">
     Right triangle: <code>a² + b² = c²</code>. Memorize triples <code>(3,4,5), (5,12,13), (8,15,17)</code> and scalings.
@@ -1236,10 +1233,17 @@
 <div class="ck">
   <div class="ck-h">Geometric Probability: the Sample-Space Method</div>
   <div class="ck-b">
-    <ul><li><span class="k">Turn "random" into a uniform point in a region; the probability is a ratio of measures (length/area/volume).</span></li><li>Pick the right coordinates: independent uniform picks → a square/cube; an angle → arc length on a circle; a stick break → a simplex.</li><li>Shade the event region, integrate or use geometry, divide by total measure. <code>P = measure(event)/measure(space)</code>.</li><li>Symmetry first: many answers (broken-stick triangle ¼, two-points-same-half) fall out of symmetry without integration.</li><li>Watch the conditioning: "given X, find P(Y)" restricts the sample space to the X-slice — recompute the denominator.</li></ul><div class="eg"><b>Example.</b> x,y ~ U(0,1) independent. P(|x−y|<½)? In the unit square, remove two corner triangles each of leg ½ and area ⅛. <code>P = 1 − 2·⅛ = ¾</code>.</div>
+    <ul>
+      <li><span class="k">Turn "random" into a uniform point in a region; the probability is a ratio of measures (length/area/volume).</span></li>
+      <li>Pick coordinates: independent uniform picks → a square/cube; an angle → arc length on a circle; a stick break → a simplex.</li>
+      <li>Shade the event region, integrate or use geometry, divide by total measure: <code>P = measure(event)/measure(space)</code>.</li>
+      <li>Symmetry first — many answers fall out without integrating. Conditioning restricts the sample space, so recompute the denominator.</li>
+      <li><b>Classics:</b> broken-stick triangle <code>1/4</code> (each of x, y−x, 1−y must be &lt; ½); expected distance between two uniform points on [0,1] = <code>1/3</code>; Bertrand chord — pin down the sampling rule first, "random" is ambiguous.</li>
+    </ul>
+    <div class="eg"><b>Example.</b> x,y ~ U(0,1): P(|x−y| &lt; ½)? The two excluded corner triangles (x−y>½, y−x>½) each have area ½·(½)² = 1/8, so P = 1 − 2·(1/8) = 3/4.</div>
   </div>
 </div>
-<div class="ck">
+    <div class="ck">
   <div class="ck-h">Vector Projections & Point-to-Line/Plane Distance</div>
   <div class="ck-b">
     <ul><li><span class="k">Projection of a onto b: <code>(a·b/‖b‖²)·b</code>; its length is <code>|a·b|/‖b‖</code>.</span></li><li>Point P to line through A with direction d (any dim): <code>dist = ‖(P−A) − proj_d(P−A)‖</code>. In 2D/3D: <code>‖(P−A)×d‖/‖d‖</code>.</li><li>Point P to plane <code>n·x=c</code>: <code>dist = |n·P − c|/‖n‖</code> (signed if you drop the abs — sign tells which side).</li><li>Closest point on the line/plane = P minus the perpendicular component; reflect P by subtracting twice that component.</li><li>Distance between two skew lines: <code>|(A₂−A₁)·(d₁×d₂)|/‖d₁×d₂‖</code>.</li></ul><div class="eg"><b>Example.</b> Distance from P=(1,2,3) to plane <code>2x−y+2z=3</code>: <code>|2−2+6−3|/√(4+1+4) = 3/3 = 1</code>.</div>
@@ -1351,20 +1355,6 @@
   </div>
 </div>
 <div class="ck">
-  <div class="ck-h">Covariance, Correlation, Conditioning</div>
-  <div class="ck-b">
-    <code>Cov(X,Y)=E[XY]−E[X]E[Y]</code>; <code>ρ = Cov/(σ_X σ_Y) ∈ [−1,1]</code>.
-    <ul>
-      <li><code>Var(aX+bY) = a²Var(X)+b²Var(Y)+2ab·Cov(X,Y)</code>.</li>
-      <li>Law of total variance: <code>Var(X)=E[Var(X|Y)]+Var(E[X|Y])</code>.</li>
-      <li>Tower: <code>E[X]=E[E[X|Y]]</code>.</li>
-      <li>Bivariate normal: <code>E[Y|X=x]=μ_Y+ρ(σ_Y/σ_X)(x−μ_X)</code>.</li>
-    </ul>
-    <div class="eg"><b>Example.</b> Two assets σ=20% each, ρ=0.5, equal weights. Portfolio var = 0.25·0.04+0.25·0.04+2·0.25·(0.5·0.04) = 0.02+0.01 = 0.03, so σ_p ≈ 17.3% — diversification benefit vs 20%.</div>
-  </div>
-</div>
-    
-<div class="ck">
   <div class="ck-h">Sums of Independent Random Variables — Additivity & Convolution</div>
   <div class="ck-b">
     <ul><li>Independent sums: MGFs multiply, so means and variances always add: <code>E[ΣXᵢ]=ΣE[Xᵢ]</code>, <code>Var(ΣXᵢ)=ΣVar(Xᵢ)</code> (independence needed only for variance).</li><li><span class="k">Many families are closed under addition with FIXED parameters; memorize which.</span></li><li>Beware: ratios/products are NOT additive, and the sum of two iid uniforms is triangular, not uniform.</li></ul><table><tr><th>Sum of independent</th><th>Result</th></tr><tr><td>Normal(μᵢ,σᵢ²)</td><td><code>Normal(Σμᵢ, Σσᵢ²)</code></td></tr><tr><td>Poisson(λᵢ)</td><td><code>Poisson(Σλᵢ)</code></td></tr><tr><td>n × Bernoulli(p)</td><td><code>Binomial(n,p)</code></td></tr><tr><td>Binomial(nᵢ,p) (same p)</td><td><code>Binomial(Σnᵢ, p)</code></td></tr><tr><td>n × Exp(λ)</td><td><code>Gamma(n, 1/λ)</code> = Erlang</td></tr><tr><td>Gamma(kᵢ,θ) (same θ)</td><td><code>Gamma(Σkᵢ, θ)</code></td></tr><tr><td>χ²(kᵢ)</td><td><code>χ²(Σkᵢ)</code></td></tr></table><div class="eg"><b>Example.</b> X−Y for independent <code>N(μ₁,σ₁²), N(μ₂,σ₂²)</code>: write as X+(−Y); means subtract but VARIANCES STILL ADD → <code>N(μ₁−μ₂, σ₁²+σ₂²)</code>. Classic sign-trap.</div>
@@ -1439,15 +1429,16 @@
 <div class="ck">
   <div class="ck-h">Catalan Numbers</div>
   <div class="ck-b">
-    <code>Cₙ = C(2n,n)/(n+1) = C(2n,n) − C(2n,n+1)</code>, recursion <code>Cₙ₊₁ = Σ Cᵢ Cₙ₋ᵢ</code>.
+    <code>Cₙ = C(2n,n)/(n+1) = C(2n,n) − C(2n,n+1)</code>; sequence <code>1,1,2,5,14,42,132,…</code>; recurrence <code>Cₙ₊₁ = Σ Cᵢ Cₙ₋ᵢ</code>.
     <ul>
-      <li>Sequence: 1, 1, 2, 5, 14, 42, 132, …</li>
-      <li>Counts: balanced parenthesizations of n pairs; paths staying ≥ diagonal (ballot/Dyck paths); binary search trees on n nodes; triangulations of an (n+2)-gon.</li>
+      <li><b>Counts:</b> balanced parenthesizations of n pairs; lattice/Dyck paths (0,0)→(n,n) staying weakly below the diagonal; binary trees with n nodes; triangulations of an (n+2)-gon; non-crossing matchings of 2n points.</li>
+      <li><b>Trigger:</b> counting objects with a <b>never-go-negative / never-cross</b> constraint built from n up-steps and n down-steps.</li>
+      <li><span class="k">Derive by reflection (André): total paths C(2n,n) minus bad paths (touch above the diagonal), which biject to C(2n,n+1).</span></li>
     </ul>
-    <div class="eg"><b>Example.</b> Ways to fully parenthesize a product of 4 factors = C₃ = 5. Lattice paths from (0,0) to (3,3) never crossing above the diagonal = C₃ = 5.</div>
+    <div class="eg"><b>Example.</b> Parenthesizing a product of 4 factors = C₃ = 5; lattice paths (0,0)→(3,3) never crossing above the diagonal = C₃ = 5.</div>
   </div>
 </div>
-<div class="ck">
+    <div class="ck">
   <div class="ck-h">Indicators and Linearity of Expectation</div>
   <div class="ck-b">
     <code>E[ΣXᵢ] = ΣE[Xᵢ]</code> always — even when Xᵢ are dependent. Write counts as sums of 0/1 indicators.
@@ -1487,15 +1478,7 @@
     <ul><li>Seating n distinct people around a round table: fix one person to kill rotational symmetry, giving <code>(n−1)!</code>.</li><li>If reflections also count as the same (a bracelet): divide by 2 more, <code>(n−1)!/2</code> for n≥3.</li><li>The principle: when k arrangements are all equivalent under a symmetry, divide the linear count by k — valid only when every orbit has the SAME size.</li><li><span class="k">Divide-by-symmetry only works cleanly when no arrangement is fixed by the symmetry; when some are (e.g. symmetric necklaces), use Burnside instead.</span></li><li>Burnside (orbit-counting): distinct configs = average number of arrangements fixed by each symmetry, <code>(1/|G|)·Σ|Fix(g)|</code>.</li></ul><div class="eg"><b>Example.</b> 5 people at a round table: <code>(5−1)!=24</code>. As a flippable bracelet of 5 distinct beads: <code>4!/2=12</code>.</div>
   </div>
 </div>
-<div class="ck">
-  <div class="ck-h">Recognizing and Using Catalan Numbers</div>
-  <div class="ck-b">
-    <ul><li><code>Cₙ = C(2n,n)/(n+1) = C(2n,n)−C(2n,n+1)</code>; sequence <code>1,1,2,5,14,42,132…</code>; recurrence <code>Cₙ₊₁=ΣCᵢCₙ₋ᵢ</code>.</li><li>Counts: balanced parenthesis strings of n pairs; lattice paths from (0,0) to (n,n) staying weakly below the diagonal; binary trees with n nodes; triangulations of an (n+2)-gon; ways to non-crossing-match 2n points.</li><li>Trigger phrase: a count of objects with a <b>never-go-negative / never-cross</b> constraint built from n up-steps and n down-steps.</li><li><span class="k">Derive via the reflection (André) trick: total paths C(2n,n) minus bad paths that touch above-diagonal, which biject to C(2n,n+1).</span></li></ul><div class="eg"><b>Example.</b> Votes counted one by one, A and B each get n votes; ways A is never behind = <code>Cₙ</code>. For n=3: <code>C₃=5</code>.</div>
-  </div>
-</div>
-    </div>
-
-    <div class="cheat" data-topic="stochastic">
+<div class="cheat" data-topic="stochastic">
 <div class="ck">
   <div class="ck-h">Markov Chains — Transition Matrix and Stationarity</div>
   <div class="ck-b">
@@ -1593,19 +1576,6 @@
   </div>
 </div>
 <div class="ck">
-  <div class="ck-h">First-Passage and the Reflection Principle</div>
-  <div class="ck-b">
-    For standard BM, the reflection principle gives the running maximum law:
-    <span class="k"><code>P(max_{s≤t} Wₛ ≥ a) = 2·P(Wₜ ≥ a)</code></span> for a &gt; 0.
-    <ul>
-      <li>First-passage time T_a to level a &gt; 0 has density <code>(a/√(2πt³)) e^(−a²/2t)</code>.</li>
-      <li>E[T_a] = ∞ (heavy-tailed); BM hits any level a.s. but in infinite expected time.</li>
-    </ul>
-    <div class="eg"><b>Example.</b> P(BM exceeds level 1 sometime in [0,1]) = 2·P(W₁ ≥ 1) = 2·(1 − Φ(1)) = 2·0.1587 ≈ 0.317.</div>
-  </div>
-</div>
-    
-<div class="ck">
   <div class="ck-h">Itô Integral and SDE Toolkit</div>
   <div class="ck-b">
     <ul><li><code>∫₀ᵗ f dW</code> is defined for adapted, square-integrable <code>f</code>; it is a martingale with <code>E[∫f dW]=0</code>.</li><li>Itô isometry: <code>E[(∫₀ᵗ f dW)²]=E[∫₀ᵗ f² ds]</code> — converts a stochastic integral's variance into an ordinary time integral.</li><li>Multiplication rules: <code>dW·dW=dt</code>, <code>dt·dW=0</code>, <code>dt·dt=0</code>. This is why second-order terms survive in Itô's lemma.</li><li>An Itô process <code>dX=μ(X,t)dt+σ(X,t)dW</code> with zero drift <code>μ≡0</code> is a local martingale — a true martingale when <code>σ</code> is square-integrable (<code>E[∫σ²ds]&lt;∞</code>).</li><li><span class="k">Drift = predictable trend; diffusion = the only term carrying randomness. Kill the drift to get a martingale.</span></li><li>Integration by parts (no cross term unless both are Itô): <code>d(XY)=X dY+Y dX+dX·dY</code>.</li></ul><div class="eg"><b>Example.</b> For <code>Xₜ=∫₀ᵗ W_s dW_s</code>, apply Itô to <code>Wₜ²</code>: <code>d(Wₜ²)=2Wₜ dWₜ+dt</code>, so <code>∫₀ᵗ W dW=½(Wₜ²−t)</code>. The <code>−t/2</code> is the Itô correction a Riemann integral would miss.</div>
@@ -1620,11 +1590,16 @@
 <div class="ck">
   <div class="ck-h">First-Passage Times for Brownian Motion</div>
   <div class="ck-b">
-    <ul><li>Hitting time of level <code>a>0</code> for standard BM: <code>τ_a=inf{t:Wₜ=a}</code>. From the reflection principle, <code>P(τ_a≤t)=2P(Wₜ≥a)=2Φ(−a/√t)</code>.</li><li>Lévy density (stable-½): <code>f_{τ_a}(t)=(a/√(2π t³))exp(−a²/2t)</code>. Heavy-tailed — <code>E[τ_a]=∞</code> for driftless BM.</li><li><code>τ_a</code> is a.s. finite (BM is recurrent in 1D) but has infinite mean: it hits, but you can't bound when.</li><li>With drift <code>Xₜ=μt+σWₜ</code>, hitting <code>a>0</code> is certain only if <code>μ≥0</code>; if <code>μ<0</code>, <code>P(ever hit a)=exp(2μa/σ²)<1</code>.</li><li>Two-sided exit (levels <code>−b,a</code>), no drift: <code>P(hit a first)=b/(a+b)</code>; expected exit time <code>E[τ]=ab/σ²</code> — the continuous gambler's ruin.</li><li><span class="k">One-sided driftless first passage is sure but infinite-mean; drift against the barrier makes hitting itself uncertain.</span></li></ul><div class="eg"><b>Example.</b> A spread follows driftless BM, <code>σ=1</code>, starting at 0 between <code>−2</code> and <code>+3</code>. P(hits +3 before −2)=2/5; expected time to exit the band =<code>2·3=6</code>.</div>
+    <ul>
+      <li><span class="k">Reflection principle (running max): <code>P(max_{s≤t} Wₛ ≥ a) = 2·P(Wₜ ≥ a) = 2Φ(−a/√t)</code></span> for <code>a&gt;0</code>.</li>
+      <li>Hitting time <code>τ_a = inf{t : Wₜ = a}</code> has the Lévy (stable-½) density <code>(a/√(2πt³)) e^(−a²/2t)</code>; heavy-tailed, so <code>E[τ_a] = ∞</code> for driftless BM.</li>
+      <li><code>τ_a</code> is a.s. finite (1D BM is recurrent) but has infinite mean — it hits, but you cannot bound when.</li>
+      <li>With drift <code>Xₜ = μt + σWₜ</code>: hitting <code>a&gt;0</code> is certain only if <code>μ ≥ 0</code>; if <code>μ &lt; 0</code>, <code>P(ever hit a) = exp(2μa/σ²) &lt; 1</code>.</li>
+      <li>Two-sided exit (levels <code>−b, a</code>), no drift: <code>P(hit a first) = b/(a+b)</code>.</li>
+    </ul>
+    <div class="eg"><b>Example.</b> P(BM exceeds 1 sometime in [0,1]) = 2·P(W₁ ≥ 1) = 2(1 − Φ(1)) = 2·0.1587 ≈ 0.317.</div>
   </div>
 </div>
-    </div>
-
     <div class="cheat" data-topic="regression">
 <div class="ck">
   <div class="ck-h">Simple Linear Regression</div>
@@ -2397,7 +2372,7 @@ def topk(stream, k):
 <div class="ck">
   <div class="ck-h">Subtle gotchas: closures, interning, sort keys</div>
   <div class="ck-b">
-    <ul><li><span class="k">Late binding:</span> closures capture the variable, not its value. <code>[lambda: i for i in range(3)]</code> all return <code>2</code>; fix with a default arg <code>lambda i=i: i</code>.</li><li><code>is</code> tests identity, <code>==</code> tests value. Small ints <code>−5..256</code> and some literals are interned, so <code>is</code> can <em>accidentally</em> work — never rely on it; use <code>== </code> (or <code>is None</code>).</li><li><code>sorted(..., key=...)</code> sorts by the key; it is <span class="k">stable</span>, so equal keys keep input order — chain sorts least-significant-key first.</li><li><code>dict</code> preserves insertion order (3.7+); equality ignores order, iteration respects it.</li><li><code>a += b</code> on a list mutates in place (<code>extend</code>); <code>a = a + b</code> rebinds to a new list.</li></ul><div class="eg"><b>Example.</b> Sort trades by price desc, ties by time asc: <code>sorted(t, key=lambda x:(-x.px, x.t))</code> — pack the key as a tuple rather than sorting twice.</div>
+    <ul><li><span class="k">Late binding:</span> closures capture the variable, not its value. <code>[lambda: i for i in range(3)]</code> all return <code>2</code>; fix with a default arg <code>lambda i=i: i</code>.</li><li><code>−5..256</code> and short string literals are interned, so <code>is</code> can <em>accidentally</em> match <code>==</code> — never rely on it (identity vs value lives in the copies card).</li><li><code>sorted(..., key=...)</code> sorts by the key; it is <span class="k">stable</span>, so equal keys keep input order — chain sorts least-significant-key first.</li><li><code>dict</code> preserves insertion order (3.7+); equality ignores order, iteration respects it.</li><li><code>a += b</code> on a list mutates in place (<code>extend</code>); <code>a = a + b</code> rebinds to a new list.</li></ul><div class="eg"><b>Example.</b> Sort trades by price desc, ties by time asc: <code>sorted(t, key=lambda x:(-x.px, x.t))</code> — pack the key as a tuple rather than sorting twice.</div>
   </div>
 </div>
     </div>
@@ -2526,7 +2501,7 @@ auto mean(It first, It last) {
     for (; first != last; ++first) { s += *first; ++n; }
     return s / n;
 }</pre>
-    <div class="eg"><b>Note.</b> Errors surface at instantiation (when used), which is why template error messages are long. C++20 <code>concepts</code> constrain types and give clearer diagnostics.</div>
+    <div class="eg"><b>Note.</b> Errors surface at instantiation (when used), which is why template error messages are long. C++20 <code>concepts</code> constrain types and give clearer diagnostics. Watch types: for an integer range <code>V=int</code>, so <code>s/n</code> is integer division (truncates) — accumulate in <code>double</code> for a real mean.</div>
   </div>
 </div>
 <div class="ck">
@@ -2882,10 +2857,9 @@ const DECK = [
   {dom:'options',tag:'Options & Vol',q:'Black-Scholes assumptions & where they fail?',a:'Lognormal/GBM, constant vol, no jumps, frictionless, continuous hedging. <span class="k">Fail:</span> smile/skew, jumps/fat tails, costly discrete hedging, stochastic vol.'},
   // ---- PRICING / SDE ----
   {dom:'stochastic',tag:'Stochastic Processes',q:'State Itô\'s lemma (one line).',a:'<code>df = f_t dt + f_x dx + ½ f_xx (dx)²</code>, with <span class="k">(dW)² = dt</span>. The ½f_xx term — the <span class="k">Itô correction</span> — is the whole story.'},
-  {dom:'stochastic',tag:'Stochastic Processes',q:'SDE for geometric Brownian motion?',a:'<code>dS = μS dt + σS dW.</code> Then <code>d(log S) = (μ−σ²/2)dt + σ dW</code> → S is <span class="k">lognormal</span>; the <span class="k">−σ²/2</span> drift correction is the classic trap.'},
   {dom:'stochastic',tag:'Stochastic Processes',q:'Why price under the risk-neutral measure?',a:'<span class="k">No-arbitrage</span> ⇒ discounted asset is a martingale under Q; price = E_Q[discounted payoff]. Drift → r, not μ.'},
   {dom:'stochastic',tag:'Stochastic Processes',q:'Key properties of Brownian motion?',a:'<span class="k">W₀=0; E[Wₜ]=0; Var=t;</span> independent stationary Gaussian increments; continuous but nowhere differentiable; quadratic variation [W]ₜ = t.'},
-  {dom:'stochastic',tag:'Stochastic Processes',q:'What does Δ-hedging a long option earn you?',a:'You\'re <span class="k">long gamma</span>: you buy low / sell high rebalancing — P&L ≈ ½Γ·S²·(realized − implied) variance. Pay theta for it.'},
+  {dom:'options',tag:'Options & Vol',q:'What does Δ-hedging a long option earn you?',a:'You\'re <span class="k">long gamma</span>: you buy low / sell high rebalancing — P&L ≈ ½Γ·S²·(realized − implied) variance. Pay theta for it.'},
   // ---- MICROSTRUCTURE ----
   {dom:'microstructure',rep:1,tag:'Microstructure',q:'Make me a market: I roll 2 dice, pay the sum.',a:'EV = 7. Quote tight (6.5/7.5), <span class="k">widen if I pick the side</span> (adverse selection), move after I trade.'},
   {dom:'microstructure',tag:'Microstructure',q:'Three components of the bid-ask spread?',a:'<span class="k">Order-processing</span> cost, <span class="k">inventory</span> risk, <span class="k">adverse selection</span> (informed flow). Width ∝ all three.'},
@@ -2908,13 +2882,13 @@ const DECK = [
   {dom:'mentalmath',tag:'Mental Math',q:'A stock +2% then −2% — net?',a:'<span class="k">≈ −0.04%.</span> 1.02·0.98 = 0.9996. Compounding isn\'t symmetric.'},
   {dom:'mentalmath',tag:'Mental Math',q:'√0.0049?',a:'<span class="k">0.07.</span> √49 = 7, shift decimals.'},
   // ════════ REVIEW ADDITIONS — domain-expert audit pass ════════
-  {dom:'stochastic',rep:1,tag:'Stochastic Processes',q:'State the optional stopping theorem and one use.',a:'For a martingale M and bounded stopping time τ, <span class="k">E[M_τ] = E[M_0]</span>. Use it on gambler\'s ruin: wealth is a martingale (fair bets) → E[exit wealth] = start.'},
+  {dom:'stochastic',rep:1,tag:'Stochastic Processes',q:'State the optional stopping theorem and one use.',a:'For a martingale M and a stopping time τ that is <span class="k">bounded</span> (or: τ&lt;∞ a.s. with bounded increments / E[τ]&lt;∞), <span class="k">E[M_τ] = E[M_0]</span>. Gambler\'s ruin: wealth is a martingale (fair bets), τ is a.s. finite with bounded steps → E[exit wealth] = start.'},
   {dom:'stochastic',rep:1,tag:'Stochastic Processes',q:'Reflection principle: P(max of BM on [0,T] ≥ a)?',a:'<span class="k">2·P(W_T ≥ a) = 2(1−Φ(a/√T))</span> for a&gt;0. Each path crossing a has a mirror partner ending on the far side — hence the factor 2. Gives first-passage / barrier pricing.'},
   {dom:'stochastic',rep:1,tag:'Stochastic Processes',q:'Is a simple random walk recurrent? Does dimension matter?',a:'<span class="k">1D & 2D recurrent (returns w.p. 1); 3D+ transient.</span> "A drunk man finds his way home; a drunk bird may not." (Pólya)'},
   {dom:'probability',rep:1,tag:'Probability',q:'E[uniforms on [0,1] summed until the total exceeds 1]?',a:'<span class="k">e ≈ 2.718.</span> P(need &gt; n) = P(n uniforms sum ≤ 1) = 1/n!; summing gives e.'},
   {dom:'stochastic',tag:'Stochastic Processes',q:'Poisson process — three facts an interviewer wants?',a:'<span class="k">Memoryless exponential gaps (rate λ); N(t)~Poisson(λt); superposition adds rates, thinning splits them.</span> Independent stationary increments.'},
   {dom:'probability',tag:'Probability',q:'Expected number of fixed points of a random permutation of n?',a:'<span class="k">Exactly 1</span>, for every n — linearity (each element fixed w.p. 1/n). Count is asymptotically Poisson(1).'},
-  {dom:'stochastic',rep:1,tag:'Stochastic Processes',q:'Solve the GBM SDE dS = μS dt + σS dW.',a:'<code>S_t = S_0·exp((μ−σ²/2)t + σW_t)</code>. The <span class="k">−σ²/2</span> correction (Itô on log S) is the point — E[S_t]=S_0 e^{μt}, but the median is lower.'},
+  {dom:'stochastic',rep:1,tag:'Stochastic Processes',q:'Solve the GBM SDE dS = μS dt + σS dW.',a:'<code>dS = μS dt + σS dW</code> → <code>d(log S) = (μ−σ²/2)dt + σ dW</code> (Itô) → <code>S_t = S_0·exp((μ−σ²/2)t + σW_t)</code>, lognormal. The <span class="k">−σ²/2</span> correction is the point: <code>E[S_t]=S_0 e^{μt}</code> but the median is lower.'},
   {dom:'stochastic',rep:1,tag:'Stochastic Processes',q:'State the Itô isometry.',a:'<code>E[(∫₀ᵀ f dW)²] = E[∫₀ᵀ f² dt]</code>. <span class="k">Zero mean, variance = expected integral of f².</span> Turns a hard 2nd moment into an ordinary integral.'},
   {dom:'stochastic',rep:1,tag:'Stochastic Processes',q:'What is E[W_s W_t] for Brownian motion?',a:'<span class="k">min(s,t)</span>. For s≤t: E[W_s W_t]=E[W_s² + W_s(W_t−W_s)] = s + 0.'},
   {dom:'stochastic',rep:1,tag:'Stochastic Processes',q:'Compute E[e^{σW_t}].',a:'<span class="k">e^{σ²t/2}</span> (MGF of N(0,t)). Why the lognormal mean carries +σ²/2, and why the risk-neutral drift of S is r, not r+σ²/2.'},
@@ -2923,12 +2897,12 @@ const DECK = [
   {dom:'stochastic',tag:'Stochastic Processes',q:'Feynman–Kac in one line.',a:'A PDE solution = an <span class="k">expectation along a diffusion</span>: u(t,x)=E[e^{−∫r}·payoff(X_T)|X_t=x]. The PDE ↔ Monte-Carlo bridge; why Black–Scholes can be priced either way.'},
   {dom:'stochastic',tag:'Stochastic Processes',q:'Is e^{σW_t − ½σ²t} a martingale? Why care?',a:'<span class="k">Yes — the stochastic exponential, E[·]=1.</span> Its zero drift (−½σ²t cancels the Itô correction) is the Radon–Nikodym density in Girsanov.'},
   {dom:'statistics',rep:1,tag:'Statistics',q:'Type I vs Type II error and power?',a:'<span class="k">Type I = false positive (α), Type II = false negative (β).</span> Power = <code>1−β</code> = P(reject | effect real); rises with effect size, n, α.'},
-  {dom:'statistics',rep:1,tag:'Statistics',q:'Test 100 strategies at α=0.05 — how many false positives, and the fix?',a:'<span class="k">~5 by chance.</span> Bonferroni: use <code>α/m</code> (controls family-wise error). Benjamini–Hochberg controls <span class="k">FDR</span> — far more power for many tests.'},
+  {dom:'statistics',rep:1,tag:'Statistics',q:'Test 100 strategies at α=0.05 — how many false positives, and the fix?',a:'<span class="k">~5 by chance.</span> Bonferroni uses <code>α/m</code> → controls FWER = P(any false positive), but is conservative and kills power. Benjamini–Hochberg controls the <span class="k">FDR</span> = expected fraction of discoveries that are false — far more power for many tests.'},
   {dom:'regression',rep:1,tag:'Regression',q:'Gauss–Markov: when is OLS BLUE?',a:'<span class="k">Linearity, exogeneity (E[ε|X]=0), homoskedasticity, no autocorrelation.</span> Then OLS is Best Linear Unbiased — <b>normality NOT required</b> (only for exact small-sample t/F).'},
   {dom:'regression',rep:1,tag:'Regression',q:'R² vs adjusted R²?',a:'R² always rises with more regressors. <span class="k">Adjusted R² penalizes parameters</span> (<code>1−(1−R²)(n−1)/(n−p−1)</code>) so it can fall — use it to compare different-size models.'},
   {dom:'regression',rep:1,tag:'Regression',q:'L1 vs L2 regularization?',a:'<span class="k">L1 (Lasso) → sparsity</span> (coefs exactly 0, feature selection); <span class="k">L2 (Ridge) → shrinkage</span> (small, handles collinearity). L1 penalizes |β|, L2 penalizes β².'},
   {dom:'statistics',tag:'Statistics',q:'What does k-fold cross-validation estimate, and the time-series catch?',a:'<span class="k">Out-of-sample error.</span> Train on k−1 folds, test on 1, average. <b>For time series use walk-forward</b> — random k-fold leaks the future into the past.'},
-  {dom:'statistics',tag:'Statistics',q:'MLE vs method of moments for a Normal?',a:'<span class="k">MLE: μ̂=x̄, σ̂²=(1/n)Σ(xᵢ−x̄)²</span> (biased — divides by n). MoM matches sample to population moments; often easier, less efficient.'},
+  {dom:'statistics',tag:'Statistics',q:'MLE vs method of moments for a Normal?',a:'<span class="k">For the Normal they coincide: μ̂=x̄, σ̂²=(1/n)Σ(xᵢ−x̄)²</span> (both divide by n → biased). MoM matches sample to population moments — in general easier to compute but less efficient than MLE; for the Normal there is no efficiency loss.'},
   {dom:'statistics',tag:'Statistics',q:'What is the bootstrap and when do you use it?',a:'<span class="k">Resample with replacement</span> to approximate a statistic\'s sampling distribution. Use when no closed-form SE exists (median, Sharpe, ratios). Breaks under strong dependence.'},
   {dom:'statistics',rep:1,tag:'Statistics',q:'Covariance vs correlation?',a:'<span class="k">Correlation = normalized covariance</span>: <code>ρ = Cov(X,Y)/(σ_X σ_Y)</code> ∈ [−1,1], unitless. Covariance is scale-dependent.'},
   {dom:'statistics',tag:'Statistics',q:'Simpson\'s paradox?',a:'<span class="k">A trend within every subgroup reverses when pooled</span> — driven by a confounder / unequal group sizes. Condition on the right variable.'},
@@ -2949,7 +2923,7 @@ const DECK = [
   {dom:'algorithms',rep:1,tag:'Algorithms',q:'What is amortized O(1) — give an example?',a:'<span class="k">Average over a sequence</span> of ops, not the worst single op. Dynamic-array append: occasional O(n) doublings average to <code>O(1)</code>.'},
   {dom:'algorithms',rep:1,tag:'Algorithms',q:'When does a hash table degrade to O(n)?',a:'<span class="k">Collisions:</span> adversarial keys or a bad hash collapse one bucket → linear chains. Mitigate: good hash, resizing, treeified buckets.'},
   {dom:'algorithms',tag:'Algorithms',q:'Is quicksort or mergesort stable?',a:'<span class="k">Mergesort stable</span> (equal keys keep order); standard <span class="k">quicksort not</span>. Mergesort needs O(n) space; quicksort is in-place.'},
-  {dom:'algorithms',rep:1,tag:'Algorithms',q:'Why is a Python loop slow vs a numpy vectorized op?',a:'The loop pays <span class="k">per-element interpreter overhead</span>; numpy runs one C loop over contiguous memory (SIMD, no boxing) — often <code>10–100×</code> faster.'},
+  {dom:'python',rep:1,tag:'Python',q:'Why is a Python loop slow vs a numpy vectorized op?',a:'The loop pays <span class="k">per-element interpreter overhead</span>; numpy runs one C loop over contiguous memory (SIMD, no boxing) — often <code>10–100×</code> faster.'},
   {dom:'algorithms',rep:1,tag:'Algorithms',q:'Why can summing floats in a different order change the result?',a:'<span class="k">Float addition isn\'t associative</span> — rounding each step. Add small-to-large or use Kahan summation to limit error.'},
   {dom:'linalg',rep:1,tag:'Linear Algebra',q:'Eigenvalues vs singular values — difference?',a:'<span class="k">Eigen:</span> Av=λv, square, can be negative/complex. <span class="k">Singular:</span> σ≥0 always, any m×n; σᵢ=√(λᵢ of AᵀA). σᵢ=|λᵢ| when A is normal (AᵀA=AAᵀ) — symmetric and rotation matrices included; unrelated to |λ| for general A.'},
   {dom:'linalg',rep:1,tag:'Linear Algebra',q:'What does the determinant mean geometrically?',a:'<span class="k">Signed volume scaling</span> of the unit cube under the map. <code>det=0</code> ⇒ singular / rank-deficient / non-invertible.'},
@@ -2974,8 +2948,7 @@ const DECK = [
   {dom:'linalg',tag:'Linear Algebra',q:'If A is symmetric PSD, how do its eigenvalues relate to invertibility and the quadratic form?',a:'<span class="k">All λᵢ≥0; A is invertible iff all λᵢ>0 (positive definite).</span> The quadratic form <code>xᵀAx=Σλᵢ(vᵢᵀx)²≥0</code>, so a zero eigenvalue gives a direction where the form vanishes — exactly the null space. Smallest λ controls how flat the form gets.',rep:0},
   {dom:'geometry',tag:'Geometry',q:'Three points are collinear. What does the shoelace/cross-product area tell you?',a:'<span class="k">The signed area is exactly 0.</span> Collinearity ⟺ the vectors (B−A) and (C−A) are parallel, so their 2D cross product (and the triangle area) vanish.',rep:0},
   {dom:'geometry',tag:'Geometry',q:'Break a stick at two uniform random points. P(the three pieces form a triangle)?',a:'<span class="k">1/4.</span> With breakpoints x,y ~ U(0,1), the triangle inequality (no piece > ½) carves out a region of area ¼ of the unit square; by symmetry it\'s two of the eight sub-triangles.',rep:0},
-  {dom:'geometry',tag:'Geometry',q:'Two points are chosen uniformly at random on a circle\'s circumference. P(they fall in the same semicircle)?',a:'<span class="k">1 (trivially) — two points always lie in some common semicircle.</span> The real question is for n points: <code>P = n/2^{n−1}</code>. For n=3 that\'s 3/4.',rep:0},
-  {dom:'geometry',tag:'Geometry',q:'x,y ~ U(0,1) independent. What is E[max(x,y)] and E[min(x,y)]?',a:'<span class="k">E[max]=2/3, E[min]=1/3.</span> For the max, P(max≤t)=t² so density 2t and E=∫₀¹2t²=2/3; min is symmetric, and the two sum to E[x]+E[y]=1.',rep:0},
+  {dom:'geometry',tag:'Geometry',q:'n points uniform on a circle — P(all lie in a common semicircle)?',a:'<span class=\"k\"><code>P = n/2^(n−1)</code></span> (n=2 → 1 always; n=3 → 3/4). Fix one point as the semicircle start; the other n−1 must fall in its clockwise half (each prob ½, independent) and these anchor events are disjoint → sum.',rep:0},
   {dom:'geometry',tag:'Geometry',q:'Distance from point P to a plane with unit normal n through point Q?',a:'<span class="k"><code>|n·(P−Q)|</code>.</span> Project the offset vector onto the unit normal; the absolute scalar projection is the perpendicular distance. Drop the abs to get a signed side indicator.',rep:0},
   {dom:'geometry',tag:'Geometry',q:'Pick two points uniformly in [0,1]. What\'s the expected distance between them?',a:'<span class="k">1/3.</span> E|x−y| = ∫₀¹∫₀¹|x−y|dx dy = 2·(area-weighted integral) = 1/3; equivalently E[max]−E[min] = 2/3−1/3.',rep:0},
   {dom:'geometry',tag:'Geometry',q:'How do you find the area of a triangle given only its three side lengths?',a:'<span class="k">Heron: with s=(a+b+c)/2, Area=√(s(s−a)(s−b)(s−c)).</span> No coordinates or angles needed; degenerate (collinear) triangles give 0 because one factor vanishes.',rep:0},
@@ -3000,7 +2973,6 @@ const DECK = [
   {dom:'distributions',tag:'Distributions',q:'You sum 12 iid Uniform(0,1) and subtract 6. Roughly what distribution, and why is this used?',a:'<span class="k">Approximately N(0,1).</span> Each U has mean 1/2, var 1/12; sum has mean 6, var 12·(1/12)=1, so Σ−6 has mean 0, var 1. CLT makes it near-Gaussian — an old quick-and-dirty normal generator.',rep:0},
   {dom:'statistics',tag:'Statistics',q:'Why divide by n−1 instead of n in the sample variance?',a:'<span class="k">n−1 (Bessel\'s correction) makes s² unbiased for σ²; dividing by n underestimates it.</span> Deviations are measured from the sample mean x̄, which is fit from the same data, so they\'re systematically smaller than deviations from the true μ — one degree of freedom is spent estimating the mean.',rep:0},
   {dom:'statistics',tag:'Statistics',q:'Likelihood vs probability — what\'s the difference?',a:'<span class="k">Probability fixes the parameter and varies the data; likelihood fixes the observed data and varies the parameter.</span> Same expression <code>f(x;θ)</code>, read two ways. Likelihood is a function of θ, doesn\'t integrate to 1, and is what MLE maximizes.',rep:0},
-  {dom:'statistics',tag:'Statistics',q:'FWER vs FDR — Bonferroni vs Benjamini–Hochberg?',a:'<span class="k">FWER = P(any false positive), controlled by Bonferroni (α/m); FDR = expected fraction of discoveries that are false, controlled by Benjamini–Hochberg.</span> Bonferroni is conservative and kills power; BH keeps far more power when screening thousands of signals, accepting a controlled false-discovery rate instead of zero false positives.',rep:0},
   {dom:'regression',tag:'Regression',q:'What is leverage in regression, and how does it differ from an influential point?',a:'<span class="k">Leverage <code>hᵢᵢ</code> (the i-th diagonal of the hat matrix H) measures how far xᵢ is from the predictor mean; influence measures how much dropping the point actually moves the fit.</span> High leverage is necessary but not sufficient for influence — a high-leverage point on the fitted line has little influence. Combine leverage with residual size via Cook\'s distance to flag genuinely influential points. Σhᵢᵢ = k (number of params).',rep:0},
   {dom:'regression',tag:'Regression',q:'What is the dummy-variable trap and how do you avoid it?',a:'<span class="k">Including a dummy for every category plus an intercept makes X columns linearly dependent (they sum to the intercept), so XᵀX is singular and OLS has no unique solution.</span> Drop one category as the baseline; each coefficient is then the contrast vs that baseline. Alternatively drop the intercept and keep all dummies. This is exact (not approximate) multicollinearity.',rep:0},
   {dom:'regression',tag:'Regression',q:'In y = β₀+β₁x+β₂z+β₃(x·z), how do you interpret β₁ and β₃?',a:'<span class="k">β₁ is the effect of x only when z=0; β₃ is how the slope of x changes per unit increase in z (∂y/∂x = β₁+β₃z).</span> With an interaction present, never read β₁ as "the" effect of x — it is conditional on z=0, which may not even be in the data. Center variables so the main effect is interpreted at the mean.',rep:0},
@@ -3060,7 +3032,6 @@ const DECK = [
   {dom:'brainteasers',tag:'Brainteasers',q:'In Nim, how do you know if the position is winning, and what move do you make?',a:'<span class="k">Compute the XOR of all pile sizes; if nonzero you\'re winning — reduce some pile to make the total XOR zero, handing your opponent a losing position.</span> XOR=0 positions are exactly the losing (P-) positions.',rep:0},
   {dom:'brainteasers',tag:'Brainteasers',q:'Secretary problem: what\'s the strategy and the success probability for large N?',a:'<span class="k">Reject the first N/e (≈37%) candidates, then accept the first one better than all of them; you land the best with probability ≈ 1/e ≈ 37%.</span> The first phase just sets the bar; this maximizes P(picking the single best), not expected value.',rep:0},
   {dom:'brainteasers',tag:'Brainteasers',q:'1000 bottles, exactly one poisoned, test strips kill in one round. Minimum testers?',a:'<span class="k">10 testers.</span> Number bottles 0–999 in binary; tester i drinks every bottle with bit i set. The 10-bit pattern of who dies reads off the poisoned bottle. 2¹⁰ = 1024 ≥ 1000.',rep:0},
-  {dom:'brainteasers',tag:'Brainteasers',q:'Make me a tight market on the sum of two fair six-sided dice. What\'s your spread and why?',a:'<span class="k">Fair value is 7; quote around it, e.g. 6.5 bid / 7.5 ask, and widen if I trade aggressively against you.</span> The spread covers adverse selection: if the taker hits your offer eagerly, update that they may know the roll skews high and re-center.',rep:0},
   {dom:'mentalmath',tag:'Mental Math',q:'Daily return vol is 1%. Roughly what\'s the annualized vol?',a:'<span class="k">≈ 16%.</span> Vol scales with √time: <code>1% × √252 = 15.87% ≈ 16%</code>. Defensible because <code>16² = 256 ≈ 252</code> — that\'s the trading-days shortcut.',rep:0},
   {dom:'mentalmath',tag:'Mental Math',q:'What is 1/7 as a decimal, and how do you get 3/7 from it?',a:'<span class="k">1/7 = 0.142857 repeating; 3/7 = 0.428571.</span> The six digits <code>142857</code> cycle; multiplying by 3 just rotates the block to start at 4.',rep:0},
   {dom:'mentalmath',tag:'Mental Math',q:'You\'re long $20M and the price moves +35 bps. P&L?',a:'<span class="k">+$70,000.</span> <code>35bp = 0.0035</code>; <code>20,000,000 × 0.0035 = 70,000</code>. One bp on $20M is $2k.',rep:0},
@@ -3950,6 +3921,25 @@ if(labtabs){labtabs.querySelectorAll('.labtab').forEach(t=>t.addEventListener('c
 
 /* ---- init ---- */
 loadUserContent(); buildStats(); buildTiles(); buildFilters(); render(); addCkPins(); renderPins(); refreshPinButtons(); initPayoff(); initDist(); initMM(); initReg(); colorizeBlocks(); initWorkshop();
+
+/* ---- scrollspy: highlight the nav link for the section in view ---- */
+(function(){
+  const links=[...document.querySelectorAll('nav a[href^="#"]')];
+  const ids=links.map(a=>a.getAttribute('href').slice(1));
+  const secs=ids.map(id=>document.getElementById(id)).filter(Boolean);
+  if(!secs.length)return;
+  const setOn=id=>links.forEach(a=>a.classList.toggle('on',a.getAttribute('href').slice(1)===id));
+  const pick=()=>{
+    const line=130;   // a section becomes current when its top passes just under the fixed nav
+    let cur=secs[0].id;
+    for(const s of secs){ if(s.getBoundingClientRect().top<=line) cur=s.id; }
+    if(window.innerHeight+window.scrollY >= document.documentElement.scrollHeight-2) cur=secs[secs.length-1].id;  // bottom: last section can't reach the line
+    setOn(cur);
+  };
+  window.addEventListener('scroll',pick,{passive:true});
+  window.addEventListener('resize',pick,{passive:true});
+  pick();
+})();
 $('#pinclear').addEventListener('click',()=>{pins=[]; savePins(); renderPins(); refreshPinButtons();});
 </script>
 </body>

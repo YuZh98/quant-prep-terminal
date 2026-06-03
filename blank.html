@@ -50,6 +50,7 @@
   nav .brand b{color:var(--cyan)}
   nav a{font-family:'Share Tech Mono',monospace; font-size:12.5px; color:var(--text-dim); text-decoration:none; padding:5px 10px; border:1px solid transparent; border-radius:8px; transition:.18s;}
   nav a:hover{color:var(--bg); background:var(--neon); box-shadow:var(--shadow-neon)}
+  nav a.on{color:var(--bg); background:var(--neon); box-shadow:var(--shadow-neon)}
 
   header{padding:70px 0 30px; position:relative}
   .kicker{font-family:'Share Tech Mono',monospace; color:var(--neon-2); letter-spacing:4px; font-size:13px; text-transform:uppercase; opacity:0; animation:fade .6s .1s forwards}
@@ -1477,6 +1478,25 @@ if(labtabs){labtabs.querySelectorAll('.labtab').forEach(t=>t.addEventListener('c
 
 /* ---- init ---- */
 loadUserContent(); buildStats(); buildTiles(); buildFilters(); render(); addCkPins(); renderPins(); refreshPinButtons(); initPayoff(); initDist(); initMM(); initReg(); colorizeBlocks(); initWorkshop();
+
+/* ---- scrollspy: highlight the nav link for the section in view ---- */
+(function(){
+  const links=[...document.querySelectorAll('nav a[href^="#"]')];
+  const ids=links.map(a=>a.getAttribute('href').slice(1));
+  const secs=ids.map(id=>document.getElementById(id)).filter(Boolean);
+  if(!secs.length)return;
+  const setOn=id=>links.forEach(a=>a.classList.toggle('on',a.getAttribute('href').slice(1)===id));
+  const pick=()=>{
+    const line=130;   // a section becomes current when its top passes just under the fixed nav
+    let cur=secs[0].id;
+    for(const s of secs){ if(s.getBoundingClientRect().top<=line) cur=s.id; }
+    if(window.innerHeight+window.scrollY >= document.documentElement.scrollHeight-2) cur=secs[secs.length-1].id;  // bottom: last section can't reach the line
+    setOn(cur);
+  };
+  window.addEventListener('scroll',pick,{passive:true});
+  window.addEventListener('resize',pick,{passive:true});
+  pick();
+})();
 $('#pinclear').addEventListener('click',()=>{pins=[]; savePins(); renderPins(); refreshPinButtons();});
 </script>
 </body>
