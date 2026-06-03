@@ -9,10 +9,10 @@
   QUANT PREP LIBRARY · company-agnostic · cumulative
   HOW TO GROW THIS FILE:
     1. Add a flashcard  → append one object to the DECK[] array (bottom <script>).
-         {dom:'prob', tag:'Probability', q:'question...', a:'answer (HTML ok)', rep:0}
-       Domain keys live in DOMAINS{} — add a new key there to open a new track.
-    2. Add a reference  → drop a <table> into §03 (Reference) following the pattern.
-    3. Everything else (counts, coverage bars, filters) updates itself from DECK[].
+         {dom:'probability', tag:'Probability', q:'question...', a:'answer (HTML ok)', rep:0}
+       Subject keys live in DOMAINS{} (18 subjects, grouped in GROUPS[]) — add a key there to open a new track.
+    2. Add a cheatsheet  → add a <div class="ck"> block inside the matching <div class="cheat" data-topic="KEY"> panel.
+    3. Everything else (counts, Browse tiles, filters) updates itself from DECK[] / the cheat panels.
   Keep it accurate. No fabricated numbers. Cite nothing you can't defend out loud.
   ════════════════════════════════════════════════════════════════════
 -->
@@ -351,6 +351,8 @@
   .mm-result .neg b{color:var(--magenta)}
   .mm-dice{font-size:20px; color:var(--neon); margin-right:8px; letter-spacing:2px; vertical-align:middle}
   .mm-log{font-family:'Share Tech Mono',monospace; font-size:12px; color:var(--text-dim); margin-top:12px; display:flex; flex-direction:column; gap:3px; max-height:190px; overflow-y:auto}
+  .subj-tile .c .jc{cursor:pointer; color:var(--neon-2)}
+  .subj-tile .c .jc:hover{text-decoration:underline; color:var(--neon)}
 </style>
 </head>
 <body>
@@ -397,16 +399,415 @@
       <span class="ctab on" data-t="calculus">Calculus</span>
       <span class="ctab" data-t="linalg">Linear Algebra</span>
       <span class="ctab" data-t="geometry">Geometry</span>
-      <span class="ctab" data-t="distributions">Probability Distributions</span>
       <span class="ctab" data-t="combinatorics">Combinatorics</span>
-      <span class="ctab" data-t="stochastic">Stochastic Processes</span>
+      <span class="ctab" data-t="probability">Probability</span>
+      <span class="ctab" data-t="distributions">Probability Distributions</span>
+      <span class="ctab" data-t="statistics">Statistics</span>
       <span class="ctab" data-t="regression">Regression</span>
+      <span class="ctab" data-t="stochastic">Stochastic Processes</span>
+      <span class="ctab" data-t="timeseries">Time Series</span>
       <span class="ctab" data-t="options">Options</span>
       <span class="ctab" data-t="instruments">Financial Instruments &amp; Facilities</span>
+      <span class="ctab" data-t="microstructure">Market Microstructure</span>
       <span class="ctab" data-t="python">Python</span>
       <span class="ctab" data-t="cpp">C++</span>
+      <span class="ctab" data-t="algorithms">Algorithms</span>
+      <span class="ctab" data-t="brainteasers">Brainteasers</span>
+      <span class="ctab" data-t="mentalmath">Mental Math</span>
     </div>
     <div class="cheat-wrap">
+    <div class="cheat" data-topic="probability">
+<div class="ck">
+  <div class="ck-h">Conditional probability & the multiplication rule</div>
+  <div class="ck-b">
+    <ul><li><code>P(A|B)=P(A∩B)/P(B)</code>, defined for <code>P(B)>0</code>. Read it as: renormalize the sample space to B.</li><li>Chain rule: <code>P(A∩B∩C)=P(A)·P(B|A)·P(C|A∩B)</code> — the workhorse for sequential draws.</li><li><span class="k">Conditioning is just slicing then renormalizing; the denominator is the new universe.</span></li><li>Independence ⇔ <code>P(A|B)=P(A)</code> ⇔ <code>P(A∩B)=P(A)P(B)</code>. Pairwise independence does NOT imply mutual independence.</li><li>Watch the trap: <code>P(A|B)≠P(B|A)</code> in general (prosecutor's fallacy).</li></ul><div class="eg"><b>Example.</b> Two cards drawn without replacement. P(both aces)=<code>(4/52)·(3/51)=1/221</code> via the chain rule.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Law of total probability & Bayes</div>
+  <div class="ck-b">
+    <ul><li>Partition <code>{Bᵢ}</code> of the sample space: <code>P(A)=Σᵢ P(A|Bᵢ)P(Bᵢ)</code>. Average the conditionals, weighted by prior.</li><li>Bayes: <code>P(Bⱼ|A)=P(A|Bⱼ)P(Bⱼ)/Σᵢ P(A|Bᵢ)P(Bᵢ)</code>.</li><li><span class="k">Posterior ∝ likelihood × prior; the denominator is just the normalizer P(A).</span></li><li>Odds form is fastest for two hypotheses: <code>posterior odds = prior odds × likelihood ratio</code>.</li><li>Rare-event trap: even a good test produces mostly false positives when the base rate is tiny — low prior dominates.</li></ul><div class="eg"><b>Example.</b> Two coins: fair and double-headed, pick one at random, flip H. P(double-headed|H)=<code>(1·½)/(½·½+1·½)=2/3</code> by odds: prior 1:1 × LR (1/½)=2:1.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Expectation: linearity & the tail / LOTUS tools</div>
+  <div class="ck-b">
+    <ul><li><code>E[aX+bY]=aE[X]+bE[Y]</code> ALWAYS — no independence needed. This breaks most hard problems.</li><li>LOTUS: <code>E[g(X)]=Σ g(x)p(x)</code> or <code>∫ g(x)f(x)dx</code> — don't derive the dist of g(X).</li><li>Tail sum for nonneg integers: <code>E[X]=Σₖ₌₁ P(X≥k)</code>; continuous: <code>E[X]=∫₀^∞ P(X>x)dx</code>.</li><li><span class="k">Decompose into indicators and sum expectations — independence is irrelevant for the mean.</span></li><li>Law of total expectation: <code>E[X]=E[E[X|Y]]</code>.</li></ul><div class="eg"><b>Example.</b> Expected couples sitting together: n couples at a round table of 2n seats. Indicator per couple, P(together)=<code>2/(2n−1)</code>, so <code>E=2n/(2n−1)</code>.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Indicator-variable method</div>
+  <div class="ck-b">
+    <ul><li>Write the count as <code>X=Σ Iₐ</code> where <code>Iₐ∈{0,1}</code>; then <code>E[X]=Σ P(Aₐ)</code> by linearity.</li><li>Key identity: <code>E[Iₐ]=P(Aₐ)</code> and <code>Iₐ²=Iₐ</code>.</li><li>For variance of a sum of indicators: <code>Var(X)=Σ Var(Iₐ)+ΣΣ_{a≠b} Cov(Iₐ,I_b)</code>; <code>Cov(Iₐ,I_b)=P(Aₐ∩A_b)−P(Aₐ)P(A_b)</code>.</li><li><span class="k">Never enumerate — assign one indicator per object and sum. Handles dependence automatically for the mean.</span></li></ul><div class="eg"><b>Example.</b> Records in a random permutation: position i is a record w.p. <code>1/i</code>. Expected records <code>=Σᵢ₌₁ⁿ 1/i=Hₙ≈ln n+γ</code>.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Variance, covariance & correlation</div>
+  <div class="ck-b">
+    <ul><li><code>Var(X)=E[X²]−(E[X])²</code>; <code>Cov(X,Y)=E[XY]−E[X]E[Y]</code>.</li><li><code>Var(aX+bY)=a²Var(X)+b²Var(Y)+2ab·Cov(X,Y)</code>. Cross term vanishes only if uncorrelated.</li><li><code>ρ=Cov(X,Y)/(σ_Xσ_Y)∈[−1,1]</code>; measures LINEAR dependence only.</li><li><span class="k">Independent ⇒ uncorrelated, but uncorrelated does NOT ⇒ independent.</span></li><li>Variance of a sum of n iid: <code>nσ²</code>; of the mean: <code>σ²/n</code>.</li></ul><div class="eg"><b>Example.</b> X uniform on {−1,0,1}, Y=X². Cov=E[XY]−E[X]E[Y]=E[X³]−0=0, so uncorrelated, yet Y is a function of X — fully dependent.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Conditional expectation & the tower / variance decomposition</div>
+  <div class="ck-b">
+    <ul><li>Tower rule: <code>E[X]=E[E[X|Y]]</code> — condition on whatever simplifies the problem.</li><li>Eve's law: <code>Var(X)=E[Var(X|Y)]+Var(E[X|Y])</code> = within-group + between-group variance.</li><li><code>E[X|Y]</code> is a random variable (a function of Y); plug in a value to get a number.</li><li><span class="k">First-step analysis: condition on the first move, write a recursion, solve.</span></li></ul><div class="eg"><b>Example.</b> E[# flips to get first H], p=½. Condition on flip 1: <code>E=1+½·0+½·E ⇒ E=2</code>. (Mean of Geometric(p) is 1/p.)</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Markov, Chebyshev & concentration</div>
+  <div class="ck-b">
+    <ul><li>Markov (X≥0): <code>P(X≥a)≤E[X]/a</code>. Only the mean; loose but assumption-free.</li><li>Chebyshev: <code>P(|X−μ|≥kσ)≤1/k²</code> — needs finite variance, distribution-free.</li><li><span class="k">Markov bounds the upper tail from the mean; Chebyshev bounds two-sided spread from the variance.</span></li><li>Chebyshev proves the weak law of large numbers: sample mean variance <code>σ²/n→0</code>.</li><li>Tighter tails (Chernoff/Hoeffding) need the MGF or boundedness — mention if asked, but those live beyond core.</li></ul><div class="eg"><b>Example.</b> Mean income $50k. P(income≥$1M)≤50k/1M=5% by Markov — no other info needed.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Jensen's inequality</div>
+  <div class="ck-b">
+    <ul><li>Convex φ: <code>E[φ(X)]≥φ(E[X])</code>. Concave: inequality flips.</li><li>Equality iff X is constant a.s. or φ is linear on X's support.</li><li>Consequences: <code>E[X²]≥(E[X])²</code> (so Var≥0), <code>E[1/X]≥1/E[X]</code> for X>0, <code>E[ln X]≤ln E[X]</code>.</li><li><span class="k">A function of the average ≤ the average of a convex function — convexity adds value to dispersion.</span></li><li>Finance hook: option convexity (gamma) means E[payoff(S)]>payoff(E[S]); volatility is valuable.</li></ul><div class="eg"><b>Example.</b> X=1 or 4 each w.p. ½. E[√X]=(1+2)/2=1.5 < √E[X]=√2.5≈1.58 — concave √ gives the reverse Jensen gap.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Symmetry, conditioning & classic interview tactics</div>
+  <div class="ck-b">
+    <ul><li>Symmetry: if outcomes are exchangeable, <code>P(A before B)=½</code>; the k-th of n shuffled items is uniform over positions.</li><li>States & recursion: define E from each state, condition on the first step, solve the linear system.</li><li>Poisson-process / memoryless framing: 'who arrives first' among independent exponentials is proportional to rates.</li><li><span class="k">Before computing, ask: can symmetry, linearity, or a one-step recursion collapse this?</span></li><li>Reflection/complement: count the easy complement when the event itself is messy.</li></ul><div class="eg"><b>Example.</b> Shuffle a deck; P(ace of spades above king of hearts)? By symmetry between two distinguished cards, <code>=½</code> — no counting.</div>
+  </div>
+</div>
+    </div>
+    <div class="cheat" data-topic="statistics">
+<div class="ck">
+  <div class="ck-h">Estimators: bias, variance, MSE, consistency</div>
+  <div class="ck-b">
+    <ul><li>An estimator <code>θ̂</code> is a function of the sample; it has its own sampling distribution.</li><li><span class="k">MSE = bias² + variance</span> — <code>MSE(θ̂)=E[(θ̂−θ)²]=(E[θ̂]−θ)²+Var(θ̂)</code>. The whole tradeoff lives here.</li><li><b>Unbiased</b>: <code>E[θ̂]=θ</code> for all n. <b>Consistent</b>: <code>θ̂→θ</code> in probability as <code>n→∞</code>. Different properties — neither implies the other.</li><li><b>Efficient</b>: smallest variance among a class; Cramér–Rao gives the floor <code>Var(θ̂)≥1/I(θ)</code> for unbiased estimators (<code>I</code>=Fisher info).</li><li>In quant work a slightly biased, lower-variance estimator (shrinkage) often beats unbiased — minimize MSE, not bias.</li></ul><div class="eg"><b>Example.</b> <code>θ̂≡5</code> (ignore data) is super low-variance but biased and inconsistent. Sample mean <code>X̄</code> is unbiased and consistent: <code>Var(X̄)=σ²/n→0</code>.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Why n−1: Bessel's correction & sample variance</div>
+  <div class="ck-b">
+    <ul><li>Sample variance <code>s²=Σ(xᵢ−x̄)²/(n−1)</code> is the <b>unbiased</b> estimator of <code>σ²</code>; dividing by <code>n</code> underestimates.</li><li><span class="k">x̄ is fit from the data, so deviations from x̄ are systematically smaller than deviations from the true μ.</span></li><li>Mechanically: only <code>n−1</code> deviations are free — they must sum to 0 (one degree of freedom is spent estimating the mean).</li><li>Caveat: <code>s</code> (the std, not <code>s²</code>) is still slightly <b>biased</b> by Jensen — <code>E[s]&lt;σ</code> — because √ is concave. Unbiasedness doesn't survive nonlinear transforms.</li><li>Bias <code>~1/n</code>, so it's negligible for large samples and matters mainly for small <code>n</code>.</li></ul><div class="eg"><b>Example.</b> Data {2,4}: <code>x̄=3</code>, <code>Σ(xᵢ−x̄)²=2</code>. Biased: <code>2/2=1</code>. Unbiased: <code>2/1=2</code> — the true spread is better captured by 2.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Maximum Likelihood Estimation (MLE)</div>
+  <div class="ck-b">
+    <ul><li>Pick the parameter that makes observed data most probable: <code>θ̂=argmax L(θ)=argmax Πf(xᵢ;θ)</code>. Maximize the <b>log</b>-likelihood — sums beat products.</li><li><span class="k">Solve ∂ logL/∂θ = 0 (the score equation); check second order.</span></li><li><b>Invariance</b>: MLE of <code>g(θ)</code> is <code>g(θ̂)</code> — e.g. MLE of <code>σ</code> is √(MLE of σ²).</li><li><b>Asymptotics</b>: under regularity, <code>θ̂</code> is consistent and <code>√n(θ̂−θ)→N(0, 1/I(θ))</code> — attains the Cramér–Rao bound asymptotically (efficient).</li><li>MLE can be <b>biased</b> in finite samples: Normal MLE of variance divides by <code>n</code>, not <code>n−1</code>.</li></ul><div class="eg"><b>Example.</b> n Bernoulli with k successes: <code>logL=k·ln p+(n−k)ln(1−p)</code>, set derivative 0 → <code>p̂=k/n</code>. The sample proportion is the MLE.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Method of moments & MAP</div>
+  <div class="ck-b">
+    <ul><li><b>Method of moments (MoM)</b>: set sample moments = theoretical moments, solve for parameters. Simple, no optimization, but can be inefficient or give out-of-range estimates.</li><li><b>MAP</b>: <code>argmax p(θ|data) ∝ argmax L(θ)·p(θ)</code> — MLE weighted by a prior; maximizes the log-posterior <code>logL+log prior</code>.</li><li><span class="k">MAP = MLE + a regularizing prior; a flat (uniform) prior makes MAP = MLE.</span></li><li>Gaussian prior on θ ⇒ MAP is ridge-style shrinkage toward the prior mean; Laplace prior ⇒ sparsity. Priors fight overfitting on thin data.</li><li>MAP is a point estimate, not the full posterior — it ignores posterior spread/skew (the mode ≠ mean in general).</li></ul><div class="eg"><b>Example.</b> Normal, known σ: <code>x̄=2</code> from n=4, prior <code>N(0,σ²)</code>. MAP pulls the estimate from 2 toward 0; as n grows the data dominates and MAP→MLE.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">CLT, sampling distribution & standard error</div>
+  <div class="ck-b">
+    <ul><li>For iid <code>Xᵢ</code> with <b>finite</b> mean μ and variance σ²: <code>√n(X̄−μ)/σ → N(0,1)</code>, regardless of the underlying shape.</li><li><span class="k">SE shrinks like 1/√n: SE(X̄)=σ/√n. Quadruple the data to halve the error.</span></li><li>SE = std of an <b>estimator's</b> sampling distribution; population std describes spread of one draw. Don't confuse them.</li><li><b>What breaks CLT</b>: infinite/undefined variance (heavy tails, e.g. Cauchy), strong dependence/autocorrelation, non-identical distributions. Markets have all three — convergence is slow and SE understated.</li><li>Convergence rate depends on skew/kurtosis (Berry–Esseen <code>~1/√n</code>); fat tails need much larger n before Normal is safe.</li></ul><div class="eg"><b>Example.</b> Daily returns σ=1%, n=252: <code>SE of mean ≈ 1%/√252 ≈ 0.063%</code> — tiny, but only if returns are roughly iid with finite variance.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Hypothesis testing: p-values, errors, power</div>
+  <div class="ck-b">
+    <ul><li>Set up <code>H₀</code> (null) vs <code>H₁</code>; pick a statistic; reject if it's extreme under H₀.</li><li><span class="k">p-value = P(data this extreme or more | H₀ true) — NOT P(H₀ true).</span></li><li><b>Type I</b> (α, false positive): reject a true H₀. <b>Type II</b> (β): fail to reject a false H₀. <b>Power = 1−β</b>: detect a real effect.</li><li>Power rises with effect size, n, and α; it falls with noise. Lowering α to cut false positives raises β — a direct tradeoff.</li><li>p < α is significance, not importance: huge n makes trivial effects 'significant'. Report effect size + CI, not just the p.</li></ul><div class="eg"><b>Example.</b> Backtest Sharpe 'significant' at p=0.04: this means only ~4% of pure-noise strategies would look this good — over hundreds of trials you'd expect several. Significance ≠ profit.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Confidence vs credible intervals</div>
+  <div class="ck-b">
+    <ul><li><b>Confidence (frequentist)</b>: the <b>procedure</b> covers the true fixed θ 95% of the time over repeated samples. θ is fixed; the interval is random.</li><li><span class="k">A 95% CI does NOT mean 95% probability θ is in this interval — θ is not random in the frequentist view.</span></li><li><b>Credible (Bayesian)</b>: given a prior + this data, <code>P(θ∈[a,b]|data)=0.95</code>. Here θ <i>is</i> treated as random — the intuitive statement, but it needs a prior.</li><li>They coincide with flat priors in simple models, but diverge when the prior is informative or the likelihood is skewed.</li><li>CI from CLT: <code>x̄ ± z·SE</code> (z≈1.96 for 95%). Width ~1/√n.</li></ul><div class="eg"><b>Example.</b> Estimate mean return, CI = [−1%, +3%]. Frequentist: 'this method brackets the truth 95% of the time.' Bayesian: 'given my prior, 95% chance the true mean is in here.' Different claims.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Multiple testing: FWER vs FDR</div>
+  <div class="ck-b">
+    <ul><li>Test m hypotheses at α each and the chance of ≥1 false positive explodes: <code>P(≥1)=1−(1−α)^m</code>.</li><li><b>FWER</b> (family-wise error): P(any false positive). <b>Bonferroni</b> controls it — use threshold <code>α/m</code>. Simple, but conservative → low power.</li><li><span class="k">FDR controls the expected fraction of discoveries that are false — far more power when you test thousands of signals.</span></li><li><b>Benjamini–Hochberg</b>: sort p-values <code>p₍₁₎≤…≤p₍ₘ₎</code>, find largest k with <code>p₍ₖ₎ ≤ (k/m)·q</code>, reject all up to k. Controls FDR at q.</li><li>Quant relevance: data-mining 1000s of factors guarantees spurious 'alpha'. Correction (or hold-out / lower threshold) is mandatory.</li></ul><div class="eg"><b>Example.</b> m=100, α=0.05: <code>P(≥1 false positive)=1−0.95¹⁰⁰≈99.4%</code>. Bonferroni cutoff drops to <code>0.0005</code> per test.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Bootstrap & resampling</div>
+  <div class="ck-b">
+    <ul><li>Estimate an estimator's sampling distribution by resampling the data <b>with replacement</b> B times, recomputing the statistic each time.</li><li><span class="k">The empirical distribution stands in for the unknown population — get SE/CI/bias with no closed-form formula.</span></li><li>Uses: SE and percentile CIs for messy statistics (median, Sharpe, max drawdown), bias estimation, when CLT/normality is doubtful.</li><li><b>Fails / needs care</b>: dependent data (use <b>block bootstrap</b> to preserve autocorrelation), extreme order statistics (max/min), tiny samples, and heavy tails where moments don't exist.</li><li>Percentile CI: take the 2.5% and 97.5% quantiles of the B bootstrap statistics.</li></ul><div class="eg"><b>Example.</b> 250 daily returns, want SE of the Sharpe: resample 250 days with replacement 10,000×, compute Sharpe each time, take the std of those 10,000 values — that's the bootstrap SE.</div>
+  </div>
+</div>
+    </div>
+    <div class="cheat" data-topic="timeseries">
+<div class="ck">
+  <div class="ck-h">Stationarity (weak vs strict)</div>
+  <div class="ck-b">
+    <ul><li><b>Weak (covariance) stationarity:</b> constant mean <code>E[Xₜ]=μ</code>, constant variance, and autocovariance <code>γ(s,t)</code> depends only on lag <code>|t−s|</code>, not on <code>t</code>.</li><li><b>Strict stationarity:</b> the full joint distribution is shift-invariant. Strict + finite 2nd moment ⇒ weak; weak does NOT imply strict (except Gaussian, where they coincide).</li><li>Most time-series models (AR/MA/ARMA) assume weak stationarity — it's what makes the ACF and forecasts well-defined.</li><li>Prices are typically non-stationary (random walk); log-returns are usually treated as (approximately) stationary.</li><li><span class="k">Stationarity = statistical properties don't drift with time; it's the precondition for estimating a stable autocovariance structure.</span></li></ul><div class="eg"><b>Example.</b> <code>Xₜ=t+εₜ</code> has trending mean ⇒ not stationary. Detrend: <code>Xₜ−t=εₜ</code> is stationary. White noise <code>εₜ</code> is stationary; a random walk <code>Sₜ=Σεᵢ</code> is not (variance grows like <code>tσ²</code>).</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">ACF & PACF — reading the plots</div>
+  <div class="ck-b">
+    <ul><li><b>ACF</b> <code>ρ(k)=γ(k)/γ(0)</code>: correlation between <code>Xₜ</code> and <code>Xₜ₋ₖ</code> including intermediate lags.</li><li><b>PACF</b>: correlation at lag <code>k</code> after regressing out lags <code>1..k−1</code> — the 'direct' effect.</li><li><b>MA(q):</b> ACF cuts off after lag <code>q</code>; PACF tails off (decays).</li><li><b>AR(p):</b> PACF cuts off after lag <code>p</code>; ACF tails off.</li><li><b>ARMA(p,q):</b> both tail off — order not readable directly; use AIC/BIC.</li><li>Significance band ≈ <code>±1.96/√n</code> under the white-noise null.</li><li><span class="k">Cut-off in ACF ⇒ MA order; cut-off in PACF ⇒ AR order. This duality is the classic identification trick.</span></li></ul>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">AR, MA, ARMA models</div>
+  <div class="ck-b">
+    <ul><li><b>AR(p):</b> <code>Xₜ=c+Σφᵢ Xₜ₋ᵢ+εₜ</code> — regress on own past. Stationary iff roots of <code>1−Σφᵢzⁱ=0</code> lie outside the unit circle.</li><li><b>MA(q):</b> <code>Xₜ=μ+εₜ+Σθⱼ εₜ₋ⱼ</code> — finite memory, always stationary; <b>invertible</b> iff MA roots outside unit circle.</li><li><b>ARMA(p,q):</b> combines both; parsimonious vs a long pure AR or MA.</li><li>An invertible MA(∞) ⇔ AR(∞): an AR(1) <code>Xₜ=φXₜ₋₁+εₜ</code> with <code>|φ|<1</code> equals <code>Σφʲεₜ₋ⱼ</code>.</li><li><span class="k">AR = momentum on own past; MA = shocks with finite echo. Stationarity ↔ AR roots; invertibility ↔ MA roots.</span></li></ul><div class="eg"><b>Example.</b> AR(1) <code>Xₜ=φXₜ₋₁+εₜ</code>: <code>Var=σ²/(1−φ²)</code>, <code>ρ(k)=φ^k</code>. So <code>φ=0.9</code> ⇒ slow geometric ACF decay; <code>φ=0.1</code> ⇒ fast decay, near-white.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Random walk vs mean reversion</div>
+  <div class="ck-b">
+    <ul><li><b>Random walk:</b> <code>Xₜ=Xₜ₋₁+εₜ</code> (<code>φ=1</code>) — shocks permanent, variance <code>∝t</code>, best forecast is last value, not stationary, not predictable.</li><li><b>Mean reverting (AR(1), |φ|<1):</b> shocks decay, pulled back to mean <code>c/(1−φ)</code>; half-life of a shock <code>= ln(0.5)/ln(φ)</code>.</li><li>The whole question 'is this tradable?' often reduces to: is <code>φ</code> meaningfully below 1? That's a unit-root test.</li><li>Ornstein–Uhlenbeck is the continuous-time analog: <code>dXₜ=θ(μ−Xₜ)dt+σdWₜ</code>; <code>θ>0</code> ⇒ reversion.</li><li><span class="k">RW = unpredictable, trade nothing; mean reversion = a fade signal with a measurable half-life. The line between them is φ=1.</span></li></ul><div class="eg"><b>Example.</b> <code>φ=0.97</code> daily ⇒ half-life <code>=ln0.5/ln0.97≈22.8</code> days — a slow reverter; size and horizon must match that half-life or you bleed carry.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Unit roots & Dickey–Fuller</div>
+  <div class="ck-b">
+    <ul><li>Test <code>H₀: φ=1</code> (unit root, non-stationary) vs <code>H₁: φ<1</code> (stationary). Run <code>ΔXₜ=γXₜ₋₁+εₜ</code>, test <code>γ=0</code> where <code>γ=φ−1</code>.</li><li><b>ADF</b> adds lagged <code>ΔX</code> terms to absorb serial correlation; variants include drift/trend.</li><li>Distribution under the null is NOT standard t — use Dickey–Fuller critical values (more negative than normal). Reject (very negative stat) ⇒ stationary.</li><li><b>KPSS</b> flips the null (stationary is H₀); pairing ADF + KPSS guards against low-power conclusions.</li><li><span class="k">Unit-root tests have low power: failing to reject H₀ is weak evidence, not proof of a unit root. Don't over-trust 'looks non-stationary'.</span></li></ul>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">ARIMA & differencing</div>
+  <div class="ck-b">
+    <ul><li><b>ARIMA(p,d,q):</b> difference <code>d</code> times to reach stationarity, then fit ARMA(p,q) to <code>ΔᵈX</code>.</li><li><code>d=1</code> handles a stochastic trend (unit root); a deterministic linear trend is better removed by regression, not differencing.</li><li>Choose <code>d</code> from unit-root tests + ACF (slowly decaying ACF ⇒ difference); over-differencing injects spurious negative MA structure.</li><li>Order selection: minimize AIC/BIC, check residuals are white (Ljung–Box).</li><li><span class="k">d is for unit roots, not for everything — over-differencing manufactures a unit MA root and inflates variance.</span></li></ul><div class="eg"><b>Example.</b> Log price is I(1) (unit root); <code>Δlog price = log return</code> is I(0). So modeling returns ≈ ARIMA with d=1 on log prices.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">GARCH & volatility clustering</div>
+  <div class="ck-b">
+    <ul><li><b>Stylized fact:</b> returns are ~uncorrelated but |returns| / returns² are strongly autocorrelated — big moves cluster. Mean is unpredictable; variance is.</li><li><b>ARCH(1):</b> <code>σ²ₜ=ω+α ε²ₜ₋₁</code>. <b>GARCH(1,1):</b> <code>σ²ₜ=ω+α ε²ₜ₋₁+β σ²ₜ₋₁</code> — today's variance from yesterday's shock and yesterday's variance.</li><li><b>Persistence</b> <code>=α+β</code>; <code>&lt;1</code> for stationarity. Unconditional variance <code>=ω/(1−α−β)</code>. Equity <code>α+β</code> is often near 1 (long memory in vol).</li><li>Captures fat tails and clustering; <code>εₜ=σₜ zₜ</code> with <code>zₜ</code> iid. EGARCH/GJR add the leverage (asymmetric) effect.</li><li><span class="k">GARCH models the conditional variance, not the mean — it's a vol forecaster, not an alpha signal. α+β is the vol-persistence dial.</span></li></ul>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Cointegration & pairs trading</div>
+  <div class="ck-b">
+    <ul><li>Two I(1) series are <b>cointegrated</b> if a linear combo <code>Yₜ−βXₜ</code> is I(0) (stationary) — they share a stochastic trend and a stable long-run spread.</li><li><b>Engle–Granger:</b> regress <code>Y on X</code>, ADF-test the residual (spread) for stationarity. <b>Johansen:</b> multivariate, tests rank / multiple cointegrating vectors.</li><li><b>Trade:</b> the stationary spread mean-reverts — short the spread when high, long when low; size by z-score, exit near mean.</li><li>Correlation ≠ cointegration: two series can be highly correlated short-term yet drift apart (no shared trend).</li><li><span class="k">Cointegration is a long-run anchor between non-stationary series; the tradable object is the stationary spread, not either leg.</span></li></ul><div class="eg"><b>Example.</b> <code>spread=log P_A−β log P_B</code>; <code>β</code> the hedge ratio from regression. Trade <code>z=(spread−μ)/σ</code>: enter at <code>|z|≈2</code>, exit at <code>z≈0</code>. Risk: <code>β</code> drifts / the relationship breaks (cointegration is not permanent).</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Lookahead bias & leakage in backtests</div>
+  <div class="ck-b">
+    <ul><li><b>Lookahead:</b> using data not available at decision time — using a bar's close to trade within that bar, or a same-day fundamental released after the close.</li><li><b>Survivorship bias:</b> testing only names that survived; delisted/bankrupt tickers dropped ⇒ inflated returns.</li><li><b>Leakage via fitting:</b> normalizing/standardizing or selecting features on the full sample (incl. future) before splitting — z-scores must use only trailing data.</li><li>Respect <b>point-in-time</b> data and realistic <b>lag</b>: signal at <code>t</code> trades at <code>t+1</code> open; restatements and index recompositions are forward-only.</li><li><span class="k">Every transform must use only information available at the bar it acts on. The classic failure: a trailing window that silently peeks at the future.</span></li></ul><div class="eg"><b>Example.</b> Centering returns with the full-sample mean leaks the future mean into every point. Correct: an expanding/rolling estimate using data up to <code>t−1</code> only — and shift the signal one bar before execution.</div>
+  </div>
+</div>
+    </div>
+    <div class="cheat" data-topic="microstructure">
+<div class="ck">
+  <div class="ck-h">Quoted, effective & realized spread — the measurement ladder</div>
+  <div class="ck-b">
+    <ul><li><code>quoted spread = ask − bid</code>; half-spread <code>= (ask−bid)/2</code>. Often quoted relative: <code>(ask−bid)/mid</code>.</li><li><code>effective spread = 2·D·(P_trade − mid)</code>, <code>D=+1</code> buy, <code>−1</code> sell. Measures what you ACTUALLY paid vs mid at trade time — captures price improvement and crossing.</li><li><code>realized spread = 2·D·(P_trade − mid_{t+Δ})</code> uses the mid a few minutes later — what the maker KEEPS after the price moves against them.</li><li><span class="k">effective = realized + price impact</span>: the part of the effective spread that isn't realized is adverse-selection cost to the maker.</li></ul><div class="eg"><b>Example.</b> Bid 99.98 / ask 100.02, mid 100.00. You buy at 100.02. Effective half-spread = 0.02. If mid drifts to 100.015 in 5 min, realized half-spread = 100.02−100.015 = 0.005; impact = 0.015. Maker only nets 0.005.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Order types, queue priority & the maker–taker model</div>
+  <div class="ck-b">
+    <ul><li><b>Limit order</b> = provides liquidity, rests in book, earns spread but bears adverse selection + non-execution risk. <b>Market order</b> = takes liquidity, pays spread, certain fill.</li><li>Most venues use <b>price–time priority</b>: best price first, then FIFO by arrival. Queue position is an asset — being early in the queue at the best bid is valuable optionality.</li><li><b>Maker–taker</b> fees: passive fills earn a rebate, aggressive fills pay a fee. This distorts the true spread: effective cost to a taker = spread + taker fee.</li><li><span class="k">A resting limit order is a free option written to the market — informed flow picks it off (adverse selection).</span></li><li>Hidden/iceberg orders sacrifice time priority for non-display; pro-rata matching (common in some futures) changes optimal order sizing vs FIFO.</li></ul>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Glosten–Milgrom: spread as pure adverse selection</div>
+  <div class="ck-b">
+    <ul><li>Market maker faces informed traders (know true value <code>V</code>) and noise traders (random). MM is competitive & risk-neutral → zero expected profit → quotes are conditional expectations.</li><li><code>ask = E[V | buy order]</code>, <code>bid = E[V | sell order]</code>. The spread exists EVEN with zero inventory cost and zero fees — purely from information asymmetry.</li><li>Each trade is a signal: a buy revises beliefs up, a sell down. Quotes are a <b>martingale</b> updated via Bayes; prices converge to <code>V</code> as trades arrive.</li><li><span class="k">Spread = compensation for trading against possibly-informed counterparties; more informed flow (higher α) ⇒ wider spread.</span></li><li>Contrast with inventory models: G–M spread is informational, not risk-bearing.</li></ul><div class="eg"><b>Example.</b> <code>V∈{0,100}</code> equally likely, prior mid 50. Fraction α informed. A buy could be informed (V=100) or noise. <code>ask=E[V|buy]>50</code>, <code>bid=E[V|sell]<50</code>; the gap is the adverse-selection spread.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Kyle (1985): λ, market depth & how info gets impounded</div>
+  <div class="ck-b">
+    <ul><li>Single informed trader, noise traders submit order flow <code>u</code>, one market maker sets price from total flow <code>x+u</code>. Linear equilibrium: <code>price = p₀ + λ·(order flow)</code>.</li><li><span class="k">λ is Kyle's lambda — price impact per unit of net order flow; <code>1/λ</code> is market DEPTH (Kyle calls it the inverse of liquidity).</span></li><li>Single-auction closed form: <code>λ = (1/2)·√(Σ₀/σ_u²)</code> where <code>Σ₀</code> = variance of value, <code>σ_u²</code> = noise-trade variance. More noise traders ⇒ smaller λ ⇒ deeper market.</li><li>In that one-shot model the informed trader sizes to avoid full revelation: in equilibrium exactly half the private-info variance is impounded into price (<code>Σ₁ = Σ₀/2</code>).</li><li>Empirically λ is estimated by regressing price changes on signed order flow: <code>ΔP = λ·(signed volume) + ε</code>.</li></ul>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Order-book imbalance as a short-horizon price predictor</div>
+  <div class="ck-b">
+    <ul><li>Define volume imbalance at top of book: <code>I = (Q_bid − Q_ask)/(Q_bid + Q_ask) ∈ [−1,1]</code>.</li><li>Strong positive contemporaneous & short-lead relation: high bid size ⇒ next mid tick more likely UP. Microprice formalizes this.</li><li><b>Microprice</b> (weighted mid): <code>P_micro = (Q_ask·bid + Q_bid·ask)/(Q_bid+Q_ask)</code> — weights the side with LESS size, i.e. tilts toward where the book is thin (the likely move).</li><li><span class="k">Imbalance predicts the next move because thin side fills first; signal decays in seconds and is mostly arbitraged at liquid names.</span></li><li>Caveat: spoofing/flickering quotes contaminate raw imbalance; predictive power is regime- and tick-size-dependent.</li></ul><div class="eg"><b>Example.</b> Bid 99.99 (5000 shares), ask 100.01 (1000). <code>I=(5000−1000)/6000≈0.67</code>. Microprice = (1000·99.99+5000·100.01)/6000 ≈ 100.007 — pulled toward the ask, predicting an up-move.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Avellaneda–Stoikov: reservation price & optimal quoting</div>
+  <div class="ck-b">
+    <ul><li>MM maximizes exponential (CARA, risk aversion <code>γ</code>) utility of terminal wealth while holding inventory <code>q</code> over horizon <code>T−t</code>.</li><li><span class="k">Reservation price <code>r = s − q·γ·σ²·(T−t)</code> — the mid SHIFTED away from current inventory.</span> Long inventory (<code>q>0</code>) pulls quotes DOWN to encourage selling.</li><li>Optimal total spread: <code>δ_total = γσ²(T−t) + (2/γ)·ln(1 + γ/k)</code>, where <code>k</code> governs order-arrival intensity <code>λ=A·e^{−kδ}</code>.</li><li>Quotes set symmetrically around <code>r</code>, NOT the mid: <code>bid = r − δ/2</code>, <code>ask = r + δ/2</code>. This skews fills to mean-revert inventory toward zero.</li><li>As <code>t→T</code> the inventory term vanishes; quotes recenter on the mid.</li></ul>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Inventory-risk view of the spread (Stoll / Ho–Stoll / Garman)</div>
+  <div class="ck-b">
+    <ul><li>Distinct from adverse selection: a MM with finite risk capacity charges a spread to be compensated for holding unwanted, undiversified inventory exposure.</li><li>Quotes are shaded around the true value by inventory: after a buy (MM now SHORT) it raises quotes to attract a seller; after a sell it lowers them. Mid is pushed AWAY from the true value temporarily.</li><li><span class="k">Inventory effects induce transient (mean-reverting) price pressure; adverse-selection effects are permanent.</span> This is the key to decomposing spread components.</li><li>Larger position, higher volatility, shorter unwind horizon, higher funding cost ⇒ wider inventory spread.</li><li>Three classic components: order-processing (fixed cost), inventory-holding, adverse-selection.</li></ul>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Market impact: temporary vs permanent & the square-root law</div>
+  <div class="ck-b">
+    <ul><li><b>Permanent impact</b> = information content of the trade, stays in the price (≈ linear in size, Kyle's λ). <b>Temporary impact</b> = liquidity-consumption cost that decays after you stop trading.</li><li><span class="k">Empirical square-root law: cost of executing a metaorder ≈ <code>Y·σ·√(Q/V)</code></span> — impact grows with the SQUARE ROOT of participation (Q = order size, V = daily volume, σ = vol).</li><li>Almgren–Chriss execution: temporary impact often modeled <code>∝ (trade rate)</code>, permanent <code>∝ (size)</code>; optimal schedule trades off impact vs timing (volatility) risk.</li><li>Concavity matters: doubling order size does NOT double cost — splitting and stretching execution reduces impact but adds price risk.</li></ul><div class="eg"><b>Example.</b> Buying 1% of ADV at σ=2%/day with Y≈1: impact ≈ <code>1·0.02·√0.01 = 0.02·0.1 = 0.002 = 20 bps</code>. Buying 4% ⇒ √4=2× the cost, not 4×.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Execution benchmarks: TWAP, VWAP & Implementation Shortfall</div>
+  <div class="ck-b">
+    <ul><li><b>TWAP</b>: slice evenly over time — simple, predictable, ignores volume profile (vulnerable to gaming, bad when volume is U-shaped).</li><li><b>VWAP</b>: match the day's volume distribution (front-load opening/closing humps). Benchmark = <code>Σ pᵢvᵢ / Σ vᵢ</code>; beating VWAP means trading better than the average participant.</li><li><b>Implementation Shortfall (Perold)</b>: <code>IS = (paid − decision-price) on executed + opportunity cost on unexecuted</code>. The honest all-in benchmark: it charges you for delay, impact, fees, AND missed fills.</li><li><span class="k">VWAP/TWAP measure execution quality vs the market; IS measures the total cost of the DECISION — the only one that penalizes not-trading.</span></li><li>Aggressive (front-loaded) schedules cut timing risk but raise impact; IS-optimal schedules solve this trade-off explicitly (Almgren–Chriss).</li></ul>
+  </div>
+</div>
+    </div>
+    <div class="cheat" data-topic="algorithms">
+<div class="ck">
+  <div class="ck-h">Big-O: the rules that actually get tested</div>
+  <div class="ck-b">
+    <ul><li><span class="k">Big-O is an upper bound on growth as n→∞; drop constants and lower-order terms.</span></li><li>Sum rule: sequential blocks → take the max, <code>O(n)+O(n²)=O(n²)</code>. Product rule: nested loops multiply, <code>O(n)·O(m)=O(nm)</code>.</li><li>Recurrences via Master theorem: <code>T(n)=2T(n/2)+O(n)→O(n log n)</code> (mergesort); <code>T(n)=2T(n/2)+O(1)→O(n)</code> (heapify-style).</li><li>Logs from halving (<code>O(log n)</code> binary search) or from balanced-tree depth; base of the log is a constant, so omit it.</li><li>Watch hidden costs: string concat, slicing, and <code>in</code> on a list are each <code>O(n)</code> inside a loop → quietly <code>O(n²)</code>.</li></ul><div class="eg"><b>Example.</b> Building a result by <code>s += c</code> over n chars is <code>O(n²)</code> (each concat copies); join a list once for <code>O(n)</code>.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Hashing: how it works and when it breaks</div>
+  <div class="ck-b">
+    <ul><li><span class="k">Average O(1) insert/lookup; degrades to O(n) when keys collide into one bucket or the table never resizes.</span></li><li>Collision handling: chaining (linked list/bucket per slot) vs open addressing (probe to next slot). Load factor α = items/buckets drives performance.</li><li>Resize (rehash) when α exceeds a threshold; this is what makes growth amortized O(1), not per-op O(1).</li><li>Degradation triggers: adversarial keys all hashing to one bucket, a weak hash function, or hashing mutable objects whose value changes after insertion.</li><li>Sets/dicts give O(1) membership; ordered structures (balanced BST) give O(log n) but keep sorted order and range queries.</li></ul><div class="eg"><b>Example.</b> Two-sum: one pass storing <code>target−x</code> in a hash set is O(n); the brute nested loop is O(n²).</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Quicksort vs mergesort vs heapsort</div>
+  <div class="ck-b">
+    <ul><li><span class="k">All average O(n log n); they differ on worst case, stability, memory, and constant factors.</span></li><li><table><tr><th></th><th>avg</th><th>worst</th><th>space</th><th>stable</th></tr><tr><td>quicksort</td><td>n log n</td><td>n²</td><td>O(log n)</td><td>no</td></tr><tr><td>mergesort</td><td>n log n</td><td>n log n</td><td>O(n)</td><td>yes</td></tr><tr><td>heapsort</td><td>n log n</td><td>n log n</td><td>O(1)</td><td>no</td></tr></table></li><li>Quicksort worst case n² hits on bad pivots (already-sorted with naive first-element pivot); randomized or median-of-three pivots fix it in practice.</li><li>Mergesort guarantees n log n and is stable → preferred for linked lists and external/disk sorts; cost is the O(n) auxiliary buffer.</li><li>Quicksort wins on arrays despite equal asymptotics due to cache locality and in-place partitioning (small constants).</li></ul>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Heaps and the top-k pattern</div>
+  <div class="ck-b">
+    <ul><li><span class="k">A binary heap gives O(1) peek-min, O(log n) push/pop; build-heap from n items is O(n), not O(n log n).</span></li><li>Array-backed: parent of i is <code>(i−1)/2</code>, children <code>2i+1</code> and <code>2i+2</code>; no pointers needed.</li><li>Top-k largest of a stream: keep a <b>min</b>-heap of size k; push, then pop the smallest if size>k. Cost O(n log k), space O(k).</li><li>Use a max-heap to repeatedly extract the largest; use two heaps (max-heap of low half + min-heap of high half) to track a running median.</li><li>Heapsort = build-heap then repeatedly extract; in-place but not stable and worse cache behavior than quicksort.</li></ul><div class="eg"><b>Example.</b> k-th largest in n items: size-k min-heap → O(n log k), beats sorting's O(n log n) when k≪n.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Two-pointer and sliding window</div>
+  <div class="ck-b">
+    <ul><li><span class="k">Replace an O(n²) nested scan with one linear pass by moving two indices that never backtrack.</span></li><li>Opposite-ends two-pointer needs a <b>sorted</b> array or a monotonic property (e.g. pair-sum: move left up if sum too small, right down if too big).</li><li>Sliding window fits contiguous subarray/substring problems: expand the right edge, shrink the left while a constraint is violated. Amortized O(n) since each index enters and leaves once.</li><li>Fast/slow pointers detect cycles and find midpoints in a single pass with O(1) extra space (Floyd).</li><li>Pitfall: the window technique assumes monotonic feasibility (e.g. all-positive values); negatives can break the shrink invariant — switch to prefix-sum + hash.</li></ul><div class="eg"><b>Example.</b> Longest substring without repeats: window + last-seen hash map, advance left past the duplicate → O(n).</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Dedup: choosing the right technique</div>
+  <div class="ck-b">
+    <ul><li><span class="k">Hash set = O(n) time / O(n) space; sort-then-scan = O(n log n) time / O(1) extra; pick by whether order, memory, or stability matters.</span></li><li>A single pass with a seen-set preserves first-seen order and is fastest, but needs space proportional to distinct items — bad for huge/streaming data.</li><li>Sort then drop adjacent equals uses no extra structure but destroys original order and is slower.</li><li>Find duplicates without extra space when values are bounded in [1,n]: index-as-hash (negate <code>arr[abs(x)]</code>) or cycle detection on the value-as-pointer graph.</li><li>At scale (data won't fit in memory): external sort, or approximate membership with a Bloom filter (false positives, no false negatives).</li></ul><div class="eg"><b>Example.</b> First duplicate in a stream: one pass, add to set, return on first re-seen element → O(n)/O(n).</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Reservoir sampling</div>
+  <div class="ck-b">
+    <ul><li><span class="k">Sample k items uniformly from a stream of unknown length in one pass, O(k) memory.</span></li><li>Algorithm R: keep the first k; for the i-th item (i>k) keep it with probability <code>k/i</code>, evicting a uniformly random current holder.</li><li>Correctness: induction shows every seen item retains probability <code>k/n</code> after n items — the early-vs-late asymmetry exactly cancels.</li><li>k=1 case: replace the held item with probability <code>1/i</code>; trivial to state and a common warm-up.</li><li>Use it when you can't store or count the data first (logs, ticks, network streams); weighted variants use the exponential-jump (A-ExpJ) trick.</li></ul><div class="eg"><b>Example.</b> P(item 1 survives n draws, k=1) = <code>1·½·⅔···(n−1)/n = 1/n</code> — uniform, as required.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Dynamic programming: state, transition, order</div>
+  <div class="ck-b">
+    <ul><li><span class="k">DP = overlapping subproblems + optimal substructure; define the state, the transition, the base case, and a valid evaluation order.</span></li><li>Top-down memoization: recursion + cache; only computes reachable states, easy to write. Bottom-up tabulation: iterative fill, no recursion overhead, enables space rolling.</li><li>Rolling array: if a transition only reads the previous row, keep O(width) instead of O(n·width) memory.</li><li>Classic templates: knapsack (weight-capacity state), longest common subsequence (2-D grid), edit distance, coin change (min-count), interval DP.</li><li>Pitfall: greedy fails when a locally optimal choice blocks a global optimum — DP enumerates all consistent choices; prove substructure before trusting greedy.</li></ul><div class="eg"><b>Example.</b> Coin change min coins: <code>dp[a]=min(dp[a−c]+1)</code> over coins c; O(amount·#coins), 1-D array.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Pattern map: problem signature → technique</div>
+  <div class="ck-b">
+    <ul><li><span class="k">Most interview problems are a known pattern in disguise; match the signature first, then code.</span></li><li>"Sorted array / find a pair or bound" → two pointers or binary search.</li><li>"Contiguous subarray/substring with a constraint" → sliding window or prefix-sum + hash.</li><li>"k largest/smallest, or running order statistic" → heap (size-k or two-heap median).</li><li>"Count/optimize over choices with reuse" → DP; "min answer satisfying a monotonic predicate" → binary search on the answer.</li><li>"Membership / first duplicate / group-by-key" → hash set/map; "cycle or midpoint in a list" → fast-slow pointers.</li></ul><div class="eg"><b>Example.</b> "Min capacity to ship in D days" reads as optimization but the feasibility is monotonic → binary-search the capacity, O(n log range).</div>
+  </div>
+</div>
+    </div>
+    <div class="cheat" data-topic="brainteasers">
+<div class="ck">
+  <div class="ck-h">The Brainteaser Attack Plan</div>
+  <div class="ck-b">
+    <ul><li><span class="k">Before computing, restate the rules out loud and ask what's being optimized — half of teasers are won by clarifying constraints.</span></li><li>Try the smallest / most extreme case first: n=1, n=2 often reveals the pattern or invariant.</li><li>Hunt for an <b>invariant</b> (something that never changes) or a <b>monovariant</b> (something that only moves one way) — these prove impossibility or bound the answer.</li><li>Work <b>backward</b> from the end state when the last move is forced (induction, endgames, pirate splits).</li><li>Think out loud and narrate your search — the interviewer scores your process, not just the final number.</li></ul><div class="eg"><b>Example.</b> "Can a knight visit every square of a 5×5 board and return to start?" Color the board: a closed knight's tour alternates colors, needing equal black/white, but 25 squares can't split evenly — invariant kills it instantly.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Parity & Invariants</div>
+  <div class="ck-b">
+    <ul><li><span class="k">If every legal move flips a quantity by a fixed parity, the reachable states are exactly those matching that parity — use it to prove a goal is impossible.</span></li><li>Checkerboard coloring: a domino always covers one black + one white square, so a board with unequal colors can't be tiled.</li><li>Mutilated chessboard: remove two opposite (same-color) corners → 32 vs 30 squares → no domino tiling.</li><li>Light-switch / coin-flip puzzles: track the parity of "heads" or "on" switches; an odd invariant blocks the all-off state.</li><li>Splitting a coin into two known-count groups: separate N coins from the dark, flip those N — both groups end with equal heads regardless of which were heads.</li></ul><div class="eg"><b>Example.</b> 100 coins, 10 heads, you're blindfolded. Split into a pile of 10 and a pile of 90, then flip every coin in the pile of 10. If the small pile took k heads, it now has 10−k heads and the big pile has 10−k heads — equal, guaranteed.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Hat-Color Logic via Parity</div>
+  <div class="ck-b">
+    <ul><li><span class="k">One announced parity bit lets everyone behind deduce their own color — the first speaker sacrifices himself to broadcast the XOR of all hats he sees.</span></li><li>N prisoners in a line, each sees only those ahead; back-most counts (say) red hats mod 2 and shouts that parity.</li><li>Each subsequent prisoner counts reds still ahead, compares to the running parity announced, and infers his own hat.</li><li>Guarantees N−1 saved; the first has a 50% guess. No probability needed — it's pure parity bookkeeping.</li><li>Generalizes to colors mod k: announce the sum of all visible hats mod k.</li></ul><div class="eg"><b>Example.</b> Back prisoner sees 7 red hats → odd → shouts "red." Next sees 6 red → even → the parity dropped by his own, so his hat is red. He says red; everyone updates the parity and continues.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Weighing Puzzles: the 3ᵏ Bound</div>
+  <div class="ck-b">
+    <ul><li><span class="k">A balance has 3 outcomes per weighing (left<right, =, >), so k weighings distinguish at most 3ᵏ states — set up that information budget first.</span></li><li>12 coins, one fake of unknown direction: 24 possibilities < 3³=27, so 3 weighings suffice; design each weighing to split outcomes as evenly as possible.</li><li>Classic 3-weighing 12-coin split: weigh 4 vs 4, then branch on the result, keeping every outcome equally informative.</li><li>A one-pan scale (reads exact weight) gives far more info — that's the regime for the bottle-counterfeit-coin puzzle (take 1,2,3,… coins).</li><li>Always count outcomes vs states before constructing the scheme; if states > 3ᵏ it's provably impossible.</li></ul><div class="eg"><b>Example.</b> 10 stacks, each coin 10g except one stack of 9g coins. One weighing on a scale: take 1 coin from stack 1, 2 from stack 2, …; the deficit below the expected total (in grams) names the bad stack.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Binary Encoding: Bottles & Testers</div>
+  <div class="ck-b">
+    <ul><li><span class="k">To identify 1 poisoned item among N with parallel yes/no testers, each item gets a binary ID and tester i drinks every item whose bit i is 1 — needs ⌈log₂N⌉ testers.</span></li><li>1000 bottles, 1 poison, one test round: 2¹⁰=1024 ≥ 1000, so 10 testers; the pattern of deaths reads off the poisoned bottle's 10-bit index.</li><li>Key requirements: tests run in parallel (one round) and the result is per-tester binary (sick / not).</li><li>If you have multiple sequential rounds instead, the budget grows multiplicatively — re-derive the base accordingly.</li><li>Same trick labels prisoners or switches: assign IDs, let each "channel" carry one bit.</li></ul><div class="eg"><b>Example.</b> Bottle 731 = 1011011011₂. Testers at bit-positions {0,1,3,4,6,7,9} drink it; if exactly those testers die, the binary pattern of deaths reconstructs 731.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Backward Induction: Pirates & Endgames</div>
+  <div class="ck-b">
+    <ul><li><span class="k">When the last decision is forced, solve the final subgame first and induct backward — each player anticipates that everyone after them plays optimally.</span></li><li>Pirate split (5 pirates, 100 coins, ≥50% incl. proposer's own vote needed, else proposer dies): solve the 2-pirate case, then 3, 4, 5.</li><li>With 2 left, the senior keeps all (his own vote = 50%); knowing that, with 3 the proposer buys the cheapest vote with 1 coin, etc.</li><li>Result for 5: proposer keeps 98, gives 1 each to the two pirates who'd get nothing in the next subgame.</li><li>Pirates are rational, greedy, and prefer killing only when indifferent — clarify the tie-break rule before answering.</li></ul><div class="eg"><b>Example.</b> 5 pirates (A senior…E): A proposes 98-0-1-0-1. C and E accept because if A dies, B's plan gives them 0; A's own vote + C + E = 3/5 ≥ majority. A survives with 98.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Nim & Combinatorial Games</div>
+  <div class="ck-b">
+    <ul><li><span class="k">A Nim position is losing for the player to move iff the XOR (nim-sum) of all pile sizes is 0; otherwise move to make it 0.</span></li><li>Identify P-positions (previous player wins / mover loses) — these are the targets you hand your opponent.</li><li>Winning move: pick a pile, reduce it so the total XOR becomes 0; such a move always exists when XOR ≠ 0.</li><li>For non-Nim games, compute Grundy numbers (mex of reachable positions' Grundy values); a sum of games XORs their Grundy values (Sprague–Grundy).</li><li>Misère Nim differs only near the end: play normal Nim until all heaps are size 1, then flip parity.</li></ul><div class="eg"><b>Example.</b> Piles 3,4,5: 3⊕4⊕5 = 011⊕100⊕101 = 010 = 2 ≠ 0, so the mover wins. Reduce the pile of 3 to 1 (since 1⊕4⊕5=0), handing a losing position to the opponent.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Optimal Stopping: the Secretary Rule</div>
+  <div class="ck-b">
+    <ul><li><span class="k">To pick the single best of N candidates seen one-at-a-time with no recall, reject the first ~N/e (37%) automatically, then take the first one better than everyone so far.</span></li><li>The first phase only calibrates a threshold (the best-so-far); the second phase commits on the first record-breaker.</li><li>Probability of landing the very best converges to 1/e ≈ 37% as N grows — cite the result; the integral derivation lives in Probability.</li><li>Variants change the cutoff: maximizing expected rank, or allowing a few picks, shifts the threshold — state which objective you're optimizing.</li><li>Watch the framing trap: this maximizes P(get the absolute best), not expected value of the chosen candidate.</li></ul><div class="eg"><b>Example.</b> 100 applicants: interview and reject the first 37 (remember the best of them), then hire the first applicant who beats that bar. ~37% chance you hired the true #1.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">100 Prisoners & the Boxes</div>
+  <div class="ck-b">
+    <ul><li><span class="k">Each prisoner follows the cycle: open the box labeled with his number, then the box numbered by the slip he finds, repeating — survival hinges on no permutation cycle exceeding 50.</span></li><li>100 prisoners, boxes hold a random permutation of 1–100; each may open 50 boxes and must find his own number; all must succeed.</li><li>Naive random search → survival ≈ (1/2)¹⁰⁰, essentially zero. Cycle-following ties everyone's fate to one event: "longest cycle ≤ 50."</li><li>That event's probability is about 31% (≈ 1 − ln 2 in the limit) — cite it; the harmonic-sum derivation belongs to Probability.</li><li>The trick is that following slips means a prisoner traverses exactly the cycle containing his own number, and he finds it iff that cycle has length ≤ 50.</li></ul><div class="eg"><b>Example.</b> Prisoner 7 opens box 7 → finds 23 → opens box 23 → finds 7: a 2-cycle, found in 2 opens. He's safe as long as his cycle's length is ≤ 50.</div>
+  </div>
+</div>
+    </div>
+    <div class="cheat" data-topic="mentalmath">
+<div class="ck">
+  <div class="ck-h">Percent of: x% of y = y% of x</div>
+  <div class="ck-b">
+    <ul><li><span class="k">x% of y equals y% of x — swap to whichever is easier.</span></li><li>Hard: <code>16% of 25</code>. Swap: <code>25% of 16 = 4</code>.</li><li>Build any percent from <code>10%</code> (move decimal), <code>5%</code> (half of 10%), <code>1%</code> (move twice).</li><li>Basis points: <code>1bp = 0.01% = 0.0001</code>; <code>100bp = 1%</code>.</li><li>Tip-style: <code>15% = 10% + 5%</code>; <code>17.5% = 10%+5%+2.5%</code>.</li></ul><div class="eg"><b>Example.</b> <code>8% of 50 = 50% of 8 = 4</code>. And <code>35bp of $20M = 0.0035×20M = $70k</code>.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Fraction → decimal cheat table</div>
+  <div class="ck-b">
+    <ul><li><span class="k">Memorize eighths, sixteenths, and 1/7 — they recur in odds, ticks, and yields.</span></li><li>Halving chain: <code>1/2=.5, 1/4=.25, 1/8=.125, 1/16=.0625</code>.</li><li>Sixteenths: <code>3/16=.1875, 5/16=.3125, 7/16=.4375</code> (odd k: <code>k/16</code>).</li><li>Sevenths cycle <code>142857</code>: <code>1/7=.142857</code>, <code>2/7=.285714</code>, … (rotate the block).</li><li>Useful: <code>1/3=.3̄, 1/6=.16̄, 1/9=.1̄, 1/11=.0909, 1/12=.0833</code>.</li></ul><div class="eg"><b>Example.</b> <code>3/7 = .428571</code> — same six digits as 1/7, started at the right spot (3×.142857).</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Squaring tricks: ends-in-5, near a base</div>
+  <div class="ck-b">
+    <ul><li><span class="k">n5² = n(n+1) followed by 25.</span> So <code>35² = 3·4|25 = 1225</code>.</li><li>Near a base b: <code>n² = (n+d)(n−d) + d²</code> where <code>d = n−b</code>.</li><li>Near 50: <code>53² = (50+3)² → 2500 + 100·3 + 9 = 2809</code>.</li><li>Near 100: <code>97² = (100−3)² = 10000 − 600 + 9 = 9409</code>.</li><li>General: <code>(a±b)² = a² ± 2ab + b²</code> — pick <code>a</code> as a round anchor.</li></ul><div class="eg"><b>Example.</b> <code>48² = (50−2)² = 2500 − 200 + 4 = 2304</code>.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Fast multiplication: difference of squares & ×11</div>
+  <div class="ck-b">
+    <ul><li><span class="k">For symmetric pairs, ab = (mid)² − (gap)².</span></li><li><code>17×19 = 18² − 1² = 324 − 1 = 323</code>; <code>38×42 = 40² − 2² = 1600 − 4 = 1596</code>.</li><li>×11: write the digits with their sum between, carrying: <code>11×34 = 3|3+4|4 = 374</code>.</li><li>×5 = ×10 ÷2; ×25 = ÷4 ×100; ×9 = ×10 − itself.</li><li>Break-apart: <code>23×14 = 23×10 + 23×4 = 230 + 92 = 322</code>.</li></ul><div class="eg"><b>Example.</b> <code>54×46 = 50² − 4² = 2500 − 16 = 2484</code> (pair averages 50, gap 4).</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Square roots by digit-pairing</div>
+  <div class="ck-b">
+    <ul><li><span class="k">Pair digits from the decimal point; each pair → one result digit, so count pairs to fix the magnitude.</span></li><li>Anchor squares: <code>√2≈1.414, √3≈1.732, √5≈2.236, √7≈2.646</code>.</li><li><code>√10≈3.162</code> (= √2·√5); <code>√12 = 2√3 ≈ 3.464</code>.</li><li>Refine with one Newton step: <code>√S ≈ (g + S/g)/2</code> for guess <code>g</code>.</li><li>Scaling: <code>√(100x) = 10√x</code>; move the decimal in pairs, not singly.</li></ul><div class="eg"><b>Example.</b> <code>√50</code>: guess 7, <code>(7 + 50/7)/2 = (7 + 7.14)/2 ≈ 7.07</code> (true 7.071).</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Rule of 72 (and when it's exact)</div>
+  <div class="ck-b">
+    <ul><li><span class="k">Doubling time ≈ 72 / rate(%); the pure log answer is ln2×100 ≈ 69.3, but 72 corrects upward for discrete compounding and has more clean divisors.</span></li><li>Near-exact at 8%: <code>72/8 = 9.0</code> vs true <code>9.01</code> yr.</li><li>Slightly long at 7%: <code>72/7 = 10.29</code> vs true <code>10.24</code> yr.</li><li>Use 69–70 for continuous compounding (<code>ln2 = .693</code>); 72 has more clean divisors.</li><li>Tripling: from <code>ln3 ≈ 1.10</code>, time ≈ <code>110/rate</code> (e.g. 6% → ~18 yr).</li></ul><div class="eg"><b>Example.</b> At 6%, money doubles in <code>72/6 = 12</code> yr; true value 11.9 yr.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Compounding & chained returns</div>
+  <div class="ck-b">
+    <ul><li><span class="k">(1+x)ⁿ ≈ 1 + nx for small x — but the dropped term is +n(n−1)x²/2, always positive, so you under-count.</span></li><li><code>+x then −x = (1+x)(1−x) = 1 − x²</code> — always a net loss of <code>x²</code>.</li><li>Compounding beats simple: <code>0.5%/mo</code> → <code>1.005¹² = 1.0617</code> (6.17%, not 6%).</li><li>Returns chain multiplicatively: total <code>= ∏(1+rᵢ) − 1</code>, never add unless tiny.</li><li>Small-return shortcut: sum the logs, <code>ln(1+r) ≈ r</code>.</li></ul><div class="eg"><b>Example.</b> <code>+10% then −10% = 1 − .01 = 0.99</code> → down 1%, not flat.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Log & exp approximations</div>
+  <div class="ck-b">
+    <ul><li><span class="k">eˣ ≈ 1 + x + x²/2 and ln(1+x) ≈ x − x²/2 for small x.</span></li><li>Key logs: <code>ln2 ≈ .693, ln10 ≈ 2.303</code>; <code>log₁₀2 = .301, log₁₀3 = .477, log₁₀7 = .845</code>.</li><li>Get the rest by addition: <code>log₁₀5 = 1 − .301 = .699</code>; <code>log₁₀6 = .301+.477 = .778</code>.</li><li><code>e ≈ 2.718</code>; <code>e² ≈ 7.39</code>; doubling-decibel sense: +3dB ≈ ×2 since <code>10^.3 ≈ 2</code>.</li><li>Convert bases: <code>ln x = 2.303 · log₁₀ x</code>.</li></ul><div class="eg"><b>Example.</b> <code>ln1.1 ≈ .1 − .005 = .095</code> (true .0953); so 10%/yr doubles in <code>.693/.095 ≈ 7.3</code> yr.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Annualization & quick P&L arithmetic</div>
+  <div class="ck-b">
+    <ul><li><span class="k">Daily vol → annual: ×√252 ≈ 16, so 1% daily vol ≈ 16% annual (because 16²=256≈252).</span></li><li>Monthly → annual vol: <code>×√12 ≈ 3.46</code>; weekly: <code>×√52 ≈ 7.2</code>.</li><li>Sharpe annualizes the same way: daily Sharpe <code>×√252</code>, monthly <code>×√12</code>.</li><li>Volatility scales with <code>√time</code>, return scales with <code>time</code> — that gap is why Sharpe grows.</li><li>P&L: <code>notional × move</code>; in bps, <code>$X × bp/10000</code>.</li></ul><div class="eg"><b>Example.</b> +35bp on $20M = <code>20M × .0035 = $70k</code>. A 0.8% daily-vol book ≈ <code>0.8×16 = 12.8%</code> annual vol.</div>
+  </div>
+</div>
+    </div>
 
     <div class="cheat on" data-topic="calculus">
 <div class="ck">
@@ -540,6 +941,25 @@
     <div class="eg"><b>Example.</b> <code>lim(x→0) (1−cos x)/x²</code> = 0/0 → <code>sin x / 2x</code> = 0/0 → <code>cos x / 2 → 1/2</code>. (Matches <code>cos x ≈ 1−x²/2</code>.)</div>
   </div>
 </div>
+    
+<div class="ck">
+  <div class="ck-h">Convexity & Jensen's Inequality</div>
+  <div class="ck-b">
+    <ul><li>A twice-differentiable <code>f</code> is convex on an interval iff <code>f″(x) ≥ 0</code> there; concave iff <code>f″ ≤ 0</code>. Convex = holds water, lies below its chords, above its tangents.</li><li><span class="k">Jensen: for convex <code>f</code>, <code>E[f(X)] ≥ f(E[X])</code>; flip the sign for concave.</span> Equality iff <code>X</code> is constant or <code>f</code> linear.</li><li>The convexity gap <code>E[f(X)] − f(E[X])</code> grows with <code>Var(X)</code> and curvature — this is exactly option <i>vega</i>/gamma in disguise.</li><li>Tangent-line bound (convex): <code>f(x) ≥ f(a) + f′(a)(x−a)</code> for all <code>a</code> — the basis of the supporting-hyperplane argument.</li><li>Common: <code>x²</code>, <code>eˣ</code>, <code>−ln x</code>, <code>1/x</code> (x&gt;0) are convex; <code>ln x</code>, <code>√x</code> are concave.</li></ul><div class="eg"><b>Example.</b> <code>f(x)=x²</code> convex, so <code>E[X²] ≥ (E[X])²</code> — which restates <code>Var(X) = E[X²]−(E[X])² ≥ 0</code>. Jensen is the structural reason variance is nonnegative.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Feynman's Trick (Differentiation Under the Integral)</div>
+  <div class="ck-b">
+    <ul><li>Introduce a parameter <code>t</code> into an integral <code>I(t)=∫ f(x,t) dx</code>, then <span class="k">swap derivative and integral: <code>I′(t)=∫ ∂f/∂t dx</code></span> (Leibniz rule), integrate the easier result, and fix the constant from a known value.</li><li>Workhorse for Gaussian moments: differentiate <code>∫₋∞^∞ e^(−tx²) dx = √(π/t)</code> in <code>t</code> to pull down powers of <code>x²</code>.</li><li><code>E[X²ⁿ]</code> for standard normal: <code>(2n−1)!! = 1·3·5···(2n−1)</code> (e.g. <code>E[X²]=1</code>, <code>E[X⁴]=3</code>, <code>E[X⁶]=15</code>).</li><li>Justified when <code>∂f/∂t</code> is dominated by an integrable bound (Leibniz integral rule / dominated convergence) — fine for the smooth, fast-decaying integrands quants see.</li></ul><div class="eg"><b>Example.</b> From <code>∫₋∞^∞ e^(−tx²) dx = √π·t^(−1/2)</code>, differentiate both sides in <code>t</code>: <code>∫ −x²e^(−tx²) dx = −½√π·t^(−3/2)</code>. At <code>t=1</code>: <code>∫₋∞^∞ x²e^(−x²) dx = √π/2 ≈ 0.8862</code>.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Second-Order Multivariable Taylor & Newton Step</div>
+  <div class="ck-b">
+    <ul><li>Quadratic expansion about <code>x</code>: <span class="k"><code>f(x+h) ≈ f(x) + ∇f(x)ᵀh + ½ hᵀH(x)h</code></span>, where <code>H</code> is the Hessian of second partials <code>Hᵢⱼ=∂²f/∂xᵢ∂xⱼ</code>.</li><li><code>H</code> is symmetric when second partials are continuous (Clairaut/Schwarz): <code>∂²f/∂x∂y = ∂²f/∂y∂x</code>.</li><li>Setting the gradient of the quadratic model to zero gives the <b>Newton step</b>: <code>h = −H⁻¹∇f</code> — the multivariate analogue of <code>x − f′/f″</code>.</li><li>The curvature seen along a direction <code>v</code> is <code>vᵀHv/(vᵀv)</code>; bounded by the smallest/largest eigenvalues of <code>H</code>.</li><li>This expansion underlies risk: a portfolio P&L in factors is <code>≈ ΔᵀΔx + ½Δxᵀ Γ Δx</code> (delta–gamma), with <code>Γ</code> the Hessian of value.</li></ul><div class="eg"><b>Example.</b> <code>f=x²+xy+y²</code> at origin: <code>∇f=(0,0)</code>, <code>H=[[2,1],[1,2]]</code>. So <code>f(h)≈½hᵀHh = h₁²+h₁h₂+h₂²</code> — exact here since <code>f</code> is already quadratic.</div>
+  </div>
+</div>
     </div>
 
     <div class="cheat" data-topic="linalg">
@@ -668,6 +1088,25 @@
     <div class="eg"><b>Example.</b> <code>v₁=(1,0), v₂=(1,1)</code>: keep <code>u₁=(1,0)</code>. Subtract projection: <code>u₂ = (1,1) − (v₂·u₁)u₁ = (1,1)−(1,0) = (0,1)</code>. Now orthonormal.</div>
   </div>
 </div>
+    
+<div class="ck">
+  <div class="ck-h">Eigendecomposition vs SVD — When Each Applies</div>
+  <div class="ck-b">
+    <ul><li>Eigendecomposition <code>A=VΛV⁻¹</code> needs A square; <code>V</code> orthogonal only if A is symmetric (spectral theorem).</li><li>SVD <code>A=UΣVᵀ</code> exists for ANY m×n matrix; <code>U,V</code> always orthonormal, <code>σᵢ≥0</code>.</li><li>For symmetric PSD A: the two coincide — <code>σᵢ=λᵢ</code>, left/right singular vectors equal eigenvectors.</li><li>General A: singular values are <code>σᵢ=√(λᵢ(AᵀA))</code>; eigenvalues of A can be complex/negative, σ never.</li><li><span class="k">Use eigen for square symmetric (covariance, quadratic forms); use SVD when rectangular, rank-deficient, or numerically nasty.</span></li></ul><div class="eg"><b>Example.</b> A non-symmetric 2×2 can have complex eigenvalues (a rotation) yet two real positive σ. So |det A|=σ₁σ₂=|λ₁λ₂| still holds, but eigenvectors need not be orthogonal.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Condition Number — Definition & Consequences</div>
+  <div class="ck-b">
+    <ul><li><code>κ(A)=σ_max/σ_min</code> (2-norm); for symmetric, <code>=|λ|_max/|λ|_min</code>.</li><li>Measures sensitivity: relative error in <code>x</code> solving <code>Ax=b</code> can be up to <code>κ(A)</code> × relative error in <code>b</code> or A.</li><li>Rule of thumb: lose about <code>log₁₀κ</code> digits of accuracy; <code>κ≈10¹⁶</code> in double precision means the answer is garbage.</li><li>Normal equations square it: <code>κ(AᵀA)=κ(A)²</code> — why QR/SVD beats forming <code>AᵀA</code> for least squares.</li><li><span class="k">High κ = nearly singular = collinear features; fix with regularization or drop/orthogonalize columns.</span></li></ul><div class="eg"><b>Example.</b> Ridge adds <code>λI</code>: solving <code>(AᵀA+λI)x</code> shifts every eigenvalue up by λ, capping κ at <code>(σ_max²+λ)/(σ_min²+λ)</code> — strictly better-conditioned.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Low-Rank Approximation & Eckart–Young</div>
+  <div class="ck-b">
+    <ul><li>Truncated SVD: keep top k singular triplets, <code>A_k=Σᵢ₌₁ᵏ σᵢuᵢvᵢᵀ</code>.</li><li><span class="k">Eckart–Young: A_k is the BEST rank-k approximation in both spectral and Frobenius norm.</span></li><li>Error: <code>‖A−A_k‖₂=σ_{k+1}</code>; <code>‖A−A_k‖_F=√(Σ_{i>k}σᵢ²)</code>.</li><li>Energy captured by k components = <code>Σᵢ₌₁ᵏσᵢ² / Σσᵢ²</code> — the scree/variance-explained ratio.</li><li>Storage drops from <code>mn</code> to <code>k(m+n+1)</code>: the win when σ decay is fast.</li></ul><div class="eg"><b>Example.</b> A rank-1 signal buried in tiny noise has σ₁≫σ₂; truncating to k=1 denoises optimally and the residual norm is exactly σ₂.</div>
+  </div>
+</div>
     </div>
 
     <div class="cheat" data-topic="geometry">
@@ -777,6 +1216,25 @@
       <li><span class="k">Equilateral triangle side a: height <code>= (√3/2)a</code>, area <code>= (√3/4)a²</code>.</span></li>
     </ul>
     <div class="eg"><b>Example.</b> Diagonal of a 1×2×2 box: <code>√(1+4+4) = √9 = 3</code>. Area of equilateral triangle side 2: <code>(√3/4)·4 = √3 ≈ 1.732</code>.</div>
+  </div>
+</div>
+    
+<div class="ck">
+  <div class="ck-h">Triangle Area: Shoelace, Heron & Cross-Product</div>
+  <div class="ck-b">
+    <ul><li><span class="k">Shoelace is the fastest area formula given coordinates — memorize it.</span></li><li>Coordinates: <code>Area = ½|x_A(y_B−y_C)+x_B(y_C−y_A)+x_C(y_A−y_B)|</code>. Equivalent to <code>½|(B−A)×(C−A)|</code> in 2D.</li><li>Heron (sides only): <code>s=(a+b+c)/2</code>, <code>Area=√(s(s−a)(s−b)(s−c))</code>.</li><li>Two sides + included angle: <code>Area=½·a·b·sinθ</code>.</li><li>3D triangle: <code>Area=½‖(B−A)×(C−A)‖</code> — the cross-product magnitude is twice the area.</li><li>Sign of the shoelace (before abs) gives orientation: <code>+</code> counterclockwise, <code>−</code> clockwise. Collinear ⟺ area 0.</li></ul><div class="eg"><b>Example.</b> A=(0,0), B=(4,0), C=(1,3). Shoelace: <code>½|0(0−3)+4(3−0)+1(0−0)| = ½·12 = 6</code>.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Geometric Probability: the Sample-Space Method</div>
+  <div class="ck-b">
+    <ul><li><span class="k">Turn "random" into a uniform point in a region; the probability is a ratio of measures (length/area/volume).</span></li><li>Pick the right coordinates: independent uniform picks → a square/cube; an angle → arc length on a circle; a stick break → a simplex.</li><li>Shade the event region, integrate or use geometry, divide by total measure. <code>P = measure(event)/measure(space)</code>.</li><li>Symmetry first: many answers (broken-stick triangle ¼, two-points-same-half) fall out of symmetry without integration.</li><li>Watch the conditioning: "given X, find P(Y)" restricts the sample space to the X-slice — recompute the denominator.</li></ul><div class="eg"><b>Example.</b> x,y ~ U(0,1) independent. P(|x−y|<½)? In the unit square, remove two corner triangles each of leg ½ and area ⅛. <code>P = 1 − 2·⅛ = ¾</code>.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Vector Projections & Point-to-Line/Plane Distance</div>
+  <div class="ck-b">
+    <ul><li><span class="k">Projection of a onto b: <code>(a·b/‖b‖²)·b</code>; its length is <code>|a·b|/‖b‖</code>.</span></li><li>Point P to line through A with direction d (any dim): <code>dist = ‖(P−A) − proj_d(P−A)‖</code>. In 2D/3D: <code>‖(P−A)×d‖/‖d‖</code>.</li><li>Point P to plane <code>n·x=c</code>: <code>dist = |n·P − c|/‖n‖</code> (signed if you drop the abs — sign tells which side).</li><li>Closest point on the line/plane = P minus the perpendicular component; reflect P by subtracting twice that component.</li><li>Distance between two skew lines: <code>|(A₂−A₁)·(d₁×d₂)|/‖d₁×d₂‖</code>.</li></ul><div class="eg"><b>Example.</b> Distance from P=(1,2,3) to plane <code>2x−y+2z=3</code>: <code>|2−2+6−3|/√(4+1+4) = 3/3 = 1</code>.</div>
   </div>
 </div>
     </div>
@@ -897,6 +1355,19 @@
     <div class="eg"><b>Example.</b> Two assets σ=20% each, ρ=0.5, equal weights. Portfolio var = 0.25·0.04+0.25·0.04+2·0.25·(0.5·0.04) = 0.02+0.01 = 0.03, so σ_p ≈ 17.3% — diversification benefit vs 20%.</div>
   </div>
 </div>
+    
+<div class="ck">
+  <div class="ck-h">Sums of Independent Random Variables — Additivity & Convolution</div>
+  <div class="ck-b">
+    <ul><li>Independent sums: MGFs multiply, so means and variances always add: <code>E[ΣXᵢ]=ΣE[Xᵢ]</code>, <code>Var(ΣXᵢ)=ΣVar(Xᵢ)</code> (independence needed only for variance).</li><li><span class="k">Many families are closed under addition with FIXED parameters; memorize which.</span></li><li>Beware: ratios/products are NOT additive, and the sum of two iid uniforms is triangular, not uniform.</li></ul><table><tr><th>Sum of independent</th><th>Result</th></tr><tr><td>Normal(μᵢ,σᵢ²)</td><td><code>Normal(Σμᵢ, Σσᵢ²)</code></td></tr><tr><td>Poisson(λᵢ)</td><td><code>Poisson(Σλᵢ)</code></td></tr><tr><td>n × Bernoulli(p)</td><td><code>Binomial(n,p)</code></td></tr><tr><td>Binomial(nᵢ,p) (same p)</td><td><code>Binomial(Σnᵢ, p)</code></td></tr><tr><td>n × Exp(λ)</td><td><code>Gamma(n, 1/λ)</code> = Erlang</td></tr><tr><td>Gamma(kᵢ,θ) (same θ)</td><td><code>Gamma(Σkᵢ, θ)</code></td></tr><tr><td>χ²(kᵢ)</td><td><code>χ²(Σkᵢ)</code></td></tr></table><div class="eg"><b>Example.</b> X−Y for independent <code>N(μ₁,σ₁²), N(μ₂,σ₂²)</code>: write as X+(−Y); means subtract but VARIANCES STILL ADD → <code>N(μ₁−μ₂, σ₁²+σ₂²)</code>. Classic sign-trap.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Simulating Any Distribution — Inverse-CDF & Transforms</div>
+  <div class="ck-b">
+    <ul><li><b>Probability integral transform:</b> if <code>U~Uniform(0,1)</code> then <code>X=F⁻¹(U)</code> has CDF F. Conversely <code>F(X)~Uniform(0,1)</code>.</li><li><span class="k">Inverse-CDF sampling needs a closed-form, invertible F.</span></li><li><b>Exponential:</b> solve <code>U=1−e^(−λx)</code> ⇒ <code>X=−ln(U)/λ</code> (use ln U; U and 1−U are both uniform).</li><li><b>Normal (no closed-form F⁻¹):</b> Box–Muller — <code>Z₁=√(−2 ln U₁)·cos(2πU₂)</code>, <code>Z₂=√(−2 ln U₁)·sin(2πU₂)</code> are iid N(0,1).</li><li>When F⁻¹ is intractable: acceptance–rejection or other transforms.</li></ul><div class="eg"><b>Example.</b> Sample a fair coin from U~Uniform(0,1): return Heads if U&lt;0.5. Sample Geometric(p) # trials: <code>X=⌈ln(U)/ln(1−p)⌉</code> — the discrete inverse-CDF.</div>
+  </div>
+</div>
     </div>
 
     <div class="cheat" data-topic="combinatorics">
@@ -993,6 +1464,25 @@
       <li>Probability GF: <code>E[zˣ]</code>; for Poisson it is <code>e^(λ(z−1))</code>.</li>
     </ul>
     <div class="eg"><b>Example.</b> Ways two dice sum to 7: coefficient of x⁷ in (x+…+x⁶)² = 6. Sum to 4: coefficient of x⁴ = 3 (1+3, 2+2, 3+1).</div>
+  </div>
+</div>
+    
+<div class="ck">
+  <div class="ck-h">Counting Decision Tree: Which Formula When</div>
+  <div class="ck-b">
+    <ul><li>First ask two questions: does <b>order matter</b>, and is <b>repetition allowed</b>?</li><li>Order matters, no repeat: <code>P(n,k)=n!/(n−k)!</code>. Order matters, repeat: <code>nᵏ</code>.</li><li>Order doesn't matter, no repeat: <code>C(n,k)=n!/(k!(n−k)!)</code>. Order doesn't matter, repeat (multiset): <code>C(n+k−1,k)</code> — this is stars & bars.</li><li>Distinct objects into groups of sizes k₁…kₘ (multinomial): <code>n!/(k₁!k₂!…kₘ!)</code>.</li><li><span class="k">Pick the cell by (order?, repeat?) before reaching for any formula — most errors are choosing the wrong cell, not the wrong arithmetic.</span></li></ul><div class="eg"><b>Example.</b> Arrangements of MISSISSIPPI (11 letters: I×4, S×4, P×2, M×1): order matters with identical items, so <code>11!/(4!·4!·2!·1!)=34650</code>.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Circular and Symmetric Arrangements</div>
+  <div class="ck-b">
+    <ul><li>Seating n distinct people around a round table: fix one person to kill rotational symmetry, giving <code>(n−1)!</code>.</li><li>If reflections also count as the same (a bracelet): divide by 2 more, <code>(n−1)!/2</code> for n≥3.</li><li>The principle: when k arrangements are all equivalent under a symmetry, divide the linear count by k — valid only when every orbit has the SAME size.</li><li><span class="k">Divide-by-symmetry only works cleanly when no arrangement is fixed by the symmetry; when some are (e.g. symmetric necklaces), use Burnside instead.</span></li><li>Burnside (orbit-counting): distinct configs = average number of arrangements fixed by each symmetry, <code>(1/|G|)·Σ|Fix(g)|</code>.</li></ul><div class="eg"><b>Example.</b> 5 people at a round table: <code>(5−1)!=24</code>. As a flippable bracelet of 5 distinct beads: <code>4!/2=12</code>.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Recognizing and Using Catalan Numbers</div>
+  <div class="ck-b">
+    <ul><li><code>Cₙ = C(2n,n)/(n+1) = C(2n,n)−C(2n,n+1)</code>; sequence <code>1,1,2,5,14,42,132…</code>; recurrence <code>Cₙ₊₁=ΣCᵢCₙ₋ᵢ</code>.</li><li>Counts: balanced parenthesis strings of n pairs; lattice paths from (0,0) to (n,n) staying weakly below the diagonal; binary trees with n nodes; triangulations of an (n+2)-gon; ways to non-crossing-match 2n points.</li><li>Trigger phrase: a count of objects with a <b>never-go-negative / never-cross</b> constraint built from n up-steps and n down-steps.</li><li><span class="k">Derive via the reflection (André) trick: total paths C(2n,n) minus bad paths that touch above-diagonal, which biject to C(2n,n+1).</span></li></ul><div class="eg"><b>Example.</b> Votes counted one by one, A and B each get n votes; ways A is never behind = <code>Cₙ</code>. For n=3: <code>C₃=5</code>.</div>
   </div>
 </div>
     </div>
@@ -1104,6 +1594,25 @@
       <li>E[T_a] = ∞ (heavy-tailed); BM hits any level a.s. but in infinite expected time.</li>
     </ul>
     <div class="eg"><b>Example.</b> P(BM exceeds level 1 sometime in [0,1]) = 2·P(W₁ ≥ 1) = 2·(1 − Φ(1)) = 2·0.1587 ≈ 0.317.</div>
+  </div>
+</div>
+    
+<div class="ck">
+  <div class="ck-h">Itô Integral and SDE Toolkit</div>
+  <div class="ck-b">
+    <ul><li><code>∫₀ᵗ f dW</code> is defined for adapted, square-integrable <code>f</code>; it is a martingale with <code>E[∫f dW]=0</code>.</li><li>Itô isometry: <code>E[(∫₀ᵗ f dW)²]=E[∫₀ᵗ f² ds]</code> — converts a stochastic integral's variance into an ordinary time integral.</li><li>Multiplication rules: <code>dW·dW=dt</code>, <code>dt·dW=0</code>, <code>dt·dt=0</code>. This is why second-order terms survive in Itô's lemma.</li><li>An Itô process <code>dX=μ(X,t)dt+σ(X,t)dW</code> is a martingale iff its drift <code>μ≡0</code> (the <code>dt</code> term vanishes).</li><li><span class="k">Drift = predictable trend; diffusion = the only term carrying randomness. Kill the drift to get a martingale.</span></li><li>Integration by parts (no cross term unless both are Itô): <code>d(XY)=X dY+Y dX+dX·dY</code>.</li></ul><div class="eg"><b>Example.</b> For <code>Xₜ=∫₀ᵗ W_s dW_s</code>, apply Itô to <code>Wₜ²</code>: <code>d(Wₜ²)=2Wₜ dWₜ+dt</code>, so <code>∫₀ᵗ W dW=½(Wₜ²−t)</code>. The <code>−t/2</code> is the Itô correction a Riemann integral would miss.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Risk-Neutral Measure, Girsanov and Feynman–Kac</div>
+  <div class="ck-b">
+    <ul><li>Under risk-neutral <code>ℚ</code>, discounted assets are martingales: <code>S₀=E^ℚ[e^{−rT}S_T]</code>; every tradable's drift becomes <code>r</code>.</li><li>Girsanov: changing measure shifts the drift but leaves volatility and quadratic variation unchanged. <code>W̃ₜ=Wₜ+∫₀ᵗ θ_s ds</code> is a ℚ-Brownian motion.</li><li>Radon–Nikodym density is an exponential martingale: <code>dℚ/dℙ=exp(−∫θ dW−½∫θ² ds)</code>.</li><li>Market price of risk <code>θ=(μ−r)/σ</code> is the drift adjustment that turns the real-world drift <code>μ</code> into <code>r</code>.</li><li>Feynman–Kac: the PDE <code>∂_t V+μ ∂_x V+½σ² ∂_xx V−rV=0</code> with terminal data <code>V(T,x)=payoff</code> has solution <code>V=E^ℚ[e^{−r(T−t)}payoff]</code>.</li><li><span class="k">Girsanov re-drifts; Feynman–Kac is the bridge between the pricing PDE and the discounted expectation.</span></li></ul><div class="eg"><b>Example.</b> Black–Scholes: under ℚ, <code>dS=rS dt+σS dW̃</code>. Feynman–Kac says the BS PDE's solution equals <code>e^{−rT}E^ℚ[(S_T−K)⁺]</code> — same answer two ways.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">First-Passage Times for Brownian Motion</div>
+  <div class="ck-b">
+    <ul><li>Hitting time of level <code>a>0</code> for standard BM: <code>τ_a=inf{t:Wₜ=a}</code>. From the reflection principle, <code>P(τ_a≤t)=2P(Wₜ≥a)=2Φ(−a/√t)</code>.</li><li>Lévy density (stable-½): <code>f_{τ_a}(t)=(a/√(2π t³))exp(−a²/2t)</code>. Heavy-tailed — <code>E[τ_a]=∞</code> for driftless BM.</li><li><code>τ_a</code> is a.s. finite (BM is recurrent in 1D) but has infinite mean: it hits, but you can't bound when.</li><li>With drift <code>Xₜ=μt+σWₜ</code>, hitting <code>a>0</code> is certain only if <code>μ≥0</code>; if <code>μ<0</code>, <code>P(ever hit a)=exp(2μa/σ²)<1</code>.</li><li>Two-sided exit (levels <code>−b,a</code>), no drift: <code>P(hit a first)=b/(a+b)</code>; expected exit time <code>E[τ]=ab/σ²</code> — the continuous gambler's ruin.</li><li><span class="k">One-sided driftless first passage is sure but infinite-mean; drift against the barrier makes hitting itself uncertain.</span></li></ul><div class="eg"><b>Example.</b> A spread follows driftless BM, <code>σ=1</code>, starting at 0 between <code>−2</code> and <code>+3</code>. P(hits +3 before −2)=2/5; expected time to exit the band =<code>2·3=6</code>.</div>
   </div>
 </div>
     </div>
@@ -1274,6 +1783,25 @@
     <div class="eg"><b>Example.</b> Market excess returns R_m = [−2%, −1%, 0%, 2%, 3%] and asset excess returns Rᵢ = [−2.5%, −1%, 0.5%, 3.5%, 5%]. Then <code>Cov/Var → β = 1.5</code> and <code>α = R̄ᵢ − β·R̄_m = 0.5%</code>. β=1.5 means the stock moves 1.5× the market (aggressive); the 0.5% α is its average excess return unexplained by market exposure. Always report Newey–West SEs on β since return residuals are autocorrelated.</div>
   </div>
 </div>
+    
+<div class="ck">
+  <div class="ck-h">WLS, GLS &amp; Robust Standard Errors</div>
+  <div class="ck-b">
+    <ul><li>Non-spherical errors <code>Var(ε)=σ²Ω</code> (Ω≠I) leave OLS <b>unbiased</b> but no longer BLUE, and the textbook SE formula is wrong.</li><li><b>GLS</b> reweights: <code>β̂_GLS=(XᵀΩ⁻¹X)⁻¹XᵀΩ⁻¹y</code> — equivalent to OLS on data premultiplied by Ω^(−1/2) (whitening). It is BLUE when Ω is known.</li><li><b>WLS</b> = GLS for the diagonal (pure heteroskedasticity) case: weight each obs by <code>wᵢ=1/Var(εᵢ)</code>, downweighting noisy points. Feasible GLS estimates Ω first, then plugs in.</li><li><span class="k">If you don't trust your model for Ω, keep OLS point estimates but fix the SEs: White/HC (heteroskedasticity) or Newey–West/HAC (also autocorrelation).</span></li><li>Robust SEs change inference only, not β̂; WLS/GLS change both. Robust SEs are the default in practice because misspecifying Ω can make FGLS <i>worse</i> than OLS.</li></ul><div class="eg"><b>Example.</b> Errors with <code>Var(εᵢ)=σ²xᵢ²</code>: dividing the whole equation by xᵢ gives homoskedastic errors — that transformed OLS <i>is</i> WLS with wᵢ=1/xᵢ². On finance return panels, the safe move is OLS + HAC SEs rather than guessing Ω.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Frisch–Waugh–Lovell &amp; Partialling-Out</div>
+  <div class="ck-b">
+    <ul><li>FWL: in <code>y=X₁β₁+X₂β₂+ε</code>, the OLS estimate <code>β̂₂</code> is unchanged if you instead (1) regress y on X₁ and take residuals ỹ, (2) regress X₂ on X₁ and take residuals X̃₂, then (3) regress ỹ on X̃₂.</li><li><span class="k">A multiple-regression coefficient is the bivariate slope on the part of that regressor orthogonal to all the others — "holding the others fixed" made precise.</span></li><li>Explains why adding a regressor changes existing coefficients: it strips shared variation out (this is exactly OVB unwound).</li><li>Justifies demeaning for an intercept (X₁=1 ⇒ partial out the mean) and within-transform for fixed effects — you needn't carry dummies in the design matrix.</li><li>If X̃₂ has little variation left (X₂ well-explained by X₁), that coefficient's SE blows up — the same mechanism as multicollinearity/VIF.</li></ul><div class="eg"><b>Example.</b> Want the effect of a factor on returns controlling for market β: regress the factor on market return, take residuals (the factor's market-neutral component), then regress returns on those residuals. The slope equals the multivariate coefficient — and is why a factor's marginal alpha can shrink once you control for market exposure.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">OLS as MLE &amp; Spurious Regression in Time Series</div>
+  <div class="ck-b">
+    <ul><li>Under <code>ε~N(0,σ²I)</code>, minimizing SSR is identical to maximizing the Gaussian likelihood — <span class="k">OLS = MLE when errors are normal</span>, which is why OLS inherits MLE efficiency and the exact t/F distributions.</li><li>MLE for σ² divides SSR by n (biased); OLS uses n−k for unbiasedness. Normality is needed for <i>exact</i> small-sample t/F; large samples lean on the CLT instead.</li><li><b>Spurious regression:</b> regressing one independent random walk on another yields high R² and large t-stats by pure chance — the t-distribution is invalid because residuals are non-stationary (a unit root).</li><li>Tell-tale sign: very low Durbin–Watson (≈0) alongside high R² ⇒ suspect spuriousness, not a real relationship.</li><li><span class="k">Fix: regress in differences (returns, not prices) or use cointegration/ECM when levels share a common stochastic trend.</span></li></ul><div class="eg"><b>Example.</b> Regressing the price level of stock A on stock B (both I(1), unrelated) can give R²&gt;0.9 and "t&gt;10" — meaningless. Switching to daily returns (both stationary) collapses R² toward its honest near-zero value. This is why quant signal research works in returns, not raw prices.</div>
+  </div>
+</div>
     </div>
 
     <div class="cheat" data-topic="options">
@@ -1415,6 +1943,25 @@
     <div class="eg"><b>Example.</b> S=50, σ=30%, T=3 months=0.25 → √T=0.5. ATM call ≈ 0.4·50·0.30·0.5 = 3.0. The ATM straddle ≈ 6.0, i.e. the market implies a ±6 (±12%) move over the quarter is roughly a coin-flip breakeven.</div>
   </div>
 </div>
+    
+<div class="ck">
+  <div class="ck-h">No-Arbitrage Price Bounds & Comparative Statics</div>
+  <div class="ck-b">
+    <ul><li>European call lower bound: <span class="k"><code>C ≥ max(0, S − Ke^(−rT))</code></span> — below this, buy call + short stock + lend <code>Ke^(−rT)</code> for a riskless profit.</li><li>Upper bounds: <code>C ≤ S</code> (call never worth more than the stock); <code>P ≤ Ke^(−rT)</code> (European put ≤ PV of strike). American put <code>≤ K</code>.</li><li>Comparative statics (which way price moves as one input rises):<table><tr><th>Input ↑</th><th>Call</th><th>Put</th></tr><tr><td>S</td><td>↑</td><td>↓</td></tr><tr><td>K</td><td>↓</td><td>↑</td></tr><tr><td>σ</td><td>↑</td><td>↑</td></tr><tr><td>T</td><td>↑*</td><td>↑/↓*</td></tr><tr><td>r</td><td>↑</td><td>↓</td></tr></table></li><li>*Longer T raises an American option monotonically; for European a long-dated put can be worth <i>less</i> than a short-dated one (discounting of K dominates).</li><li><span class="k">Option value is convex in S</span> (gamma ≥ 0) and monotone — these shape constraints are themselves arbitrages (a call spread can't cost more than its width, a butterfly can't be negative).</li></ul><div class="eg"><b>Example.</b> S=100, K=95, r=5%, T=1. Lower bound on the call: <code>100 − 95·e^(−0.05) ≈ 100 − 90.37 = 9.63</code>. Any market call priced below 9.63 is a locked-in arb regardless of σ.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Vol Cone & Forward Volatility (Term-Structure Trades)</div>
+  <div class="ck-b">
+    <ul><li><b>Vol cone:</b> plot the historical min/median/max of <i>realized</i> vol per horizon (e.g. 10d, 30d, 90d, 1y). Overlay today's implied curve — IV near the top of the cone for a tenor = rich; near the bottom = cheap. <span class="k">A richness gauge across tenors, not strikes.</span></li><li>Variance is additive in time, so forward (between-date) variance is extractable from two spot vols:<br><span class="k"><code>σ_fwd = √[(σ₂²·T₂ − σ₁²·T₁)/(T₂ − T₁)]</code></span>.</li><li>A <b>calendar spread</b> (short near / long far, same K) is a long forward-vol / long calendar-vega position — it wants stillness now and a higher implied later.</li><li>Front-month IV can spike <i>above</i> back-month (inverted / backwardated term structure) in a panic; normally it is upward-sloping (contango).</li></ul><div class="eg"><b>Example.</b> 1-month IV = 20%, 2-month IV = 22%. Implied 1-month-forward-starting vol for month 2: <code>√[(0.22²·2 − 0.20²·1)/(2−1)] = √[(0.0968 − 0.0400)/1] = √0.0568 ≈ 23.8%</code> — higher than either spot vol, the cost embedded in the calendar.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Dispersion: Index vs Single-Name Vol & Implied Correlation</div>
+  <div class="ck-b">
+    <ul><li>Index variance is a correlation-weighted sum of constituent variances: for an equal-weight basket, <code>σ_idx² ≈ ρ̄·(Σwᵢσᵢ)² + (1−ρ̄)·Σwᵢ²σᵢ²</code>; with many names the second term vanishes, so <span class="k"><code>σ_idx ≈ √ρ̄ · Σwᵢσᵢ</code></span>.</li><li><b>Implied correlation</b> backs ρ̄ out of index IV and single-name IVs — the market's price of co-movement. It tends to be high (index puts are bid for crash protection), so index vol is often <i>rich</i> vs the basket.</li><li><b>Dispersion trade:</b> sell index vol, buy single-name vol (via straddles/var swaps). <span class="k">Short implied correlation</span> — profits if names move idiosyncratically (low realized ρ); the classic risk is a correlated crash where ρ→1.</li><li>Single-name skew is typically flatter than index skew precisely because idiosyncratic crashes aren't correlated — index skew embeds the correlation-spike fear.</li></ul><div class="eg"><b>Example.</b> Basket avg single-name vol Σwᵢσᵢ = 30%. Index IV trades at 21%. Implied correlation: <code>ρ̄ ≈ (σ_idx/Σwᵢσᵢ)² = (0.21/0.30)² = 0.49</code>. A dispersion book is short this 0.49; if realized correlation comes in at 0.30 the index leg was overpriced and the trade wins.</div>
+  </div>
+</div>
     </div>
 
     <div class="cheat" data-topic="instruments">
@@ -1541,6 +2088,25 @@
       <li><span class="k">Liquidation price</span> = where falling equity hits maintenance.</li>
     </ul>
     <div class="eg"><b>Example.</b> Buy $100k stock with 50% initial margin → post $50k, borrow $50k (2× leverage). Maintenance = 25%. Equity = market value − loan. A margin call hits when (V − 50,000)/V = 0.25 → V = $66,667, i.e. a 33% drop wipes the position to the maintenance floor. A 10% stock drop (to $90k) cuts equity from $50k to $40k — a 20% equity loss, the leverage at work.</div>
+  </div>
+</div>
+    
+<div class="ck">
+  <div class="ck-h">Callable & Convertible Bonds: Negative Convexity, OAS</div>
+  <div class="ck-b">
+    <ul><li><b>Callable bond</b> = straight bond − issuer call option. You are <i>short</i> the call, so <code>P_callable = P_straight − C</code>; price is capped near the call price as yields fall.</li><li><span class="k">Callables (and MBS) show negative convexity: when rates drop, the call/prepay option kicks in, so price compression beats price appreciation.</span></li><li>YTM is misleading for callables — quote <b>yield-to-worst (YTW)</b> = min over yield-to-call at each call date and YTM.</li><li><b>OAS (option-adjusted spread)</b> = the spread over the curve after stripping out embedded-option value via a rates model. It is the apples-to-apples spread vs an option-free bond.</li><li><b>Convertible</b> = straight bond + investor equity call. <code>conversion ratio</code> = par/conversion price; <code>parity (conversion value) = ratio × stock</code>. Trades as max(bond floor, parity) plus option time value.</li><li>Convert greeks: <b>delta</b> (equity sensitivity) rises as stock climbs — "busted" (deep debt-like, low delta) vs "in-the-money" (equity-like). Convert arb = long bond, short delta×stock.</li></ul><div class="eg"><b>Example.</b> 5% bond callable at 102. As rates fall, an option-free bond would rally to 110, but the issuer calls — price stalls near 102. Holder's upside is truncated; that truncation is the negative convexity.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">FX Forwards: Covered Interest Parity, Forward Points, Cross-Currency Basis</div>
+  <div class="ck-b">
+    <ul><li><b>Covered interest parity (CIP):</b> <code>F = S · (1+r_d·τ)/(1+r_f·τ)</code> — the forward locks in the rate differential; no arbitrage if you can borrow/lend/spot freely. Higher-rate currency trades at a forward discount.</li><li><span class="k">FX forward points = F − S quote the rate differential, not a forecast of spot.</span> Points are added/subtracted to spot; sign follows which leg has the higher rate.</li><li><b>FX swap</b> = spot leg + offsetting forward leg; the workhorse for rolling/funding FX positions and the dominant FX instrument by volume.</li><li><b>Cross-currency basis</b> = the persistent CIP violation: the extra spread on the funding leg (esp. borrowing USD via FX swaps). A negative EUR/USD basis means paying a premium to get dollars.</li><li>Drivers of the basis: USD funding scarcity, balance-sheet/regulatory costs (limits to arbitrage), quarter/year-end demand. CIP is not a law — it holds only when balance sheet is free.</li></ul><div class="eg"><b>Example.</b> S=1.10 EUR/USD, 1y r_USD=5%, r_EUR=3%. F≈1.10·1.05/1.03≈1.1214. EUR (lower rate) trades at a forward premium of ~214 points vs USD — exactly offsetting the 2% carry pickup of holding USD.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Total Return Swaps: Synthetic Exposure & Embedded Financing</div>
+  <div class="ck-b">
+    <ul><li><b>TRS:</b> total-return receiver gets all price appreciation + coupons/dividends on a reference asset; pays a floating funding leg (e.g. SOFR + spread) and reimburses any depreciation. The payer holds/hedges the asset.</li><li><span class="k">A TRS is synthetic leveraged ownership: economic exposure to the asset with no upfront purchase — the funding leg IS the embedded financing.</span></li><li>Uses: <b>synthetic prime brokerage</b> / leverage, off-balance-sheet exposure, gaining access to assets you can't easily hold (foreign, restricted), and a sec-lending alternative for synthetic shorts.</li><li>Risks: <b>counterparty risk</b> (bilateral, collateralized by margin/CSA), <b>concentration</b> hidden from public filings (no 13F on swap exposure), and forced unwind on margin calls.</li><li><b>Archegos (2021)</b> is the canonical cautionary case: massive concentrated TRS positions across prime brokers, no aggregate visibility, gap-down forced liquidations.</li></ul><div class="eg"><b>Example.</b> Receiver wants $100mm of a stock posting 10% margin. Pays SOFR+spread on $100mm notional, receives the stock's total return. If the stock returns 8% and funding costs 5.5%, net ≈ 2.5% on $100mm but on $10mm posted — ~25% return, and symmetric on the downside.</div>
   </div>
 </div>
     </div>
@@ -1807,6 +2373,25 @@ def topk(stream, k):
     return sorted(h, reverse=True)</pre></div>
   </div>
 </div>
+    
+<div class="ck">
+  <div class="ck-h">NumPy broadcasting & views vs copies</div>
+  <div class="ck-b">
+    <ul><li>Broadcasting aligns shapes <span class="k">right to left</span>: dims must be equal or one of them <code>1</code>; a size-1 dim is stretched without copying.</li><li>Shapes <code>(3,1)</code> and <code>(1,4)</code> broadcast to <code>(3,4)</code> — the classic outer-op pattern. Incompatible: <code>(3,)</code> vs <code>(4,)</code> → error.</li><li>Basic slicing returns a <span class="k">view</span> (shares memory; writes propagate); fancy/boolean indexing returns a <span class="k">copy</span>.</li><li>Check with <code>arr.base is not None</code> (view) and <code>np.shares_memory(a,b)</code>.</li><li><code>reshape</code> returns a view when possible; <code>ravel</code> may view, <code>flatten</code> always copies.</li></ul><div class="eg"><b>Example.</b> Pairwise diffs without a loop: <code>x[:,None] - x[None,:]</code> broadcasts <code>(n,1)-(1,n)</code> to an <code>(n,n)</code> matrix. <code>x[1:][0]=9</code> mutates <code>x</code> (view); <code>x[x>0][0]=9</code> does not (copy).</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Pandas index alignment & SettingWithCopy</div>
+  <div class="ck-b">
+    <ul><li>Arithmetic between objects <span class="k">aligns on index/columns first</span>; non-matching labels yield <code>NaN</code>, not positional pairing.</li><li><code>a + b</code> reorders to the union of labels. <code>a.add(b, fill_value=0)</code> stays label-aligned but fills labels missing on one side with 0 instead of <code>NaN</code>; for true positional math use <code>a.values + b.values</code>.</li><li><span class="k">Assign through one <code>.loc</code>, never chain.</span> <code>df[m]["c"]=1</code> writes to a temporary and may be lost (SettingWithCopyWarning); use <code>df.loc[m,"c"]=1</code>.</li><li><code>.loc</code> is label-based (endpoint inclusive); <code>.iloc</code> is positional (endpoint exclusive).</li><li>To detach explicitly use <code>.copy()</code>; reindexing/filtering may return a view or copy ambiguously.</li></ul><div class="eg"><b>Gotcha.</b> Summing two return series with different date indices: pandas aligns dates, so a day present in only one becomes <code>NaN</code>. Reindex both to a common calendar before combining.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Subtle gotchas: closures, interning, sort keys</div>
+  <div class="ck-b">
+    <ul><li><span class="k">Late binding:</span> closures capture the variable, not its value. <code>[lambda: i for i in range(3)]</code> all return <code>2</code>; fix with a default arg <code>lambda i=i: i</code>.</li><li><code>is</code> tests identity, <code>==</code> tests value. Small ints <code>−5..256</code> and some literals are interned, so <code>is</code> can <em>accidentally</em> work — never rely on it; use <code>== </code> (or <code>is None</code>).</li><li><code>sorted(..., key=...)</code> sorts by the key; it is <span class="k">stable</span>, so equal keys keep input order — chain sorts least-significant-key first.</li><li><code>dict</code> preserves insertion order (3.7+); equality ignores order, iteration respects it.</li><li><code>a += b</code> on a list mutates in place (<code>extend</code>); <code>a = a + b</code> rebinds to a new list.</li></ul><div class="eg"><b>Example.</b> Sort trades by price desc, ties by time asc: <code>sorted(t, key=lambda x:(-x.px, x.t))</code> — pack the key as a tuple rather than sorting twice.</div>
+  </div>
+</div>
     </div>
 
     <div class="cheat" data-topic="cpp">
@@ -2029,6 +2614,25 @@ auto n = std::count_if(book.begin(), book.end(),
     <div class="eg"><b>Gotcha.</b> Capturing by reference (<code>[&amp;]</code>) a local that outlives the lambda is a dangling-reference bug; capture by value when the callable escapes the scope.</div>
   </div>
 </div>
+    
+<div class="ck">
+  <div class="ck-h">Memory layout & cache locality</div>
+  <div class="ck-b">
+    <ul><li>Latency hierarchy (approx, order-of-magnitude): L1 ~1ns, L2 ~4ns, L3 ~10ns, main RAM ~100ns. A cache miss to RAM costs ~100× an L1 hit.</li><li>Cache line is <code>64 bytes</code>; a load pulls the whole line. <span class="k">Keep hot data contiguous and small so one line serves many accesses.</span></li><li><code>std::vector</code> is contiguous → linear scans are prefetcher-friendly; <code>std::list</code>/node-based maps chase pointers → a miss per node.</li><li>Struct-of-Arrays (SoA) beats Array-of-Structs (AoS) when you touch one field across many records — no wasted bytes loaded.</li><li>False sharing: two threads writing different vars on the same line ping-pong the line between cores; pad/align hot per-thread data to a line.</li></ul><div class="eg"><b>Example.</b> Summing 1M ints in a <code>vector</code> vs a <code>list</code>: same big-O <code>O(n)</code>, but the vector can be ~10× faster purely from cache locality and prefetching — why HFT code favors flat arrays.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Copy elision, RVO & perfect forwarding</div>
+  <div class="ck-b">
+    <ul><li><span class="k">RVO/copy elision lets the compiler construct a returned object directly in the caller's slot — zero copies or moves.</span> Since C++17 it is <b>mandatory</b> for returning a pure prvalue (e.g. <code>return T{...};</code>).</li><li>So <code>return std::move(local);</code> on a return statement is an anti-pattern — it blocks elision and forces a move. Just <code>return local;</code>.</li><li>A forwarding (universal) reference <code>T&&</code> in a deduced template binds to lvalues and rvalues; <code>std::forward&lt;T&gt;(x)</code> preserves the original value category.</li><li><code>std::move</code> is just a cast to rvalue ref — it moves nothing by itself; the move happens in the chosen overload.</li></ul><div class="eg"><b>Example.</b> <code>template&lt;class T&gt; void push(T&amp;&amp; x){ v.emplace_back(std::forward&lt;T&gt;(x)); }</code> — an lvalue arg copies, an rvalue arg moves, one function handles both with no extra temporary.</div>
+  </div>
+</div>
+<div class="ck">
+  <div class="ck-h">Iterator invalidation by container</div>
+  <div class="ck-b">
+    <ul><li><span class="k">A reallocation or rehash invalidates iterators/pointers/references into a container; know which ops trigger it per type.</span></li><li><table><tr><th>Container</th><th>Insert invalidates</th><th>Erase invalidates</th></tr><tr><td>vector</td><td>all if capacity grows, else from insert point</td><td>at/after erased</td></tr><tr><td>deque</td><td>all iterators (refs to ends survive)</td><td>all unless an end</td></tr><tr><td>list</td><td>none</td><td>only the erased</td></tr><tr><td>map/set</td><td>none</td><td>only the erased</td></tr><tr><td>unordered_*</td><td>iterators on rehash; refs survive</td><td>only the erased</td></tr></table></li><li><code>vector::reserve(n)</code> up front avoids growth reallocations and keeps iterators stable.</li></ul><div class="eg"><b>Example.</b> Erasing in a loop: <code>for(auto it=v.begin(); it!=v.end();) it = v.erase(it);</code> — capture the returned iterator; never <code>++it</code> after erasing it.</div>
+  </div>
+</div>
     </div>
 
     </div>
@@ -2193,130 +2797,254 @@ auto n = std::count_if(book.begin(), book.end(),
 
 <script>
 /* ================= DOMAINS ================= */
+const GROUPS=[
+  {g:'Mathematics',             keys:['calculus','linalg','geometry','combinatorics']},
+  {g:'Probability & Statistics',keys:['probability','distributions','statistics','regression','stochastic','timeseries']},
+  {g:'Finance & Markets',       keys:['options','instruments','microstructure']},
+  {g:'Programming & CS',        keys:['python','cpp','algorithms']},
+  {g:'Reasoning',               keys:['brainteasers','mentalmath']},
+];
 const DOMAINS = {
-  prob:  {name:'Probability',     glyph:'∑'},
-  stats: {name:'Statistics',      glyph:'σ'},
-  opt:   {name:'Options & Vol',   glyph:'Γ'},
-  price: {name:'Pricing / SDE',   glyph:'∂'},
-  micro: {name:'Microstructure',  glyph:'≷'},
-  linalg:{name:'Linear Algebra',  glyph:'λ'},
-  algo:  {name:'Algorithms',      glyph:'O'},
-  math:  {name:'Mental Math',     glyph:'×'},
+  calculus:      {name:'Calculus',             glyph:'∫'},
+  linalg:        {name:'Linear Algebra',       glyph:'λ'},
+  geometry:      {name:'Geometry',             glyph:'△'},
+  combinatorics: {name:'Combinatorics',        glyph:'C'},
+  probability:   {name:'Probability',          glyph:'∑'},
+  distributions: {name:'Distributions',        glyph:'ƒ'},
+  statistics:    {name:'Statistics',           glyph:'σ'},
+  regression:    {name:'Regression',           glyph:'β'},
+  stochastic:    {name:'Stochastic Processes', glyph:'∂'},
+  timeseries:    {name:'Time Series',          glyph:'≈'},
+  options:       {name:'Options & Vol',        glyph:'Γ'},
+  instruments:   {name:'Instruments',          glyph:'$'},
+  microstructure:{name:'Microstructure',       glyph:'≷'},
+  python:        {name:'Python',               glyph:'Py'},
+  cpp:           {name:'C++',                  glyph:'C+'},
+  algorithms:    {name:'Algorithms',           glyph:'O'},
+  brainteasers:  {name:'Brainteasers',         glyph:'?'},
+  mentalmath:    {name:'Mental Math',          glyph:'×'},
 };
 
 /* ================= DECK ================= */
 const DECK = [
   // ---- PROBABILITY ----
-  {dom:'prob',rep:1,tag:'Probability',q:'E[flips to get HH]? vs HT? Why different?',a:'<span class="k">HH = 6, HT = 4.</span> For HT, once you\'ve seen an H you never lose progress; for HH, a tail right after your first H resets you to zero. First-step / state recursion.'},
-  {dom:'prob',rep:1,tag:'Probability',q:'4 random points on a sphere — P(center inside the tetrahedron)?',a:'<span class="k">1/8.</span> Antipode argument: complement of "all four in one hemisphere."'},
-  {dom:'prob',tag:'Probability',q:'E[rolls of a die to see all six faces]?',a:'<span class="k">Coupon collector: 6(1+½+⅓+¼+⅕+⅙) = 14.7.</span>'},
-  {dom:'prob',tag:'Probability',q:'Monty Hall — switch or stay?',a:'<span class="k">Switch — 2/3.</span> Host\'s reveal is informative.'},
-  {dom:'prob',tag:'Probability',q:'Two children, at least one boy — P(both boys)?',a:'<span class="k">1/3</span> (vs 1/2 if "the elder is a boy"). State the sample space.'},
-  {dom:'prob',tag:'Probability',q:'Gambler\'s ruin: $i, fair $1 bets, stop at 0 or N. P(reach N)?',a:'<span class="k">i/N.</span> E[duration] = i(N−i).'},
-  {dom:'prob',tag:'Probability',q:'Ant on a cube corner, random edges to opposite corner — E[steps]?',a:'<span class="k">10.</span> States by distance (0/1/2/3); solve the linear system.'},
-  {dom:'prob',tag:'Probability',q:'Stick broken at 2 uniform points — P(triangle)?',a:'<span class="k">1/4.</span>'},
-  {dom:'prob',tag:'Probability',q:'Roll a die, may re-roll once, paid the final face. Fair value?',a:'<span class="k">4.25.</span> Re-roll if first &lt; 3.5 (i.e. 1–3). (½)(3.5)+(1/6)(4+5+6).'},
-  {dom:'prob',tag:'Probability',q:'E[max of two fair dice]?',a:'<span class="k">161/36 ≈ 4.47.</span> P(max=k) = (2k−1)/36; sum k·P(max=k).'},
-  {dom:'prob',tag:'Probability',q:'Disease 1% prevalence, test 99% sens / 95% spec. P(disease | +)?',a:'<span class="k">≈ 16.7%.</span> Bayes: .99·.01 / (.99·.01 + .05·.99). Base rate dominates.'},
-  {dom:'prob',tag:'Probability',q:'P(four-of-a-kind) in a 5-card hand?',a:'<span class="k">13·48 / C(52,5) ≈ 0.024%.</span>'},
+  {dom:'probability',rep:1,tag:'Probability',q:'E[flips to get HH]? vs HT? Why different?',a:'<span class="k">HH = 6, HT = 4.</span> For HT, once you\'ve seen an H you never lose progress; for HH, a tail right after your first H resets you to zero. First-step / state recursion.'},
+  {dom:'probability',rep:1,tag:'Probability',q:'4 random points on a sphere — P(center inside the tetrahedron)?',a:'<span class="k">1/8.</span> Antipode argument: complement of "all four in one hemisphere."'},
+  {dom:'probability',tag:'Probability',q:'E[rolls of a die to see all six faces]?',a:'<span class="k">Coupon collector: 6(1+½+⅓+¼+⅕+⅙) = 14.7.</span>'},
+  {dom:'probability',tag:'Probability',q:'Monty Hall — switch or stay?',a:'<span class="k">Switch — 2/3.</span> Host\'s reveal is informative.'},
+  {dom:'probability',tag:'Probability',q:'Two children, at least one boy — P(both boys)?',a:'<span class="k">1/3</span> (vs 1/2 if "the elder is a boy"). State the sample space.'},
+  {dom:'probability',tag:'Probability',q:'Gambler\'s ruin: $i, fair $1 bets, stop at 0 or N. P(reach N)?',a:'<span class="k">i/N.</span> E[duration] = i(N−i).'},
+  {dom:'probability',tag:'Probability',q:'Ant on a cube corner, random edges to opposite corner — E[steps]?',a:'<span class="k">10.</span> States by distance (0/1/2/3); solve the linear system.'},
+  {dom:'probability',tag:'Probability',q:'Stick broken at 2 uniform points — P(triangle)?',a:'<span class="k">1/4.</span>'},
+  {dom:'probability',tag:'Probability',q:'Roll a die, may re-roll once, paid the final face. Fair value?',a:'<span class="k">4.25.</span> Re-roll if first &lt; 3.5 (i.e. 1–3). (½)(3.5)+(1/6)(4+5+6).'},
+  {dom:'probability',tag:'Probability',q:'E[max of two fair dice]?',a:'<span class="k">161/36 ≈ 4.47.</span> P(max=k) = (2k−1)/36; sum k·P(max=k).'},
+  {dom:'probability',tag:'Probability',q:'Disease 1% prevalence, test 99% sens / 95% spec. P(disease | +)?',a:'<span class="k">≈ 16.7%.</span> Bayes: .99·.01 / (.99·.01 + .05·.99). Base rate dominates.'},
+  {dom:'probability',tag:'Probability',q:'P(four-of-a-kind) in a 5-card hand?',a:'<span class="k">13·48 / C(52,5) ≈ 0.024%.</span>'},
   // ---- STATISTICS ----
-  {dom:'stats',rep:1,tag:'Statistics',q:'Strategy Sharpe = 1.5 over 1 yr of daily returns — believe it?',a:'<span class="k">Weak — t ≈ 1.5.</span> Lo SE(Sharpe) ≈ <code>√((1+½S²)/n)</code> uses the <b>per-period</b> Sharpe matching n. Daily S=1.5/√252≈0.094, n=252 → SE≈0.063/period ≈ <code>1.0</code> annualized. So 1.5±1.0 → barely 1σ; worry multiple testing / overfitting.'},
-  {dom:'stats',tag:'Statistics',q:'p-value in plain English?',a:'<span class="k">P(data this extreme | null true).</span> NOT P(null true).'},
-  {dom:'stats',tag:'Statistics',q:'Standard deviation vs standard error?',a:'<span class="k">SD</span> = spread of data. <span class="k">SE</span> = SD/√n = spread of the estimate.'},
-  {dom:'stats',tag:'Statistics',q:'Skew / kurtosis — why care in markets?',a:'Asymmetry / tail-fatness. Returns are <span class="k">negatively skewed + fat-tailed</span> → variance understates risk.'},
-  {dom:'stats',tag:'Statistics',q:'State the Central Limit Theorem.',a:'Sum/mean of n iid (finite variance) → <span class="k">Normal</span> as n→∞; scaled by √n. Why √n shows up everywhere.'},
-  {dom:'stats',tag:'Statistics',q:'Bias–variance tradeoff?',a:'Error = bias² + variance + irreducible. <span class="k">Simple models: high bias; flexible: high variance.</span> Tune the balance.'},
-  {dom:'stats',tag:'Statistics',q:'MLE vs MAP?',a:'MLE maximizes likelihood; <span class="k">MAP adds a prior</span> (= MLE + regularization). MAP→MLE as data dominate the prior.'},
-  {dom:'stats',tag:'Statistics',q:'Confidence interval vs credible interval?',a:'<span class="k">CI:</span> frequentist coverage over repeated samples. <span class="k">Credible:</span> Bayesian — P(param in interval | data). Different objects.'},
+  {dom:'statistics',rep:1,tag:'Statistics',q:'Strategy Sharpe = 1.5 over 1 yr of daily returns — believe it?',a:'<span class="k">Weak — t ≈ 1.5.</span> Lo SE(Sharpe) ≈ <code>√((1+½S²)/n)</code> uses the <b>per-period</b> Sharpe matching n. Daily S=1.5/√252≈0.094, n=252 → SE≈0.063/period ≈ <code>1.0</code> annualized. So 1.5±1.0 → barely 1σ; worry multiple testing / overfitting.'},
+  {dom:'statistics',tag:'Statistics',q:'p-value in plain English?',a:'<span class="k">P(data this extreme | null true).</span> NOT P(null true).'},
+  {dom:'statistics',tag:'Statistics',q:'Standard deviation vs standard error?',a:'<span class="k">SD</span> = spread of data. <span class="k">SE</span> = SD/√n = spread of the estimate.'},
+  {dom:'statistics',tag:'Statistics',q:'Skew / kurtosis — why care in markets?',a:'Asymmetry / tail-fatness. Returns are <span class="k">negatively skewed + fat-tailed</span> → variance understates risk.'},
+  {dom:'statistics',tag:'Statistics',q:'State the Central Limit Theorem.',a:'Sum/mean of n iid (finite variance) → <span class="k">Normal</span> as n→∞; scaled by √n. Why √n shows up everywhere.'},
+  {dom:'statistics',tag:'Statistics',q:'Bias–variance tradeoff?',a:'Error = bias² + variance + irreducible. <span class="k">Simple models: high bias; flexible: high variance.</span> Tune the balance.'},
+  {dom:'statistics',tag:'Statistics',q:'MLE vs MAP?',a:'MLE maximizes likelihood; <span class="k">MAP adds a prior</span> (= MLE + regularization). MAP→MLE as data dominate the prior.'},
+  {dom:'statistics',tag:'Statistics',q:'Confidence interval vs credible interval?',a:'<span class="k">CI:</span> frequentist coverage over repeated samples. <span class="k">Credible:</span> Bayesian — P(param in interval | data). Different objects.'},
   // ---- OPTIONS ----
-  {dom:'opt',rep:1,tag:'Options & Vol',q:'When exercise an American option early?',a:'Call on non-div stock: <span class="k">never</span> (sell). Call: only just before a big dividend. Put: deep-ITM can be optimal (interest on strike). <span class="k">Call/put asymmetry is the point.</span>'},
-  {dom:'opt',tag:'Options & Vol',q:'Long ATM straddle — long/short what?',a:'≈delta-flat; <span class="k">long gamma, long vega, short theta.</span> Thesis = realized vs implied.'},
-  {dom:'opt',tag:'Options & Vol',q:'State put-call parity & arb a violation.',a:'<code>C − P = S − Ke^(−rT)</code>. LHS rich → sell call / buy put / buy stock / borrow PV(K) → locked box.'},
-  {dom:'opt',tag:'Options & Vol',q:'How do you know an option is "cheap"?',a:'IV low vs vol you can realize hedging. Delta-hedged P&L ≈ ½∫Γ·S²(σ_R²−σ_I²)dt. <span class="k">Catch: variance risk premium</span> (IV&gt;RV on avg).'},
-  {dom:'opt',tag:'Options & Vol',q:'Why is equity-index skew downward-sloping?',a:'Crash-o-phobia + leverage effect (vol↑ as spot↓) + downside-hedge demand → OTM puts bid up.'},
-  {dom:'opt',tag:'Options & Vol',q:'More vega: 1-mo or 1-yr ATM? More gamma: 1-day or 1-yr?',a:'<span class="k">Vega: 1-yr</span> (∝√T). <span class="k">Gamma: 1-day</span> (∝1/√T).'},
-  {dom:'opt',tag:'Options & Vol',q:'Rough price of an ATM call (r=0, vol σ, time T)?',a:'<span class="k">≈ 0.4·S·σ·√T.</span> Straddle ≈ 0.8·S·σ·√T. ATM delta ≈ 0.5 (a touch above).'},
-  {dom:'opt',tag:'Options & Vol',q:'What is a variance swap; why over options?',a:'Pays realized − strike variance — <span class="k">pure, path/strike-independent vol.</span> Replicated by a static <code>1/K²</code>-weighted strip of OTM options (+ dynamic futures hedge) giving <span class="k">constant dollar gamma.</span> VIX = model-free 30d implied off SPX.'},
-  {dom:'opt',tag:'Options & Vol',q:'Black-Scholes assumptions & where they fail?',a:'Lognormal/GBM, constant vol, no jumps, frictionless, continuous hedging. <span class="k">Fail:</span> smile/skew, jumps/fat tails, costly discrete hedging, stochastic vol.'},
+  {dom:'options',rep:1,tag:'Options & Vol',q:'When exercise an American option early?',a:'Call on non-div stock: <span class="k">never</span> (sell). Call: only just before a big dividend. Put: deep-ITM can be optimal (interest on strike). <span class="k">Call/put asymmetry is the point.</span>'},
+  {dom:'options',tag:'Options & Vol',q:'Long ATM straddle — long/short what?',a:'≈delta-flat; <span class="k">long gamma, long vega, short theta.</span> Thesis = realized vs implied.'},
+  {dom:'options',tag:'Options & Vol',q:'State put-call parity & arb a violation.',a:'<code>C − P = S − Ke^(−rT)</code>. LHS rich → sell call / buy put / buy stock / borrow PV(K) → locked box.'},
+  {dom:'options',tag:'Options & Vol',q:'How do you know an option is "cheap"?',a:'IV low vs vol you can realize hedging. Delta-hedged P&L ≈ ½∫Γ·S²(σ_R²−σ_I²)dt. <span class="k">Catch: variance risk premium</span> (IV&gt;RV on avg).'},
+  {dom:'options',tag:'Options & Vol',q:'Why is equity-index skew downward-sloping?',a:'Crash-o-phobia + leverage effect (vol↑ as spot↓) + downside-hedge demand → OTM puts bid up.'},
+  {dom:'options',tag:'Options & Vol',q:'More vega: 1-mo or 1-yr ATM? More gamma: 1-day or 1-yr?',a:'<span class="k">Vega: 1-yr</span> (∝√T). <span class="k">Gamma: 1-day</span> (∝1/√T).'},
+  {dom:'options',tag:'Options & Vol',q:'Rough price of an ATM call (r=0, vol σ, time T)?',a:'<span class="k">≈ 0.4·S·σ·√T.</span> Straddle ≈ 0.8·S·σ·√T. ATM delta ≈ 0.5 (a touch above).'},
+  {dom:'options',tag:'Options & Vol',q:'What is a variance swap; why over options?',a:'Pays realized − strike variance — <span class="k">pure, path/strike-independent vol.</span> Replicated by a static <code>1/K²</code>-weighted strip of OTM options (+ dynamic futures hedge) giving <span class="k">constant dollar gamma.</span> VIX = model-free 30d implied off SPX.'},
+  {dom:'options',tag:'Options & Vol',q:'Black-Scholes assumptions & where they fail?',a:'Lognormal/GBM, constant vol, no jumps, frictionless, continuous hedging. <span class="k">Fail:</span> smile/skew, jumps/fat tails, costly discrete hedging, stochastic vol.'},
   // ---- PRICING / SDE ----
-  {dom:'price',tag:'Pricing / SDE',q:'State Itô\'s lemma (one line).',a:'<code>df = f_t dt + f_x dx + ½ f_xx (dx)²</code>, with <span class="k">(dW)² = dt</span>. The ½f_xx term — the <span class="k">Itô correction</span> — is the whole story.'},
-  {dom:'price',tag:'Pricing / SDE',q:'SDE for geometric Brownian motion?',a:'<code>dS = μS dt + σS dW.</code> Then <code>d(log S) = (μ−σ²/2)dt + σ dW</code> → S is <span class="k">lognormal</span>; the <span class="k">−σ²/2</span> drift correction is the classic trap.'},
-  {dom:'price',tag:'Pricing / SDE',q:'Why price under the risk-neutral measure?',a:'<span class="k">No-arbitrage</span> ⇒ discounted asset is a martingale under Q; price = E_Q[discounted payoff]. Drift → r, not μ.'},
-  {dom:'price',tag:'Pricing / SDE',q:'Key properties of Brownian motion?',a:'<span class="k">W₀=0; E[Wₜ]=0; Var=t;</span> independent stationary Gaussian increments; continuous but nowhere differentiable; quadratic variation [W]ₜ = t.'},
-  {dom:'price',tag:'Pricing / SDE',q:'What does Δ-hedging a long option earn you?',a:'You\'re <span class="k">long gamma</span>: you buy low / sell high rebalancing — P&L ≈ ½Γ·S²·(realized − implied) variance. Pay theta for it.'},
+  {dom:'stochastic',tag:'Stochastic Processes',q:'State Itô\'s lemma (one line).',a:'<code>df = f_t dt + f_x dx + ½ f_xx (dx)²</code>, with <span class="k">(dW)² = dt</span>. The ½f_xx term — the <span class="k">Itô correction</span> — is the whole story.'},
+  {dom:'stochastic',tag:'Stochastic Processes',q:'SDE for geometric Brownian motion?',a:'<code>dS = μS dt + σS dW.</code> Then <code>d(log S) = (μ−σ²/2)dt + σ dW</code> → S is <span class="k">lognormal</span>; the <span class="k">−σ²/2</span> drift correction is the classic trap.'},
+  {dom:'stochastic',tag:'Stochastic Processes',q:'Why price under the risk-neutral measure?',a:'<span class="k">No-arbitrage</span> ⇒ discounted asset is a martingale under Q; price = E_Q[discounted payoff]. Drift → r, not μ.'},
+  {dom:'stochastic',tag:'Stochastic Processes',q:'Key properties of Brownian motion?',a:'<span class="k">W₀=0; E[Wₜ]=0; Var=t;</span> independent stationary Gaussian increments; continuous but nowhere differentiable; quadratic variation [W]ₜ = t.'},
+  {dom:'stochastic',tag:'Stochastic Processes',q:'What does Δ-hedging a long option earn you?',a:'You\'re <span class="k">long gamma</span>: you buy low / sell high rebalancing — P&L ≈ ½Γ·S²·(realized − implied) variance. Pay theta for it.'},
   // ---- MICROSTRUCTURE ----
-  {dom:'micro',rep:1,tag:'Microstructure',q:'Make me a market: I roll 2 dice, pay the sum.',a:'EV = 7. Quote tight (6.5/7.5), <span class="k">widen if I pick the side</span> (adverse selection), move after I trade.'},
-  {dom:'micro',tag:'Microstructure',q:'Three components of the bid-ask spread?',a:'<span class="k">Order-processing</span> cost, <span class="k">inventory</span> risk, <span class="k">adverse selection</span> (informed flow). Width ∝ all three.'},
-  {dom:'micro',tag:'Microstructure',q:'You get lifted on your offer — now what?',a:'You\'re <span class="k">short</span> (someone bought from you). <span class="k">Skew up</span> — raise the bid to buy back, raise the offer to slow further lifts and reflect that the lift signals higher fair value. Manage inventory + adverse selection.'},
-  {dom:'micro',tag:'Microstructure',q:'What is Kyle\'s λ?',a:'<span class="k">Price-impact slope:</span> ΔP = λ · (signed order flow). Higher λ = less liquid / more informed flow.'},
-  {dom:'micro',tag:'Microstructure',q:'Effective vs quoted spread?',a:'<span class="k">Quoted</span> = ask − bid. <span class="k">Effective</span> = 2·|trade price − midpoint| — what you actually paid (better inside the quote).'},
+  {dom:'microstructure',rep:1,tag:'Microstructure',q:'Make me a market: I roll 2 dice, pay the sum.',a:'EV = 7. Quote tight (6.5/7.5), <span class="k">widen if I pick the side</span> (adverse selection), move after I trade.'},
+  {dom:'microstructure',tag:'Microstructure',q:'Three components of the bid-ask spread?',a:'<span class="k">Order-processing</span> cost, <span class="k">inventory</span> risk, <span class="k">adverse selection</span> (informed flow). Width ∝ all three.'},
+  {dom:'microstructure',tag:'Microstructure',q:'You get lifted on your offer — now what?',a:'You\'re <span class="k">short</span> (someone bought from you). <span class="k">Skew up</span> — raise the bid to buy back, raise the offer to slow further lifts and reflect that the lift signals higher fair value. Manage inventory + adverse selection.'},
+  {dom:'microstructure',tag:'Microstructure',q:'What is Kyle\'s λ?',a:'<span class="k">Price-impact slope:</span> ΔP = λ · (signed order flow). Higher λ = less liquid / more informed flow.'},
+  {dom:'microstructure',tag:'Microstructure',q:'Effective vs quoted spread?',a:'<span class="k">Quoted</span> = ask − bid. <span class="k">Effective</span> = 2·|trade price − midpoint| — what you actually paid (better inside the quote).'},
   // ---- LINEAR ALGEBRA ----
   {dom:'linalg',tag:'Linear Algebra',q:'What makes a matrix positive semi-definite?',a:'<span class="k">xᵀMx ≥ 0 ∀x</span> ⇔ all eigenvalues ≥ 0. Covariance matrices are PSD.'},
   {dom:'linalg',tag:'Linear Algebra',q:'What does PCA actually do?',a:'<span class="k">Eigendecompose the covariance;</span> project onto top eigenvectors (max-variance directions). Eigenvalue = variance explained.'},
   {dom:'linalg',tag:'Linear Algebra',q:'Why does a high condition number matter?',a:'<span class="k">κ = σ_max/σ_min</span> (= λ_max/λ_min for symmetric matrices). <span class="k">Ill-conditioned ⇒ unstable solves</span> — input noise amplified ~κ×. Regularize.'},
   {dom:'linalg',tag:'Linear Algebra',q:'When use Cholesky?',a:'Factor a symmetric <span class="k">positive-definite</span> matrix as <code>LLᵀ</code> — ~2× faster than LU, stable solves & <span class="k">correlated-normal sampling</span> (x = Lz). PSD-singular needs LDLᵀ.'},
   // ---- ALGORITHMS ----
-  {dom:'algo',tag:'Algorithms',q:'Sample k items from a stream of unknown length?',a:'<span class="k">Reservoir sampling</span> — O(n) time, O(k) space. Keep item i with prob k/i.'},
-  {dom:'algo',tag:'Algorithms',q:'Find duplicates in a large array — time/space?',a:'<span class="k">Hash set O(n)/O(n)</span>; or sort O(n log n)/O(1) extra. State the tradeoff.'},
-  {dom:'algo',tag:'Algorithms',q:'dict lookup vs list membership in Python?',a:'<span class="k">dict/set O(1) avg</span>; list <code>in</code> O(n).'},
-  {dom:'algo',tag:'Algorithms',q:'Big-O: binary search / build heap / quicksort worst?',a:'<span class="k">O(log n) · O(n) · O(n²).</span>'},
+  {dom:'algorithms',tag:'Algorithms',q:'Sample k items from a stream of unknown length?',a:'<span class="k">Reservoir sampling</span> — O(n) time, O(k) space. Keep item i with prob k/i.'},
+  {dom:'algorithms',tag:'Algorithms',q:'Find duplicates in a large array — time/space?',a:'<span class="k">Hash set O(n)/O(n)</span>; or sort O(n log n)/O(1) extra. State the tradeoff.'},
+  {dom:'algorithms',tag:'Algorithms',q:'dict lookup vs list membership in Python?',a:'<span class="k">dict/set O(1) avg</span>; list <code>in</code> O(n).'},
+  {dom:'algorithms',tag:'Algorithms',q:'Big-O: binary search / build heap / quicksort worst?',a:'<span class="k">O(log n) · O(n) · O(n²).</span>'},
   // ---- MENTAL MATH ----
-  {dom:'math',tag:'Mental Math',q:'38 × 42? (fast)',a:'<span class="k">1596.</span> (40−2)(40+2) = 1600 − 4. Difference of squares.'},
-  {dom:'math',tag:'Mental Math',q:'7% for 10 years — roughly?',a:'<span class="k">≈ 2×.</span> Rule of 72: 72/7 ≈ 10.3y to double.'},
-  {dom:'math',tag:'Mental Math',q:'A stock +2% then −2% — net?',a:'<span class="k">≈ −0.04%.</span> 1.02·0.98 = 0.9996. Compounding isn\'t symmetric.'},
-  {dom:'math',tag:'Mental Math',q:'√0.0049?',a:'<span class="k">0.07.</span> √49 = 7, shift decimals.'},
+  {dom:'mentalmath',tag:'Mental Math',q:'38 × 42? (fast)',a:'<span class="k">1596.</span> (40−2)(40+2) = 1600 − 4. Difference of squares.'},
+  {dom:'mentalmath',tag:'Mental Math',q:'7% for 10 years — roughly?',a:'<span class="k">≈ 2×.</span> Rule of 72: 72/7 ≈ 10.3y to double.'},
+  {dom:'mentalmath',tag:'Mental Math',q:'A stock +2% then −2% — net?',a:'<span class="k">≈ −0.04%.</span> 1.02·0.98 = 0.9996. Compounding isn\'t symmetric.'},
+  {dom:'mentalmath',tag:'Mental Math',q:'√0.0049?',a:'<span class="k">0.07.</span> √49 = 7, shift decimals.'},
   // ════════ REVIEW ADDITIONS — domain-expert audit pass ════════
-  {dom:'prob',rep:1,tag:'Probability',q:'State the optional stopping theorem and one use.',a:'For a martingale M and bounded stopping time τ, <span class="k">E[M_τ] = E[M_0]</span>. Use it on gambler\'s ruin: wealth is a martingale (fair bets) → E[exit wealth] = start.'},
-  {dom:'prob',rep:1,tag:'Probability',q:'Reflection principle: P(max of BM on [0,T] ≥ a)?',a:'<span class="k">2·P(W_T ≥ a) = 2(1−Φ(a/√T))</span> for a&gt;0. Each path crossing a has a mirror partner ending on the far side — hence the factor 2. Gives first-passage / barrier pricing.'},
-  {dom:'prob',rep:1,tag:'Probability',q:'Is a simple random walk recurrent? Does dimension matter?',a:'<span class="k">1D & 2D recurrent (returns w.p. 1); 3D+ transient.</span> "A drunk man finds his way home; a drunk bird may not." (Pólya)'},
-  {dom:'prob',rep:1,tag:'Probability',q:'E[uniforms on [0,1] summed until the total exceeds 1]?',a:'<span class="k">e ≈ 2.718.</span> P(need &gt; n) = P(n uniforms sum ≤ 1) = 1/n!; summing gives e.'},
-  {dom:'prob',tag:'Probability',q:'Poisson process — three facts an interviewer wants?',a:'<span class="k">Memoryless exponential gaps (rate λ); N(t)~Poisson(λt); superposition adds rates, thinning splits them.</span> Independent stationary increments.'},
-  {dom:'prob',tag:'Probability',q:'Expected number of fixed points of a random permutation of n?',a:'<span class="k">Exactly 1</span>, for every n — linearity (each element fixed w.p. 1/n). Count is asymptotically Poisson(1).'},
-  {dom:'price',rep:1,tag:'Pricing / SDE',q:'Solve the GBM SDE dS = μS dt + σS dW.',a:'<code>S_t = S_0·exp((μ−σ²/2)t + σW_t)</code>. The <span class="k">−σ²/2</span> correction (Itô on log S) is the point — E[S_t]=S_0 e^{μt}, but the median is lower.'},
-  {dom:'price',rep:1,tag:'Pricing / SDE',q:'State the Itô isometry.',a:'<code>E[(∫₀ᵀ f dW)²] = E[∫₀ᵀ f² dt]</code>. <span class="k">Zero mean, variance = expected integral of f².</span> Turns a hard 2nd moment into an ordinary integral.'},
-  {dom:'price',rep:1,tag:'Pricing / SDE',q:'What is E[W_s W_t] for Brownian motion?',a:'<span class="k">min(s,t)</span>. For s≤t: E[W_s W_t]=E[W_s² + W_s(W_t−W_s)] = s + 0.'},
-  {dom:'price',rep:1,tag:'Pricing / SDE',q:'Compute E[e^{σW_t}].',a:'<span class="k">e^{σ²t/2}</span> (MGF of N(0,t)). Why the lognormal mean carries +σ²/2, and why the risk-neutral drift of S is r, not r+σ²/2.'},
-  {dom:'price',rep:1,tag:'Pricing / SDE',q:'Girsanov in one sentence — what does changing measure do?',a:'A change of measure <span class="k">shifts the drift, never the volatility</span>: dW^Q = dW + (adjustment)dt, so σ (a quadratic-variation property) is invariant.'},
-  {dom:'price',rep:1,tag:'Pricing / SDE',q:'Write the Ornstein–Uhlenbeck SDE; why mean-reverting?',a:'<code>dX = κ(θ−X)dt + σ dW</code>. Drift pulls X toward θ at rate κ; <span class="k">stationary N(θ, σ²/2κ)</span> — Gaussian, unlike GBM.'},
-  {dom:'price',tag:'Pricing / SDE',q:'Feynman–Kac in one line.',a:'A PDE solution = an <span class="k">expectation along a diffusion</span>: u(t,x)=E[e^{−∫r}·payoff(X_T)|X_t=x]. The PDE ↔ Monte-Carlo bridge; why Black–Scholes can be priced either way.'},
-  {dom:'price',tag:'Pricing / SDE',q:'Is e^{σW_t − ½σ²t} a martingale? Why care?',a:'<span class="k">Yes — the stochastic exponential, E[·]=1.</span> Its zero drift (−½σ²t cancels the Itô correction) is the Radon–Nikodym density in Girsanov.'},
-  {dom:'stats',rep:1,tag:'Statistics',q:'Type I vs Type II error and power?',a:'<span class="k">Type I = false positive (α), Type II = false negative (β).</span> Power = <code>1−β</code> = P(reject | effect real); rises with effect size, n, α.'},
-  {dom:'stats',rep:1,tag:'Statistics',q:'Test 100 strategies at α=0.05 — how many false positives, and the fix?',a:'<span class="k">~5 by chance.</span> Bonferroni: use <code>α/m</code> (controls family-wise error). Benjamini–Hochberg controls <span class="k">FDR</span> — far more power for many tests.'},
-  {dom:'stats',rep:1,tag:'Statistics',q:'Gauss–Markov: when is OLS BLUE?',a:'<span class="k">Linearity, exogeneity (E[ε|X]=0), homoskedasticity, no autocorrelation.</span> Then OLS is Best Linear Unbiased — <b>normality NOT required</b> (only for exact small-sample t/F).'},
-  {dom:'stats',rep:1,tag:'Statistics',q:'R² vs adjusted R²?',a:'R² always rises with more regressors. <span class="k">Adjusted R² penalizes parameters</span> (<code>1−(1−R²)(n−1)/(n−p−1)</code>) so it can fall — use it to compare different-size models.'},
-  {dom:'stats',rep:1,tag:'Statistics',q:'L1 vs L2 regularization?',a:'<span class="k">L1 (Lasso) → sparsity</span> (coefs exactly 0, feature selection); <span class="k">L2 (Ridge) → shrinkage</span> (small, handles collinearity). L1 penalizes |β|, L2 penalizes β².'},
-  {dom:'stats',tag:'Statistics',q:'What does k-fold cross-validation estimate, and the time-series catch?',a:'<span class="k">Out-of-sample error.</span> Train on k−1 folds, test on 1, average. <b>For time series use walk-forward</b> — random k-fold leaks the future into the past.'},
-  {dom:'stats',tag:'Statistics',q:'MLE vs method of moments for a Normal?',a:'<span class="k">MLE: μ̂=x̄, σ̂²=(1/n)Σ(xᵢ−x̄)²</span> (biased — divides by n). MoM matches sample to population moments; often easier, less efficient.'},
-  {dom:'stats',tag:'Statistics',q:'What is the bootstrap and when do you use it?',a:'<span class="k">Resample with replacement</span> to approximate a statistic\'s sampling distribution. Use when no closed-form SE exists (median, Sharpe, ratios). Breaks under strong dependence.'},
-  {dom:'stats',rep:1,tag:'Statistics',q:'Covariance vs correlation?',a:'<span class="k">Correlation = normalized covariance</span>: <code>ρ = Cov(X,Y)/(σ_X σ_Y)</code> ∈ [−1,1], unitless. Covariance is scale-dependent.'},
-  {dom:'stats',tag:'Statistics',q:'Simpson\'s paradox?',a:'<span class="k">A trend within every subgroup reverses when pooled</span> — driven by a confounder / unequal group sizes. Condition on the right variable.'},
-  {dom:'stats',rep:1,tag:'Statistics',q:'Why annualize Sharpe by √252, and what breaks it?',a:'<span class="k">SR_annual = SR_daily × √252</span>: mean scales with horizon, vol with √horizon. <b>Assumes iid</b> — positive autocorrelation inflates it, overstating a trending strategy.'},
-  {dom:'opt',rep:1,tag:'Options & Vol',q:'Gamma–theta relationship for a delta-neutral book?',a:'At r=0, <code>θ ≈ −½·Γ·σ²·S²</code>. <span class="k">Theta is the rent you pay for gamma</span> — long gamma ⇒ negative theta; they offset when realized = implied vol.'},
-  {dom:'opt',rep:1,tag:'Options & Vol',q:'Why is a market-maker short gamma after selling options?',a:'Selling options ⇒ <span class="k">short gamma:</span> hedging forces buy-high / sell-low into moves, bleeding on realized variance. You collect theta + the variance risk premium as pay.'},
-  {dom:'opt',rep:1,tag:'Options & Vol',q:'What is pin risk?',a:'Spot finishing right at the strike near expiry: <span class="k">you don\'t know if you\'ll be assigned</span>, so post-expiry delta is uncertain (0 or ±1). Gamma explodes at the strike.'},
-  {dom:'opt',rep:1,tag:'Options & Vol',q:'What does a risk reversal express?',a:'Long OTM call / short OTM put (or reverse) — a <span class="k">pure bet on skew</span> (call−put IV). Roughly delta-long, little vega; the maker\'s skew-P&L vehicle.'},
-  {dom:'opt',rep:1,tag:'Options & Vol',q:'Delta of a digital (cash-or-nothing) option?',a:'≈ a tight call spread, so delta ∝ the BS density at the strike. <span class="k">Near expiry it blows up</span> as spot nears the strike — hard to hedge.'},
-  {dom:'opt',tag:'Options & Vol',q:'How does a dividend move call and put prices?',a:'A dividend lowers the forward (<code>F = S·e^((r−q)T)</code>): <span class="k">calls cheaper, puts richer.</span> Also the only reason to exercise an American call early.'},
-  {dom:'opt',tag:'Options & Vol',q:'Why is a butterfly priced off convexity?',a:'Long wings, short 2× body — pays for <span class="k">convexity in strike</span>, i.e. curvature of price-vs-strike (Breeden–Litzenberger) = the risk-neutral density at the center strike.'},
-  {dom:'opt',tag:'Options & Vol',q:'Sticky-strike vs sticky-delta?',a:'<span class="k">Sticky-strike:</span> each strike\'s IV stays put as spot moves (range-bound). <span class="k">Sticky-delta:</span> the smile rides with spot. Opposite signs for an option\'s effective delta.'},
-  {dom:'opt',tag:'Options & Vol',q:'What are vanna, volga, and charm?',a:'2nd-order Greeks: <span class="k">vanna</span> = ∂Δ/∂σ, <span class="k">volga/vomma</span> = ∂vega/∂σ (long in the wings), <span class="k">charm</span> = ∂Δ/∂t (why hedges drift into expiry).'},
-  {dom:'opt',tag:'Options & Vol',q:'What does a long calendar spread bet on?',a:'Sell near-dated, buy far-dated same strike: <span class="k">long vega + long the vol term structure</span>; profits if back-month IV holds while front decays. Max value near the strike at front expiry.'},
-  {dom:'micro',rep:1,tag:'Microstructure',q:'What does order-book imbalance predict?',a:'Imbalance = (bid_size − ask_size)/(bid+ask). <span class="k">Heavier bid ⇒ short-horizon up-tick</span> in the mid — a core short-term signal and a quote-skewing input.'},
-  {dom:'micro',tag:'Microstructure',q:'Avellaneda–Stoikov: what is the reservation price?',a:'A mid skewed by inventory: <code>r = S − q·γ·σ²·(T−t)</code>. Long inventory ⇒ quote below mid to offload; optimal spread widens with risk-aversion γ, vol, horizon.'},
-  {dom:'algo',rep:1,tag:'Algorithms',q:'Two-pointer vs nested loop — when does it win?',a:'On a <span class="k">sorted</span> array: shrink from both ends to hit a target sum in <code>O(n)</code>/O(1) space vs <code>O(n²)</code> brute force.'},
-  {dom:'algo',rep:1,tag:'Algorithms',q:'What is amortized O(1) — give an example?',a:'<span class="k">Average over a sequence</span> of ops, not the worst single op. Dynamic-array append: occasional O(n) doublings average to <code>O(1)</code>.'},
-  {dom:'algo',rep:1,tag:'Algorithms',q:'When does a hash table degrade to O(n)?',a:'<span class="k">Collisions:</span> adversarial keys or a bad hash collapse one bucket → linear chains. Mitigate: good hash, resizing, treeified buckets.'},
-  {dom:'algo',tag:'Algorithms',q:'Is quicksort or mergesort stable?',a:'<span class="k">Mergesort stable</span> (equal keys keep order); standard <span class="k">quicksort not</span>. Mergesort needs O(n) space; quicksort is in-place.'},
-  {dom:'algo',rep:1,tag:'Algorithms',q:'Why is a Python loop slow vs a numpy vectorized op?',a:'The loop pays <span class="k">per-element interpreter overhead</span>; numpy runs one C loop over contiguous memory (SIMD, no boxing) — often <code>10–100×</code> faster.'},
-  {dom:'algo',rep:1,tag:'Algorithms',q:'Why can summing floats in a different order change the result?',a:'<span class="k">Float addition isn\'t associative</span> — rounding each step. Add small-to-large or use Kahan summation to limit error.'},
+  {dom:'stochastic',rep:1,tag:'Stochastic Processes',q:'State the optional stopping theorem and one use.',a:'For a martingale M and bounded stopping time τ, <span class="k">E[M_τ] = E[M_0]</span>. Use it on gambler\'s ruin: wealth is a martingale (fair bets) → E[exit wealth] = start.'},
+  {dom:'stochastic',rep:1,tag:'Stochastic Processes',q:'Reflection principle: P(max of BM on [0,T] ≥ a)?',a:'<span class="k">2·P(W_T ≥ a) = 2(1−Φ(a/√T))</span> for a&gt;0. Each path crossing a has a mirror partner ending on the far side — hence the factor 2. Gives first-passage / barrier pricing.'},
+  {dom:'stochastic',rep:1,tag:'Stochastic Processes',q:'Is a simple random walk recurrent? Does dimension matter?',a:'<span class="k">1D & 2D recurrent (returns w.p. 1); 3D+ transient.</span> "A drunk man finds his way home; a drunk bird may not." (Pólya)'},
+  {dom:'probability',rep:1,tag:'Probability',q:'E[uniforms on [0,1] summed until the total exceeds 1]?',a:'<span class="k">e ≈ 2.718.</span> P(need &gt; n) = P(n uniforms sum ≤ 1) = 1/n!; summing gives e.'},
+  {dom:'stochastic',tag:'Stochastic Processes',q:'Poisson process — three facts an interviewer wants?',a:'<span class="k">Memoryless exponential gaps (rate λ); N(t)~Poisson(λt); superposition adds rates, thinning splits them.</span> Independent stationary increments.'},
+  {dom:'probability',tag:'Probability',q:'Expected number of fixed points of a random permutation of n?',a:'<span class="k">Exactly 1</span>, for every n — linearity (each element fixed w.p. 1/n). Count is asymptotically Poisson(1).'},
+  {dom:'stochastic',rep:1,tag:'Stochastic Processes',q:'Solve the GBM SDE dS = μS dt + σS dW.',a:'<code>S_t = S_0·exp((μ−σ²/2)t + σW_t)</code>. The <span class="k">−σ²/2</span> correction (Itô on log S) is the point — E[S_t]=S_0 e^{μt}, but the median is lower.'},
+  {dom:'stochastic',rep:1,tag:'Stochastic Processes',q:'State the Itô isometry.',a:'<code>E[(∫₀ᵀ f dW)²] = E[∫₀ᵀ f² dt]</code>. <span class="k">Zero mean, variance = expected integral of f².</span> Turns a hard 2nd moment into an ordinary integral.'},
+  {dom:'stochastic',rep:1,tag:'Stochastic Processes',q:'What is E[W_s W_t] for Brownian motion?',a:'<span class="k">min(s,t)</span>. For s≤t: E[W_s W_t]=E[W_s² + W_s(W_t−W_s)] = s + 0.'},
+  {dom:'stochastic',rep:1,tag:'Stochastic Processes',q:'Compute E[e^{σW_t}].',a:'<span class="k">e^{σ²t/2}</span> (MGF of N(0,t)). Why the lognormal mean carries +σ²/2, and why the risk-neutral drift of S is r, not r+σ²/2.'},
+  {dom:'stochastic',rep:1,tag:'Stochastic Processes',q:'Girsanov in one sentence — what does changing measure do?',a:'A change of measure <span class="k">shifts the drift, never the volatility</span>: dW^Q = dW + (adjustment)dt, so σ (a quadratic-variation property) is invariant.'},
+  {dom:'stochastic',rep:1,tag:'Stochastic Processes',q:'Write the Ornstein–Uhlenbeck SDE; why mean-reverting?',a:'<code>dX = κ(θ−X)dt + σ dW</code>. Drift pulls X toward θ at rate κ; <span class="k">stationary N(θ, σ²/2κ)</span> — Gaussian, unlike GBM.'},
+  {dom:'stochastic',tag:'Stochastic Processes',q:'Feynman–Kac in one line.',a:'A PDE solution = an <span class="k">expectation along a diffusion</span>: u(t,x)=E[e^{−∫r}·payoff(X_T)|X_t=x]. The PDE ↔ Monte-Carlo bridge; why Black–Scholes can be priced either way.'},
+  {dom:'stochastic',tag:'Stochastic Processes',q:'Is e^{σW_t − ½σ²t} a martingale? Why care?',a:'<span class="k">Yes — the stochastic exponential, E[·]=1.</span> Its zero drift (−½σ²t cancels the Itô correction) is the Radon–Nikodym density in Girsanov.'},
+  {dom:'statistics',rep:1,tag:'Statistics',q:'Type I vs Type II error and power?',a:'<span class="k">Type I = false positive (α), Type II = false negative (β).</span> Power = <code>1−β</code> = P(reject | effect real); rises with effect size, n, α.'},
+  {dom:'statistics',rep:1,tag:'Statistics',q:'Test 100 strategies at α=0.05 — how many false positives, and the fix?',a:'<span class="k">~5 by chance.</span> Bonferroni: use <code>α/m</code> (controls family-wise error). Benjamini–Hochberg controls <span class="k">FDR</span> — far more power for many tests.'},
+  {dom:'regression',rep:1,tag:'Regression',q:'Gauss–Markov: when is OLS BLUE?',a:'<span class="k">Linearity, exogeneity (E[ε|X]=0), homoskedasticity, no autocorrelation.</span> Then OLS is Best Linear Unbiased — <b>normality NOT required</b> (only for exact small-sample t/F).'},
+  {dom:'regression',rep:1,tag:'Regression',q:'R² vs adjusted R²?',a:'R² always rises with more regressors. <span class="k">Adjusted R² penalizes parameters</span> (<code>1−(1−R²)(n−1)/(n−p−1)</code>) so it can fall — use it to compare different-size models.'},
+  {dom:'regression',rep:1,tag:'Regression',q:'L1 vs L2 regularization?',a:'<span class="k">L1 (Lasso) → sparsity</span> (coefs exactly 0, feature selection); <span class="k">L2 (Ridge) → shrinkage</span> (small, handles collinearity). L1 penalizes |β|, L2 penalizes β².'},
+  {dom:'statistics',tag:'Statistics',q:'What does k-fold cross-validation estimate, and the time-series catch?',a:'<span class="k">Out-of-sample error.</span> Train on k−1 folds, test on 1, average. <b>For time series use walk-forward</b> — random k-fold leaks the future into the past.'},
+  {dom:'statistics',tag:'Statistics',q:'MLE vs method of moments for a Normal?',a:'<span class="k">MLE: μ̂=x̄, σ̂²=(1/n)Σ(xᵢ−x̄)²</span> (biased — divides by n). MoM matches sample to population moments; often easier, less efficient.'},
+  {dom:'statistics',tag:'Statistics',q:'What is the bootstrap and when do you use it?',a:'<span class="k">Resample with replacement</span> to approximate a statistic\'s sampling distribution. Use when no closed-form SE exists (median, Sharpe, ratios). Breaks under strong dependence.'},
+  {dom:'statistics',rep:1,tag:'Statistics',q:'Covariance vs correlation?',a:'<span class="k">Correlation = normalized covariance</span>: <code>ρ = Cov(X,Y)/(σ_X σ_Y)</code> ∈ [−1,1], unitless. Covariance is scale-dependent.'},
+  {dom:'statistics',tag:'Statistics',q:'Simpson\'s paradox?',a:'<span class="k">A trend within every subgroup reverses when pooled</span> — driven by a confounder / unequal group sizes. Condition on the right variable.'},
+  {dom:'statistics',rep:1,tag:'Statistics',q:'Why annualize Sharpe by √252, and what breaks it?',a:'<span class="k">SR_annual = SR_daily × √252</span>: mean scales with horizon, vol with √horizon. <b>Assumes iid</b> — positive autocorrelation inflates it, overstating a trending strategy.'},
+  {dom:'options',rep:1,tag:'Options & Vol',q:'Gamma–theta relationship for a delta-neutral book?',a:'At r=0, <code>θ ≈ −½·Γ·σ²·S²</code>. <span class="k">Theta is the rent you pay for gamma</span> — long gamma ⇒ negative theta; they offset when realized = implied vol.'},
+  {dom:'options',rep:1,tag:'Options & Vol',q:'Why is a market-maker short gamma after selling options?',a:'Selling options ⇒ <span class="k">short gamma:</span> hedging forces buy-high / sell-low into moves, bleeding on realized variance. You collect theta + the variance risk premium as pay.'},
+  {dom:'options',rep:1,tag:'Options & Vol',q:'What is pin risk?',a:'Spot finishing right at the strike near expiry: <span class="k">you don\'t know if you\'ll be assigned</span>, so post-expiry delta is uncertain (0 or ±1). Gamma explodes at the strike.'},
+  {dom:'options',rep:1,tag:'Options & Vol',q:'What does a risk reversal express?',a:'Long OTM call / short OTM put (or reverse) — a <span class="k">pure bet on skew</span> (call−put IV). Roughly delta-long, little vega; the maker\'s skew-P&L vehicle.'},
+  {dom:'options',rep:1,tag:'Options & Vol',q:'Delta of a digital (cash-or-nothing) option?',a:'≈ a tight call spread, so delta ∝ the BS density at the strike. <span class="k">Near expiry it blows up</span> as spot nears the strike — hard to hedge.'},
+  {dom:'options',tag:'Options & Vol',q:'How does a dividend move call and put prices?',a:'A dividend lowers the forward (<code>F = S·e^((r−q)T)</code>): <span class="k">calls cheaper, puts richer.</span> Also the only reason to exercise an American call early.'},
+  {dom:'options',tag:'Options & Vol',q:'Why is a butterfly priced off convexity?',a:'Long wings, short 2× body — pays for <span class="k">convexity in strike</span>, i.e. curvature of price-vs-strike (Breeden–Litzenberger) = the risk-neutral density at the center strike.'},
+  {dom:'options',tag:'Options & Vol',q:'Sticky-strike vs sticky-delta?',a:'<span class="k">Sticky-strike:</span> each strike\'s IV stays put as spot moves (range-bound). <span class="k">Sticky-delta:</span> the smile rides with spot. Opposite signs for an option\'s effective delta.'},
+  {dom:'options',tag:'Options & Vol',q:'What are vanna, volga, and charm?',a:'2nd-order Greeks: <span class="k">vanna</span> = ∂Δ/∂σ, <span class="k">volga/vomma</span> = ∂vega/∂σ (long in the wings), <span class="k">charm</span> = ∂Δ/∂t (why hedges drift into expiry).'},
+  {dom:'options',tag:'Options & Vol',q:'What does a long calendar spread bet on?',a:'Sell near-dated, buy far-dated same strike: <span class="k">long vega + long the vol term structure</span>; profits if back-month IV holds while front decays. Max value near the strike at front expiry.'},
+  {dom:'microstructure',rep:1,tag:'Microstructure',q:'What does order-book imbalance predict?',a:'Imbalance = (bid_size − ask_size)/(bid+ask). <span class="k">Heavier bid ⇒ short-horizon up-tick</span> in the mid — a core short-term signal and a quote-skewing input.'},
+  {dom:'microstructure',tag:'Microstructure',q:'Avellaneda–Stoikov: what is the reservation price?',a:'A mid skewed by inventory: <code>r = S − q·γ·σ²·(T−t)</code>. Long inventory ⇒ quote below mid to offload; optimal spread widens with risk-aversion γ, vol, horizon.'},
+  {dom:'algorithms',rep:1,tag:'Algorithms',q:'Two-pointer vs nested loop — when does it win?',a:'On a <span class="k">sorted</span> array: shrink from both ends to hit a target sum in <code>O(n)</code>/O(1) space vs <code>O(n²)</code> brute force.'},
+  {dom:'algorithms',rep:1,tag:'Algorithms',q:'What is amortized O(1) — give an example?',a:'<span class="k">Average over a sequence</span> of ops, not the worst single op. Dynamic-array append: occasional O(n) doublings average to <code>O(1)</code>.'},
+  {dom:'algorithms',rep:1,tag:'Algorithms',q:'When does a hash table degrade to O(n)?',a:'<span class="k">Collisions:</span> adversarial keys or a bad hash collapse one bucket → linear chains. Mitigate: good hash, resizing, treeified buckets.'},
+  {dom:'algorithms',tag:'Algorithms',q:'Is quicksort or mergesort stable?',a:'<span class="k">Mergesort stable</span> (equal keys keep order); standard <span class="k">quicksort not</span>. Mergesort needs O(n) space; quicksort is in-place.'},
+  {dom:'algorithms',rep:1,tag:'Algorithms',q:'Why is a Python loop slow vs a numpy vectorized op?',a:'The loop pays <span class="k">per-element interpreter overhead</span>; numpy runs one C loop over contiguous memory (SIMD, no boxing) — often <code>10–100×</code> faster.'},
+  {dom:'algorithms',rep:1,tag:'Algorithms',q:'Why can summing floats in a different order change the result?',a:'<span class="k">Float addition isn\'t associative</span> — rounding each step. Add small-to-large or use Kahan summation to limit error.'},
   {dom:'linalg',rep:1,tag:'Linear Algebra',q:'Eigenvalues vs singular values — difference?',a:'<span class="k">Eigen:</span> Av=λv, square, can be negative/complex. <span class="k">Singular:</span> σ≥0 always, any m×n; σᵢ=√(λᵢ of AᵀA). Equal |λ| only for symmetric A.'},
   {dom:'linalg',rep:1,tag:'Linear Algebra',q:'What does the determinant mean geometrically?',a:'<span class="k">Signed volume scaling</span> of the unit cube under the map. <code>det=0</code> ⇒ singular / rank-deficient / non-invertible.'},
   {dom:'linalg',rep:1,tag:'Linear Algebra',q:'What is the rank of a matrix?',a:'<span class="k">Number of independent rows = independent columns</span> = nonzero singular values. Full rank ⇒ invertible (if square).'},
   {dom:'linalg',rep:1,tag:'Linear Algebra',q:'How do you stably solve Ax = b?',a:'<span class="k">Factor, don\'t invert:</span> LU (general), Cholesky (SPD), QR / least-squares if ill-conditioned. Explicit A⁻¹ is slower and less stable.'},
   {dom:'linalg',tag:'Linear Algebra',q:'Name one practical use of the SVD.',a:'<span class="k">Low-rank approximation</span> (keep top-k σ): PCA, compression, denoising, the pseudoinverse for least squares.'},
-  {dom:'math',rep:1,tag:'Mental Math',q:'53² fast?',a:'<span class="k">2809.</span> (50+3)² = 2500 + 2·50·3 + 9.'},
-  {dom:'math',rep:1,tag:'Mental Math',q:'Estimate e^0.03 in your head.',a:'<span class="k">≈ 1.03.</span> e^x ≈ 1+x for small x (true ≈ 1.0305).'},
-  {dom:'math',tag:'Mental Math',q:'√2 to two decimals, and why?',a:'<span class="k">≈ 1.41.</span> Newton from 1.5: ½(1.5 + 2/1.5) ≈ 1.417.'},
+  {dom:'mentalmath',rep:1,tag:'Mental Math',q:'53² fast?',a:'<span class="k">2809.</span> (50+3)² = 2500 + 2·50·3 + 9.'},
+  {dom:'mentalmath',rep:1,tag:'Mental Math',q:'Estimate e^0.03 in your head.',a:'<span class="k">≈ 1.03.</span> e^x ≈ 1+x for small x (true ≈ 1.0305).'},
+  {dom:'mentalmath',tag:'Mental Math',q:'√2 to two decimals, and why?',a:'<span class="k">≈ 1.41.</span> Newton from 1.5: ½(1.5 + 2/1.5) ≈ 1.417.'},
+  // ==== generated (verified) ====
+  {dom:'calculus',tag:'Calculus',q:'Why is e^x its own derivative — and what limit defines e?',a:'<span class="k"><code>d/dx eˣ = eˣ</code> because <code>e</code> is defined as the base for which the exponential\'s growth rate equals its value.</span> Equivalently <code>e = lim(n→∞)(1+1/n)ⁿ ≈ 2.71828</code>; any <code>aˣ</code> has derivative <code>aˣ ln a</code>, so the multiplier is 1 exactly when <code>a=e</code>.',rep:0},
+  {dom:'calculus',tag:'Calculus',q:'Evaluate lim(x→0) (1+x)^(1/x), and explain it in one line.',a:'<span class="k"><code>= e</code>.</span> Take logs: <code>(1/x)ln(1+x) → (1/x)(x − x²/2 + …) → 1</code> as <code>x→0</code>, so the expression tends to <code>e¹ = e</code>. It is the continuous-time limit of compounding.',rep:0},
+  {dom:'calculus',tag:'Calculus',q:'Compute the sum Σ_{n≥1} n/2ⁿ.',a:'<span class="k"><code>= 2</code>.</span> Start from <code>Σ xⁿ = x/(1−x)</code>, differentiate to get <code>Σ n x^(n−1) = 1/(1−x)²</code>, multiply by <code>x</code>: <code>Σ n xⁿ = x/(1−x)²</code>. At <code>x=½</code>: <code>(½)/(¼) = 2</code>.',rep:0},
+  {dom:'calculus',tag:'Calculus',q:'Approximate ln(1.02) and (1.02)^10 fast, in your head.',a:'<span class="k"><code>ln(1.02) ≈ 0.02</code>; <code>(1.02)^10 ≈ 1.22</code>.</span> Small-x: <code>ln(1+x)≈x</code>. For the power, <code>10·ln(1.02)≈0.2</code>, and <code>e^0.2 ≈ 1+0.2+0.02 = 1.22</code> (actual 1.2190).',rep:0},
+  {dom:'calculus',tag:'Calculus',q:'Without the chain rule on a product, differentiate f(x)=x^x for x>0.',a:'<span class="k"><code>f′ = x^x(ln x + 1)</code>.</span> Logarithmic differentiation: <code>ln f = x ln x</code>, so <code>f′/f = ln x + x·(1/x) = ln x + 1</code>. Multiply back by <code>f=x^x</code>. The minimum is at <code>x=1/e</code> where <code>ln x+1=0</code>.',rep:0},
+  {dom:'calculus',tag:'Calculus',q:'Compute ∫₀^∞ e^(−ax) dx and ∫₀^∞ x e^(−ax) dx for a>0.',a:'<span class="k"><code>1/a</code> and <code>1/a²</code>.</span> The first is a basic exponential. Differentiating <code>∫₀^∞ e^(−ax)dx = 1/a</code> in <code>a</code> gives <code>−∫₀^∞ x e^(−ax)dx = −1/a²</code> — Feynman\'s trick, and exactly the mean of an Exp(a).',rep:0},
+  {dom:'calculus',tag:'Calculus',q:'A function has f′(c)=0. What distinguishes a min, max, or inflection there?',a:'<span class="k"><code>f″(c)&gt;0</code> → local min; <code>f″(c)&lt;0</code> → local max; <code>f″(c)=0</code> is inconclusive.</span> When the second derivative vanishes, check the next nonzero derivative: if it is of odd order it is an inflection point with horizontal tangent (e.g. <code>x³</code> at 0), if of even order it gives an extremum.',rep:0},
+  {dom:'calculus',tag:'Calculus',q:'Maximize f(x,y)=ln x + ln y subject to x+y=1, x,y>0. What\'s the result?',a:'<span class="k"><code>x=y=½</code>, max <code>= 2 ln(½) = −ln 4</code>.</span> Lagrange: <code>1/x = 1/y = λ</code> forces <code>x=y</code>, then the constraint gives ½ each. Concavity of <code>ln</code> guarantees it\'s the global max — the symmetric split, echoing AM–GM.',rep:0},
+  {dom:'linalg',tag:'Linear Algebra',q:'What does it mean for two square matrices to be similar, and what do they share?',a:'<span class="k">B=P⁻¹AP for some invertible P — same linear map in different bases.</span> Similar matrices share eigenvalues, determinant, trace, rank, and characteristic polynomial; eigenvectors transform by P. Diagonalization is finding P that makes B diagonal.',rep:0},
+  {dom:'linalg',tag:'Linear Algebra',q:'Why are the four fundamental subspaces orthogonal, and how do their dimensions relate?',a:'<span class="k">Row space ⊥ null space; column space ⊥ left-null space — directly from Ax accessing rows.</span> dim(row)=dim(col)=rank r; null space has dim n−r, left-null m−r. This is why least-squares splits b into a column-space part (fit) plus an orthogonal residual.',rep:0},
+  {dom:'linalg',tag:'Linear Algebra',q:'What is a projection matrix, and how do you recognize one?',a:'<span class="k">P is a projection iff P²=P (idempotent); orthogonal projection if additionally P=Pᵀ.</span> Eigenvalues are only 0 or 1, trace = rank = dimension projected onto. Least-squares hat matrix <code>H=A(AᵀA)⁻¹Aᵀ</code> is the orthogonal projector onto col(A).',rep:0},
+  {dom:'linalg',tag:'Linear Algebra',q:'If A is symmetric PSD, how do its eigenvalues relate to invertibility and the quadratic form?',a:'<span class="k">All λᵢ≥0; A is invertible iff all λᵢ>0 (positive definite).</span> The quadratic form <code>xᵀAx=Σλᵢ(vᵢᵀx)²≥0</code>, so a zero eigenvalue gives a direction where the form vanishes — exactly the null space. Smallest λ controls how flat the form gets.',rep:0},
+  {dom:'geometry',tag:'Geometry',q:'Three points are collinear. What does the shoelace/cross-product area tell you?',a:'<span class="k">The signed area is exactly 0.</span> Collinearity ⟺ the vectors (B−A) and (C−A) are parallel, so their 2D cross product (and the triangle area) vanish.',rep:0},
+  {dom:'geometry',tag:'Geometry',q:'Break a stick at two uniform random points. P(the three pieces form a triangle)?',a:'<span class="k">1/4.</span> With breakpoints x,y ~ U(0,1), the triangle inequality (no piece > ½) carves out a region of area ¼ of the unit square; by symmetry it\'s two of the eight sub-triangles.',rep:0},
+  {dom:'geometry',tag:'Geometry',q:'Two points are chosen uniformly at random on a circle\'s circumference. P(they fall in the same semicircle)?',a:'<span class="k">1 (trivially) — two points always lie in some common semicircle.</span> The real question is for n points: <code>P = n/2^{n−1}</code>. For n=3 that\'s 3/4.',rep:0},
+  {dom:'geometry',tag:'Geometry',q:'x,y ~ U(0,1) independent. What is E[max(x,y)] and E[min(x,y)]?',a:'<span class="k">E[max]=2/3, E[min]=1/3.</span> For the max, P(max≤t)=t² so density 2t and E=∫₀¹2t²=2/3; min is symmetric, and the two sum to E[x]+E[y]=1.',rep:0},
+  {dom:'geometry',tag:'Geometry',q:'Distance from point P to a plane with unit normal n through point Q?',a:'<span class="k"><code>|n·(P−Q)|</code>.</span> Project the offset vector onto the unit normal; the absolute scalar projection is the perpendicular distance. Drop the abs to get a signed side indicator.',rep:0},
+  {dom:'geometry',tag:'Geometry',q:'Pick two points uniformly in [0,1]. What\'s the expected distance between them?',a:'<span class="k">1/3.</span> E|x−y| = ∫₀¹∫₀¹|x−y|dx dy = 2·(area-weighted integral) = 1/3; equivalently E[max]−E[min] = 2/3−1/3.',rep:0},
+  {dom:'geometry',tag:'Geometry',q:'How do you find the area of a triangle given only its three side lengths?',a:'<span class="k">Heron: with s=(a+b+c)/2, Area=√(s(s−a)(s−b)(s−c)).</span> No coordinates or angles needed; degenerate (collinear) triangles give 0 because one factor vanishes.',rep:0},
+  {dom:'geometry',tag:'Geometry',q:'Random chord of a circle: name the paradox and why P(longer than the inscribed-triangle side) isn\'t unique.',a:'<span class="k">Bertrand\'s paradox — the answer (1/2, 1/3, or 1/4) depends on the sampling method.</span> \'Random chord\' is ambiguous: uniform endpoint, uniform midpoint-radius, or uniform midpoint-in-disk give different measures.',rep:0},
+  {dom:'combinatorics',tag:'Combinatorics',q:'How many distinct arrangements of the letters in BANANA?',a:'<span class="k">60.</span> 6 letters with A×3, N×2, B×1, so <code>6!/(3!·2!·1!)=720/12=60</code> — the multinomial coefficient divides out permutations of identical letters.',rep:0},
+  {dom:'combinatorics',tag:'Combinatorics',q:'Number of non-negative integer solutions to x₁+x₂+x₃+x₄ = 10?',a:'<span class="k">C(13,3)=286.</span> Stars & bars: distribute 10 identical units into 4 bins is <code>C(n+k−1,k−1)=C(10+4−1,4−1)</code>. For strictly positive solutions you\'d substitute yᵢ=xᵢ−1 first.',rep:0},
+  {dom:'combinatorics',tag:'Combinatorics',q:'Expected number of fixed points when n distinct cards are shuffled uniformly?',a:'<span class="k">Exactly 1, for every n≥1.</span> Let Xᵢ indicate card i in place; <code>E[Xᵢ]=1/n</code>, so by linearity <code>E[ΣXᵢ]=n·(1/n)=1</code>. No independence needed.',rep:0},
+  {dom:'combinatorics',tag:'Combinatorics',q:'Probability a random permutation of n elements is a derangement, as n→∞?',a:'<span class="k">1/e ≈ 0.368.</span> Derangements <code>Dₙ=n!·Σ(−1)ᵏ/k!</code> from inclusion–exclusion, so <code>Dₙ/n! → e⁻¹</code>. The convergence is extremely fast (correct to ~3 places by n=6).',rep:0},
+  {dom:'combinatorics',tag:'Combinatorics',q:'In a room of 23 people, why is a shared birthday more likely than not?',a:'<span class="k">Count the complement.</span> P(all distinct)=<code>365·364·…·343 / 365²³ ≈ 0.493</code>, so P(some match)≈0.507>½. Pairs scale as C(23,2)=253, not 23 — that\'s the intuition gap.',rep:0},
+  {dom:'combinatorics',tag:'Combinatorics',q:'Among any 5 points in a unit square, two are within distance ≤ √2/2. Why?',a:'<span class="k">Pigeonhole.</span> Split the square into 4 sub-squares of side ½; 5 points into 4 cells forces two in one cell, whose max separation is the diagonal <code>√(¼+¼)=√2/2</code>.',rep:0},
+  {dom:'combinatorics',tag:'Combinatorics',q:'How do you count integers in 1..100 divisible by 2, 3, or 5?',a:'<span class="k">74, by inclusion–exclusion.</span> <code>⌊100/2⌋+⌊100/3⌋+⌊100/5⌋ − ⌊100/6⌋−⌊100/10⌋−⌊100/15⌋ + ⌊100/30⌋ = 50+33+20−16−10−6+3 = 74</code>.',rep:0},
+  {dom:'combinatorics',tag:'Combinatorics',q:'What does the generating function ∑ Cₙ xⁿ for Catalan numbers satisfy, and what\'s its closed form?',a:'<span class="k">C(x)=1+x·C(x)², so C(x)=(1−√(1−4x))/(2x).</span> The quadratic comes directly from the convolution recurrence Cₙ₊₁=ΣCᵢCₙ₋ᵢ; pick the minus root so C(0)=C₀=1.',rep:0},
+  {dom:'probability',tag:'Probability',q:'You roll a fair die repeatedly and sum the rolls. What is the probability the running sum ever equals exactly 6?',a:'<span class="k">=16807/46656=7⁵/6⁶≈0.3602 (a renewal recursion, not 1/6).</span> Let p(n)=P(sum hits n). p(n)=⅙Σ_{k=1..6} p(n−k) with p(0)=1, p(<0)=0. Computing up to 6 gives p(6)=16807/46656≈0.3602.',rep:0},
+  {dom:'probability',tag:'Probability',q:'X,Y iid Uniform(0,1). What is E[max(X,Y)] and E[min(X,Y)]?',a:'<span class="k">E[max]=2/3, E[min]=1/3.</span> P(max≤t)=t² so density 2t, ∫₀¹ t·2t dt=2/3. By symmetry max+min=X+Y has mean 1, so E[min]=1/3.',rep:0},
+  {dom:'probability',tag:'Probability',q:'A and B alternate flipping a fair coin, A first; first to flip heads wins. P(A wins)?',a:'<span class="k">2/3.</span> A wins on flip 1,3,5,… : ½+½³+½⁵+…=½/(1−¼)=2/3. Equivalently P(A)=½+½·½·P(A) ⇒ P(A)=2/3.',rep:0},
+  {dom:'distributions',tag:'Distributions',q:'Sum of two independent Poissons, Poisson(λ₁) and Poisson(λ₂) — distribution?',a:'<span class="k">Poisson(λ₁+λ₂).</span> MGFs multiply: <code>e^(λ₁(eᵗ−1))·e^(λ₂(eᵗ−1))=e^((λ₁+λ₂)(eᵗ−1))</code>, which is the Poisson MGF with rate λ₁+λ₂.',rep:0},
+  {dom:'distributions',tag:'Distributions',q:'For independent X, Y, what\'s the distribution and variance of X−Y when both are normal?',a:'<span class="k">Normal with means subtracting but variances ADDING: N(μ_X−μ_Y, σ_X²+σ_Y²).</span> Var(−Y)=Var(Y), so independence makes the variances add regardless of sign. The classic trap is subtracting variances.',rep:0},
+  {dom:'distributions',tag:'Distributions',q:'Given U~Uniform(0,1), how do you generate an Exponential(λ) sample?',a:'<span class="k">X = −ln(U)/λ.</span> Invert the CDF: U=1−e^(−λx) ⇒ x=−ln(1−U)/λ; since 1−U is also uniform, use −ln(U)/λ.',rep:0},
+  {dom:'distributions',tag:'Distributions',q:'Why can\'t you sample a standard normal by the inverse-CDF method directly?',a:'<span class="k">Φ⁻¹ has no closed form.</span> So you use Box–Muller: from two iid uniforms, √(−2 ln U₁)·cos(2πU₂) and the sin version are iid N(0,1). Acceptance–rejection also works.',rep:0},
+  {dom:'distributions',tag:'Distributions',q:'Min of independent Exp(λ₁) and Exp(λ₂): distribution, and P(first is the λ₁ one)?',a:'<span class="k">Min ~ Exp(λ₁+λ₂); P(source 1 first)=λ₁/(λ₁+λ₂).</span> Survival of the min is the product e^(−(λ₁+λ₂)t); the winner probability is the rate share.',rep:0},
+  {dom:'distributions',tag:'Distributions',q:'X is the sum of n iid Exp(λ). Name the distribution and give its mean and variance.',a:'<span class="k">Gamma(n, 1/λ) (Erlang): mean n/λ, variance n/λ².</span> MGFs multiply: (λ/(λ−t))ⁿ. It\'s the waiting time to the n-th Poisson(λ) arrival.',rep:0},
+  {dom:'distributions',tag:'Distributions',q:'You sum 12 iid Uniform(0,1) and subtract 6. Roughly what distribution, and why is this used?',a:'<span class="k">Approximately N(0,1).</span> Each U has mean 1/2, var 1/12; sum has mean 6, var 12·(1/12)=1, so Σ−6 has mean 0, var 1. CLT makes it near-Gaussian — an old quick-and-dirty normal generator.',rep:0},
+  {dom:'statistics',tag:'Statistics',q:'Why divide by n−1 instead of n in the sample variance?',a:'<span class="k">n−1 (Bessel\'s correction) makes s² unbiased for σ²; dividing by n underestimates it.</span> Deviations are measured from the sample mean x̄, which is fit from the same data, so they\'re systematically smaller than deviations from the true μ — one degree of freedom is spent estimating the mean.',rep:0},
+  {dom:'statistics',tag:'Statistics',q:'Likelihood vs probability — what\'s the difference?',a:'<span class="k">Probability fixes the parameter and varies the data; likelihood fixes the observed data and varies the parameter.</span> Same expression <code>f(x;θ)</code>, read two ways. Likelihood is a function of θ, doesn\'t integrate to 1, and is what MLE maximizes.',rep:0},
+  {dom:'statistics',tag:'Statistics',q:'FWER vs FDR — Bonferroni vs Benjamini–Hochberg?',a:'<span class="k">FWER = P(any false positive), controlled by Bonferroni (α/m); FDR = expected fraction of discoveries that are false, controlled by Benjamini–Hochberg.</span> Bonferroni is conservative and kills power; BH keeps far more power when screening thousands of signals, accepting a controlled false-discovery rate instead of zero false positives.',rep:0},
+  {dom:'regression',tag:'Regression',q:'What is leverage in regression, and how does it differ from an influential point?',a:'<span class="k">Leverage <code>hᵢᵢ</code> (the i-th diagonal of the hat matrix H) measures how far xᵢ is from the predictor mean; influence measures how much dropping the point actually moves the fit.</span> High leverage is necessary but not sufficient for influence — a high-leverage point on the fitted line has little influence. Combine leverage with residual size via Cook\'s distance to flag genuinely influential points. Σhᵢᵢ = k (number of params).',rep:0},
+  {dom:'regression',tag:'Regression',q:'What is the dummy-variable trap and how do you avoid it?',a:'<span class="k">Including a dummy for every category plus an intercept makes X columns linearly dependent (they sum to the intercept), so XᵀX is singular and OLS has no unique solution.</span> Drop one category as the baseline; each coefficient is then the contrast vs that baseline. Alternatively drop the intercept and keep all dummies. This is exact (not approximate) multicollinearity.',rep:0},
+  {dom:'regression',tag:'Regression',q:'In y = β₀+β₁x+β₂z+β₃(x·z), how do you interpret β₁ and β₃?',a:'<span class="k">β₁ is the effect of x only when z=0; β₃ is how the slope of x changes per unit increase in z (∂y/∂x = β₁+β₃z).</span> With an interaction present, never read β₁ as "the" effect of x — it is conditional on z=0, which may not even be in the data. Center variables so the main effect is interpreted at the mean.',rep:0},
+  {dom:'regression',tag:'Regression',q:'Why can logistic regression coefficients diverge to infinity?',a:'<span class="k">Perfect (or quasi-perfect) separation: when a predictor or linear combination perfectly splits the two classes, the likelihood keeps rising as the coefficient → ±∞, so the MLE doesn\'t exist (fitted probabilities go to 0/1).</span> Symptoms: huge coefficients and SEs, non-convergence. Fixes: L2/ridge penalty, Firth\'s penalized likelihood, or removing the separating variable.',rep:0},
+  {dom:'regression',tag:'Regression',q:'Why must you standardize predictors before ridge or lasso, but not for OLS?',a:'<span class="k">The penalty <code>λΣβⱼ²</code> (or λΣ|βⱼ|) is scale-dependent — a predictor measured in small units gets a large coefficient and is penalized harder, so units would arbitrarily decide which features shrink.</span> Standardizing to unit variance makes the penalty fair across predictors. OLS is scale-equivariant (no penalty), so rescaling just rescales the coefficient with no effect on fit. The intercept is conventionally left unpenalized.',rep:0},
+  {dom:'regression',tag:'Regression',q:'You regress one price series on another and get R²=0.95, t=20. Why be suspicious?',a:'<span class="k">Likely spurious regression: two non-stationary (unit-root) series can show high R² and large t-stats by chance, because the t-distribution is invalid when residuals are non-stationary.</span> The giveaway is a Durbin–Watson near 0 with high R². Regress in returns/differences, or test for cointegration before trusting a levels relationship. Prices are I(1); returns are stationary.',rep:0},
+  {dom:'regression',tag:'Regression',q:'Heteroskedasticity is present. When use robust (White) SEs vs WLS?',a:'<span class="k">Use robust/HC SEs when you want to keep OLS estimates and only correct inference without modeling the variance — the safe default. Use WLS when you actually know (or can reliably estimate) the variance structure and want the efficiency gain of BLUE.</span> WLS changes β̂ and is more efficient if the weights are right, but a wrong variance model can make it worse than plain OLS; robust SEs never touch β̂.',rep:0},
+  {dom:'stochastic',tag:'Stochastic Processes',q:'Why does dW² = dt, and what\'s the consequence for Itô\'s lemma?',a:'<span class="k">Brownian motion has finite, nonzero quadratic variation: [W]ₜ=t, so (dW)²→dt rather than 0.</span> Increments scale like <code>√dt</code>, so squared increments are <code>O(dt)</code> — first-order, not negligible. That second-order term is exactly the <code>½f\'\'σ²dt</code> Itô correction absent from ordinary calculus.',rep:0},
+  {dom:'stochastic',tag:'Stochastic Processes',q:'First-passage time of standard BM to level a>0: distribution and mean?',a:'<span class="k">Lévy density f(t)=(a/√(2πt³))e^{−a²/2t}; τ_a is a.s. finite but E[τ_a]=∞.</span> From reflection, <code>P(τ_a≤t)=2Φ(−a/√t)</code>. The <code>t^{−3/2}</code> tail is too heavy to integrate, so BM reaches any level with certainty yet has no finite expected hitting time.',rep:0},
+  {dom:'timeseries',tag:'Time Series',q:'What\'s the difference between weak and strict stationarity?',a:'<span class="k">Weak = constant mean/variance and autocovariance depends only on lag; strict = the entire joint distribution is shift-invariant.</span> Strict + finite second moment implies weak. For a Gaussian process the two coincide, since mean and covariance fully determine the law.',rep:0},
+  {dom:'timeseries',tag:'Time Series',q:'For an AR(1) Xₜ=φXₜ₋₁+εₜ with |φ|<1, what are Var(Xₜ) and ρ(k)?',a:'<span class="k"><code>Var=σ²/(1−φ²)</code> and <code>ρ(k)=φ^k</code>.</span> Variance is finite only when <code>|φ|<1</code> (stationarity); the ACF decays geometrically, so larger <code>φ</code> means slower decay and more persistence.',rep:0},
+  {dom:'timeseries',tag:'Time Series',q:'You see an ACF that cuts off after lag 2 and a PACF that tails off. What model?',a:'<span class="k">MA(2).</span> ACF cut-off at lag q with a tailing PACF is the MA signature; the symmetric case (PACF cut-off, ACF tails off) points to AR.',rep:0},
+  {dom:'timeseries',tag:'Time Series',q:'Why can\'t you use the standard t-distribution for a Dickey–Fuller test?',a:'<span class="k">Under the unit-root null the regressor is non-stationary, so the estimator isn\'t asymptotically normal — the statistic follows the Dickey–Fuller distribution.</span> Its critical values are more negative than the normal, so using t-tables over-rejects.',rep:0},
+  {dom:'timeseries',tag:'Time Series',q:'How do you compute the half-life of mean reversion for an AR(1)?',a:'<span class="k"><code>half-life = ln(0.5)/ln(φ)</code></span> (equivalently <code>−ln2/ln φ</code>). It\'s the number of steps for a shock to decay to half its size; it sets the natural holding horizon for a fade trade.',rep:0},
+  {dom:'timeseries',tag:'Time Series',q:'In GARCH(1,1), what does α+β measure and what\'s the stationarity condition?',a:'<span class="k">α+β is volatility persistence; covariance-stationarity needs α+β<1.</span> Then unconditional variance is <code>ω/(1−α−β)</code>. As α+β→1 vol shocks die out very slowly (near-integrated, IGARCH-like).',rep:0},
+  {dom:'timeseries',tag:'Time Series',q:'Two stocks have 0.95 return correlation. Does that make them a good pairs trade?',a:'<span class="k">Not necessarily — correlation is short-run co-movement; pairs trading needs cointegration, a stationary spread.</span> Highly correlated series can still drift apart with no mean-reverting spread. Test the spread for stationarity (Engle–Granger/ADF), don\'t trade on correlation alone.',rep:0},
+  {dom:'timeseries',tag:'Time Series',q:'Name a subtle data-leakage bug in a backtest that uses z-score normalization.',a:'<span class="k">Computing the mean/std over the full sample (including future bars) instead of a trailing window leaks future information into every signal.</span> Fix: use an expanding/rolling estimate up to t−1, and lag the signal so it executes at t+1.',rep:0},
+  {dom:'options',tag:'Options & Vol',q:'State the no-arbitrage lower bound for a European call and the arb if it\'s violated.',a:'<span class="k"><code>C ≥ max(0, S − Ke^(−rT))</code>.</span> If <code>C &lt; S − Ke^(−rT)</code>: buy the call, short the stock, lend <code>Ke^(−rT)</code>. At expiry the loan returns K, you take delivery via the call (or buy in the market if S&lt;K, even better), cover the short — net positive now, non-negative later. The bound also proves a non-dividend American call is never exercised early: its live value already exceeds intrinsic <code>S−K</code>.',rep:0},
+  {dom:'options',tag:'Options & Vol',q:'What\'s the breakeven on a long ATM straddle, and how wide is it in terms of implied vol?',a:'<span class="k">Profit iff <code>|move| &gt; premium paid</code>; the two-sided breakeven width is ≈ <code>0.8·σ√T</code> of spot.</span> Each ATM leg costs ≈ <code>0.4·S·σ√T</code>, so the straddle costs ≈ <code>0.8·S·σ√T</code> — you need the stock to move more than that (either way) to win. It\'s a bet that <i>realized</i> vol exceeds the <i>implied</i> vol you paid; the breakeven move is essentially one implied standard deviation scaled by ~0.8.',rep:0},
+  {dom:'instruments',tag:'Financial Instruments',q:'Difference between clean price and dirty price of a bond, and which you pay?',a:'<span class="k">Dirty (full) price = clean (quoted) price + accrued interest; you settle the dirty price.</span> Quotes are clean so price doesn\'t saw-tooth with each coupon; accrued interest compensates the seller for the coupon earned since the last payment.',rep:0},
+  {dom:'instruments',tag:'Financial Instruments',q:'Why can a futures price differ from the forward price on the same underlying?',a:'<span class="k">Daily margining: when rates correlate with the underlying, mark-to-market cash flows are reinvested/funded favorably, so futures > forward (and vice versa).</span> Forwards settle once at maturity. The gap is the convexity adjustment — material for long-dated rate futures (e.g. SOFR/Eurodollar).',rep:0},
+  {dom:'instruments',tag:'Financial Instruments',q:'In a deliverable bond futures contract, what is the cheapest-to-deliver and why does it matter?',a:'<span class="k">The CTD is the deliverable bond that maximizes the short\'s profit (highest invoice price − purchase cost, via conversion factors).</span> The futures effectively tracks the CTD, so its duration and the delivery option\'s switch value depend on which bond is cheapest as yields move.',rep:0},
+  {dom:'instruments',tag:'Financial Instruments',q:'What distinguishes general-collateral (GC) repo from a security trading \'special\'?',a:'<span class="k">GC repo: any of a basket of acceptable collateral, lends at the GC rate. A \'special\' is one bond in high borrow demand, so its repo rate is driven below GC (you accept less cash yield to get that specific bond).</span> Specialness signals short interest or settlement squeeze in that issue.',rep:0},
+  {dom:'instruments',tag:'Financial Instruments',q:'How does an ETF authorized participant arbitrage a premium to NAV?',a:'<span class="k">When ETF trades above NAV, the AP buys the underlying basket, delivers it in-kind to create new shares at NAV, and sells those shares in the market, pocketing the spread.</span> The creation supply pushes price back toward NAV; in-kind also makes it tax-efficient. Discounts work in reverse (redeem).',rep:0},
+  {dom:'instruments',tag:'Financial Instruments',q:'What makes a stock \'hard to borrow\' and how does that feed a short squeeze?',a:'<span class="k">Scarce lendable supply vs high short demand drives the borrow fee up and can trigger recalls/buy-ins.</span> If price rises, shorts face margin calls and recalls force covering, which pushes price higher — a reflexive squeeze. The borrow fee is the market price of that scarcity.',rep:0},
+  {dom:'instruments',tag:'Financial Instruments',q:'What does a central counterparty (CCP) do via novation, and why does it reduce systemic risk?',a:'<span class="k">The CCP novates each trade — becoming buyer to every seller and seller to every buyer — so members face the CCP, not each other.</span> It multilaterally nets exposures, mutualizes default risk via margin + a default fund/waterfall, and removes bilateral counterparty-credit daisy chains.',rep:0},
+  {dom:'instruments',tag:'Financial Instruments',q:'What is the difference between an interest-rate swap and a total return swap in what\'s exchanged?',a:'<span class="k">An IRS exchanges two interest streams (fixed vs floating) on a notional. A TRS exchanges the full economic return of a reference asset (price + income) for a funding leg.</span> The TRS transfers price/market risk of the asset; the IRS transfers only rate risk.',rep:0},
+  {dom:'microstructure',tag:'Market Microstructure',q:'Why does a bid–ask spread exist even if making markets were costless and risk-free?',a:'<span class="k">Adverse selection — Glosten–Milgrom.</span> A resting quote is an option informed traders pick off; the maker must widen so gains from noise traders offset losses to informed ones. Spread persists with zero inventory cost, zero fees.',rep:0},
+  {dom:'microstructure',tag:'Market Microstructure',q:'Effective spread came out WIDER than the quoted spread on a fill — how?',a:'<span class="k">The order walked the book / the quote moved.</span> A market order larger than top-of-book size sweeps deeper levels, so the volume-weighted fill price is past the displayed ask. Effective spread = 2D(P−mid) then exceeds the quoted ask−bid.',rep:0},
+  {dom:'microstructure',tag:'Market Microstructure',q:'Inventory model vs adverse-selection model — how do their price effects differ?',a:'<span class="k">Inventory pressure is transient (mean-reverts); adverse selection is permanent.</span> Inventory-shaded quotes push the mid away from value to offload risk, then revert. Information impounded via informed flow stays in the price.',rep:0},
+  {dom:'microstructure',tag:'Market Microstructure',q:'You must buy 4× more shares than planned. Roughly how much does expected impact grow?',a:'<span class="k">About 2×, not 4× — square-root law.</span> Metaorder cost ≈ Y·σ·√(Q/V), concave in size. So √4 = 2. Splitting and stretching execution lowers impact further but adds timing (volatility) risk.',rep:0},
+  {dom:'microstructure',tag:'Market Microstructure',q:'Why is Implementation Shortfall a stricter benchmark than VWAP?',a:'<span class="k">IS charges you for the trade you DIDN\'T do.</span> It measures cost vs the decision price including opportunity cost on unexecuted shares plus delay, impact, and fees. VWAP only grades fills you actually made against the market average, so passively missing the move looks free.',rep:0},
+  {dom:'python',tag:'Python',q:'Does a NumPy slice like a[2:5] return a copy or a view?',a:'<span class="k">A view — it shares memory with the original.</span> Basic slicing gives a view (writes propagate back); fancy/boolean indexing gives a copy. Check with <code>np.shares_memory(a, a[2:5])</code>.',rep:0},
+  {dom:'python',tag:'Python',q:'Two arrays of shape (3,1) and (1,4) — what does adding them produce?',a:'<span class="k">A (3,4) array, via broadcasting.</span> Shapes align right-to-left; each size-1 dim is stretched to the other\'s size. Equal-or-1 is the rule; otherwise it errors.',rep:0},
+  {dom:'python',tag:'Python',q:'Why do all closures in [lambda: i for i in range(3)] return 2?',a:'<span class="k">Late binding: the lambda captures the variable i, not its value, and i is 2 after the loop.</span> Bind per-iteration with a default arg: <code>lambda i=i: i</code>.',rep:0},
+  {dom:'python',tag:'Python',q:'In pandas, what does adding two Series with different indices give?',a:'<span class="k">It aligns on the index first; labels in only one Series become NaN.</span> Addition is label-based, not positional. Use <code>.add(other, fill_value=0)</code> to keep label alignment but fill one-sided labels with 0, or <code>.values</code> for positional math.',rep:0},
+  {dom:'python',tag:'Python',q:'What triggers SettingWithCopyWarning and how do you avoid it?',a:'<span class="k">Chained indexing like df[mask][\'col\']=x — you assign into a temporary that may not write back.</span> Use a single accessor: <code>df.loc[mask, \'col\'] = x</code>.',rep:0},
+  {dom:'python',tag:'Python',q:'When is using `is` instead of `==` dangerous, and when is it correct?',a:'<span class="k">`is` tests identity; use it only for singletons like None. For values use ==.</span> Small ints (−5..256) and interned strings make `is` <em>seem</em> to work, but it breaks for larger ints or computed values.',rep:0},
+  {dom:'python',tag:'Python',q:'Is Python\'s sort stable, and why does that matter for multi-key sorting?',a:'<span class="k">Yes — Timsort is stable, so equal keys keep their input order.</span> You can sort by least-significant key first, then re-sort by the primary key, and ties stay correctly ordered. Or pass a tuple key in one pass.',rep:0},
+  {dom:'python',tag:'Python',q:'How do list += and list = list + differ?',a:'<span class="k">`+=` mutates the list in place (like extend); `= a + b` rebinds the name to a new list.</span> The difference shows up when the list is shared/aliased — in-place mutation is visible to all references.',rep:0},
+  {dom:'cpp',tag:'C++',q:'Why is std::vector usually faster to iterate than std::list, even at the same O(n)?',a:'<span class="k">vector is contiguous, so it streams through cache lines with hardware prefetching; list nodes are scattered, costing a likely cache miss per element.</span> Big-O ignores the ~100× gap between an L1 hit and a RAM miss, which dominates real latency.',rep:0},
+  {dom:'cpp',tag:'C++',q:'Does std::move actually move anything?',a:'<span class="k">No — it is an unconditional cast to an rvalue reference.</span> The actual moving happens inside the move constructor/assignment that overload resolution then selects; on a type without move support it silently falls back to a copy.',rep:0},
+  {dom:'cpp',tag:'C++',q:'Why is `return std::move(local);` a mistake?',a:'<span class="k">It suppresses (N)RVO, turning a zero-cost elision into a forced move.</span> A bare <code>return local;</code> lets the compiler construct the result directly in the caller, eliminating both copy and move.',rep:0},
+  {dom:'cpp',tag:'C++',q:'What is the rule of zero, and why prefer it?',a:'<span class="k">Write classes that need no user-declared destructor, copy, or move — let members (smart pointers, containers) manage resources.</span> Defining any of the special members can suppress others (rule of five), so owning resources via RAII members avoids the whole trap.',rep:0},
+  {dom:'cpp',tag:'C++',q:'When does inserting into a std::vector invalidate existing iterators?',a:'<span class="k">When the insert forces a reallocation (size would exceed capacity) — then all iterators/pointers/references are invalidated; otherwise only those at/after the insert point.</span> <code>reserve()</code> up front prevents the reallocation case.',rep:0},
+  {dom:'cpp',tag:'C++',q:'unordered_map vs map: complexity and when you\'d still pick the slower one.',a:'<span class="k">unordered_map is O(1) average lookup (hash); map is O(log n) (balanced tree).</span> Pick map for ordered iteration, range queries, or worst-case guarantees — unordered_map degrades to O(n) on collisions and rehashes unpredictably (bad for tail latency).',rep:0},
+  {dom:'cpp',tag:'C++',q:'What is a forwarding (universal) reference and what problem does std::forward solve?',a:'<span class="k">A deduced T&& binds to both lvalues and rvalues; std::forward&lt;T&gt; restores the argument\'s original value category when passing it on.</span> This lets one template move rvalues and copy lvalues without writing two overloads.',rep:0},
+  {dom:'cpp',tag:'C++',q:'What is false sharing and how do you fix it?',a:'<span class="k">Two threads writing distinct variables that share one 64-byte cache line force the line to bounce between cores, killing throughput.</span> Fix by padding/aligning each thread\'s hot data to its own cache line (e.g. <code>alignas(64)</code>).',rep:0},
+  {dom:'algorithms',tag:'Algorithms',q:'k-th largest element in an array — best approach and cost?',a:'<span class="k">Quickselect: average O(n), in-place; or a size-k min-heap in O(n log k).</span> Quickselect partitions around a pivot and recurses into only one side, giving linear average time but O(n²) worst case. The heap is the safe streaming choice when k is small and you can\'t hold all data.',rep:0},
+  {dom:'algorithms',tag:'Algorithms',q:'Both are O(n log n) average — why is quicksort often faster than mergesort in practice?',a:'<span class="k">Smaller constants: quicksort partitions in place with sequential, cache-friendly access and no O(n) merge buffer.</span> Mergesort\'s auxiliary array and non-local copies cost cache misses and memory bandwidth. Mergesort still wins when stability or guaranteed n log n is required.',rep:0},
+  {dom:'algorithms',tag:'Algorithms',q:'DP: when do you pick memoization over tabulation, or vice versa?',a:'<span class="k">Memoize (top-down) when the state space is sparse or the recursion is natural; tabulate (bottom-up) when you need iteration order control or O(1)-row space rolling.</span> Memoization only visits reachable states but pays recursion/stack overhead; tabulation fills everything but avoids deep stacks and enables space optimization.',rep:0},
+  {dom:'algorithms',tag:'Algorithms',q:'Detect whether a linked list has a cycle in O(1) space?',a:'<span class="k">Floyd\'s tortoise-and-hare: advance one pointer by 1 and another by 2; they meet iff there\'s a cycle.</span> No extra memory and O(n) time. To find the cycle\'s start, reset one pointer to the head and advance both by 1 until they meet again.',rep:0},
+  {dom:'brainteasers',tag:'Brainteasers',q:'You have two ropes that each burn in 60 min unevenly. Measure 45 minutes.',a:'<span class="k">Light rope A at both ends and rope B at one end simultaneously; when A finishes (30 min), light B\'s other end — B finishes 15 min later.</span> Burning both ends halves the time regardless of unevenness: 30 + 15 = 45.',rep:0},
+  {dom:'brainteasers',tag:'Brainteasers',q:'Four people cross a bridge at night with one torch; speeds 1, 2, 5, 10 min, two at a time. Min total?',a:'<span class="k">17 minutes.</span> Send the two fastest to ferry the torch: 1&2 over (2), 1 back (1), 5&10 over (10), 2 back (2), 1&2 over (2) = 17. The key insight is the two slowest must cross together.',rep:0},
+  {dom:'brainteasers',tag:'Brainteasers',q:'Two eggs, 100-floor building. Find the highest safe drop floor minimizing worst-case drops.',a:'<span class="k">14 drops.</span> First egg starts at floor 14, then +13, +12, … so worst case stays constant. Need smallest k with k(k+1)/2 ≥ 100 → k=14 (105 ≥ 100).',rep:0},
+  {dom:'brainteasers',tag:'Brainteasers',q:'Why does the balance-scale 12-coin puzzle need exactly 3 weighings?',a:'<span class="k">A balance gives 3 outcomes per weighing, so k weighings resolve ≤ 3ᵏ states; the fake (unknown heavy/light) is one of 24 possibilities, and 24 ≤ 27 = 3³ but > 9 = 3².</span> Information-theoretic lower bound forces 3, and a balanced scheme achieves it.',rep:0},
+  {dom:'brainteasers',tag:'Brainteasers',q:'In Nim, how do you know if the position is winning, and what move do you make?',a:'<span class="k">Compute the XOR of all pile sizes; if nonzero you\'re winning — reduce some pile to make the total XOR zero, handing your opponent a losing position.</span> XOR=0 positions are exactly the losing (P-) positions.',rep:0},
+  {dom:'brainteasers',tag:'Brainteasers',q:'Secretary problem: what\'s the strategy and the success probability for large N?',a:'<span class="k">Reject the first N/e (≈37%) candidates, then accept the first one better than all of them; you land the best with probability ≈ 1/e ≈ 37%.</span> The first phase just sets the bar; this maximizes P(picking the single best), not expected value.',rep:0},
+  {dom:'brainteasers',tag:'Brainteasers',q:'1000 bottles, exactly one poisoned, test strips kill in one round. Minimum testers?',a:'<span class="k">10 testers.</span> Number bottles 0–999 in binary; tester i drinks every bottle with bit i set. The 10-bit pattern of who dies reads off the poisoned bottle. 2¹⁰ = 1024 ≥ 1000.',rep:0},
+  {dom:'brainteasers',tag:'Brainteasers',q:'Make me a tight market on the sum of two fair six-sided dice. What\'s your spread and why?',a:'<span class="k">Fair value is 7; quote around it, e.g. 6.5 bid / 7.5 ask, and widen if I trade aggressively against you.</span> The spread covers adverse selection: if the taker hits your offer eagerly, update that they may know the roll skews high and re-center.',rep:0},
+  {dom:'mentalmath',tag:'Mental Math',q:'Daily return vol is 1%. Roughly what\'s the annualized vol?',a:'<span class="k">≈ 16%.</span> Vol scales with √time: <code>1% × √252 = 15.87% ≈ 16%</code>. Defensible because <code>16² = 256 ≈ 252</code> — that\'s the trading-days shortcut.',rep:0},
+  {dom:'mentalmath',tag:'Mental Math',q:'What is 1/7 as a decimal, and how do you get 3/7 from it?',a:'<span class="k">1/7 = 0.142857 repeating; 3/7 = 0.428571.</span> The six digits <code>142857</code> cycle; multiplying by 3 just rotates the block to start at 4.',rep:0},
+  {dom:'mentalmath',tag:'Mental Math',q:'You\'re long $20M and the price moves +35 bps. P&L?',a:'<span class="k">+$70,000.</span> <code>35bp = 0.0035</code>; <code>20,000,000 × 0.0035 = 70,000</code>. One bp on $20M is $2k.',rep:0},
+  {dom:'mentalmath',tag:'Mental Math',q:'Why is doubling time 72/rate and not 69/rate, given ln2≈0.69?',a:'<span class="k">69.3 is the continuous-compounding answer; 72 corrects for discrete annual compounding and has more clean divisors.</span> At 8%, <code>72/8 = 9.0</code> matches the true 9.01 yr; for tiny continuous rates use 69–70.',rep:0},
+  {dom:'mentalmath',tag:'Mental Math',q:'Estimate the number of gas stations in the United States.',a:'<span class="k">~100,000–150,000 (Fermi).</span> ~330M people, ~1 car per ~1.3 people → ~250M cars; a station serves on the order of ~2,000 cars → ~125k. Logic and a defensible chain matter more than the exact figure.',rep:0},
 ];
 
 /* ================= RENDER ================= */
@@ -2342,28 +3070,19 @@ function buildFilters(){
 
 function buildTiles(){
   const c=counts();
-  let cheats='';
-  document.querySelectorAll('#cheatnav .ctab').forEach(t=>{
-    const k=t.dataset.t, name=t.textContent.trim();
-    const n=document.querySelectorAll('.cheat[data-topic="'+k+'"] .ck').length;
-    cheats+=`<div class="panel dom-tile cheat-tile" data-t="${k}"><div class="glyph">▦</div><h3>${name}</h3><div class="c"><b>${n}</b> cards</div></div>`;
-  });
-  let doms='';
-  for(const k in DOMAINS){
-    doms+=`<div class="panel dom-tile deck-tile" data-cat="${k}"><div class="glyph">${DOMAINS[k].glyph}</div><h3>${DOMAINS[k].name}</h3><div class="c"><b>${c[k]}</b> cards</div></div>`;
-  }
-  $('#domtiles').innerHTML=`<div class="hub-grp">Cheatsheet topics — read</div><div class="grid g4">${cheats}</div><div class="hub-grp">Flashcard domains — drill</div><div class="grid g4">${doms}</div>`;
-  $('#domtiles').querySelectorAll('.cheat-tile').forEach(t=>t.addEventListener('click',()=>{
-    const tab=document.querySelector('#cheatnav .ctab[data-t="'+t.dataset.t+'"]'); if(tab)tab.click();
-    document.getElementById('cheatsheets').scrollIntoView({behavior:'smooth'});
-  }));
-  $('#domtiles').querySelectorAll('.deck-tile').forEach(t=>t.addEventListener('click',()=>{
-    curCat=t.dataset.cat;
-    filtersEl.querySelectorAll('.fbtn').forEach(x=>x.classList.toggle('on',x.dataset.cat===curCat));
-    render(); document.getElementById('deck').scrollIntoView({behavior:'smooth'});
-  }));
+  const cheatN=k=>document.querySelectorAll('.cheat[data-topic="'+k+'"] .ck').length;
+  const tile=k=>{const nc=cheatN(k), nf=c[k]||0; return `<div class="panel dom-tile subj-tile" data-key="${k}"><div class="glyph">${DOMAINS[k]?DOMAINS[k].glyph:'✦'}</div><h3>${DOMAINS[k]?DOMAINS[k].name:k}</h3><div class="c"><a class="jc" data-jump="cheat" data-key="${k}">${nc} cheats</a> · <a class="jc" data-jump="cards" data-key="${k}">${nf} cards</a></div></div>`;};
+  let html='';
+  GROUPS.forEach(grp=>{ const ks=grp.keys.filter(k=>DOMAINS[k]); if(!ks.length)return; html+=`<div class="hub-grp">${grp.g}</div><div class="grid g4">`+ks.map(tile).join('')+'</div>'; });
+  const known=new Set(GROUPS.flatMap(g=>g.keys));
+  const extra=Object.keys(DOMAINS).filter(k=>!known.has(k));
+  if(extra.length){ html+=`<div class="hub-grp">Your subjects</div><div class="grid g4">`+extra.map(tile).join('')+'</div>'; }
+  $('#domtiles').innerHTML=html;
+  const goCheat=k=>{const tab=document.querySelector('#cheatnav .ctab[data-t="'+k+'"]'); if(tab)tab.click(); document.getElementById('cheatsheets').scrollIntoView({behavior:'smooth'});};
+  const goCards=k=>{curCat=k; filtersEl.querySelectorAll('.fbtn').forEach(x=>x.classList.toggle('on',x.dataset.cat===curCat)); render(); document.getElementById('deck').scrollIntoView({behavior:'smooth'});};
+  $('#domtiles').querySelectorAll('.jc').forEach(a=>a.addEventListener('click',e=>{e.stopPropagation(); (a.dataset.jump==='cards'?goCards:goCheat)(a.dataset.key);}));
+  $('#domtiles').querySelectorAll('.subj-tile').forEach(t=>t.addEventListener('click',()=>goCheat(t.dataset.key)));
 }
-
 function render(){
   const q=curQuery.toLowerCase();
   const list=DECK.filter(d=>{

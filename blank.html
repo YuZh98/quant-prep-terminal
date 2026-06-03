@@ -9,10 +9,10 @@
   QUANT PREP LIBRARY · company-agnostic · cumulative
   HOW TO GROW THIS FILE:
     1. Add a flashcard  → append one object to the DECK[] array (bottom <script>).
-         {dom:'prob', tag:'Probability', q:'question...', a:'answer (HTML ok)', rep:0}
-       Domain keys live in DOMAINS{} — add a new key there to open a new track.
-    2. Add a reference  → drop a <table> into §03 (Reference) following the pattern.
-    3. Everything else (counts, coverage bars, filters) updates itself from DECK[].
+         {dom:'probability', tag:'Probability', q:'question...', a:'answer (HTML ok)', rep:0}
+       Subject keys live in DOMAINS{} (18 subjects, grouped in GROUPS[]) — add a key there to open a new track.
+    2. Add a cheatsheet  → add a <div class="ck"> block inside the matching <div class="cheat" data-topic="KEY"> panel.
+    3. Everything else (counts, Browse tiles, filters) updates itself from DECK[] / the cheat panels.
   Keep it accurate. No fabricated numbers. Cite nothing you can't defend out loud.
   ════════════════════════════════════════════════════════════════════
 -->
@@ -351,6 +351,8 @@
   .mm-result .neg b{color:var(--magenta)}
   .mm-dice{font-size:20px; color:var(--neon); margin-right:8px; letter-spacing:2px; vertical-align:middle}
   .mm-log{font-family:'Share Tech Mono',monospace; font-size:12px; color:var(--text-dim); margin-top:12px; display:flex; flex-direction:column; gap:3px; max-height:190px; overflow-y:auto}
+  .subj-tile .c .jc{cursor:pointer; color:var(--neon-2)}
+  .subj-tile .c .jc:hover{text-decoration:underline; color:var(--neon)}
 </style>
 </head>
 <body>
@@ -558,6 +560,13 @@
 
 <script>
 /* ================= DOMAINS ================= */
+const GROUPS=[
+  {g:'Mathematics',             keys:['calculus','linalg','geometry','combinatorics']},
+  {g:'Probability & Statistics',keys:['probability','distributions','statistics','regression','stochastic','timeseries']},
+  {g:'Finance & Markets',       keys:['options','instruments','microstructure']},
+  {g:'Programming & CS',        keys:['python','cpp','algorithms']},
+  {g:'Reasoning',               keys:['brainteasers','mentalmath']},
+];
 const DOMAINS = {
 };
 
@@ -588,28 +597,19 @@ function buildFilters(){
 
 function buildTiles(){
   const c=counts();
-  let cheats='';
-  document.querySelectorAll('#cheatnav .ctab').forEach(t=>{
-    const k=t.dataset.t, name=t.textContent.trim();
-    const n=document.querySelectorAll('.cheat[data-topic="'+k+'"] .ck').length;
-    cheats+=`<div class="panel dom-tile cheat-tile" data-t="${k}"><div class="glyph">▦</div><h3>${name}</h3><div class="c"><b>${n}</b> cards</div></div>`;
-  });
-  let doms='';
-  for(const k in DOMAINS){
-    doms+=`<div class="panel dom-tile deck-tile" data-cat="${k}"><div class="glyph">${DOMAINS[k].glyph}</div><h3>${DOMAINS[k].name}</h3><div class="c"><b>${c[k]}</b> cards</div></div>`;
-  }
-  $('#domtiles').innerHTML=`<div class="hub-grp">Cheatsheet topics — read</div><div class="grid g4">${cheats}</div><div class="hub-grp">Flashcard domains — drill</div><div class="grid g4">${doms}</div>`;
-  $('#domtiles').querySelectorAll('.cheat-tile').forEach(t=>t.addEventListener('click',()=>{
-    const tab=document.querySelector('#cheatnav .ctab[data-t="'+t.dataset.t+'"]'); if(tab)tab.click();
-    document.getElementById('cheatsheets').scrollIntoView({behavior:'smooth'});
-  }));
-  $('#domtiles').querySelectorAll('.deck-tile').forEach(t=>t.addEventListener('click',()=>{
-    curCat=t.dataset.cat;
-    filtersEl.querySelectorAll('.fbtn').forEach(x=>x.classList.toggle('on',x.dataset.cat===curCat));
-    render(); document.getElementById('deck').scrollIntoView({behavior:'smooth'});
-  }));
+  const cheatN=k=>document.querySelectorAll('.cheat[data-topic="'+k+'"] .ck').length;
+  const tile=k=>{const nc=cheatN(k), nf=c[k]||0; return `<div class="panel dom-tile subj-tile" data-key="${k}"><div class="glyph">${DOMAINS[k]?DOMAINS[k].glyph:'✦'}</div><h3>${DOMAINS[k]?DOMAINS[k].name:k}</h3><div class="c"><a class="jc" data-jump="cheat" data-key="${k}">${nc} cheats</a> · <a class="jc" data-jump="cards" data-key="${k}">${nf} cards</a></div></div>`;};
+  let html='';
+  GROUPS.forEach(grp=>{ const ks=grp.keys.filter(k=>DOMAINS[k]); if(!ks.length)return; html+=`<div class="hub-grp">${grp.g}</div><div class="grid g4">`+ks.map(tile).join('')+'</div>'; });
+  const known=new Set(GROUPS.flatMap(g=>g.keys));
+  const extra=Object.keys(DOMAINS).filter(k=>!known.has(k));
+  if(extra.length){ html+=`<div class="hub-grp">Your subjects</div><div class="grid g4">`+extra.map(tile).join('')+'</div>'; }
+  $('#domtiles').innerHTML=html;
+  const goCheat=k=>{const tab=document.querySelector('#cheatnav .ctab[data-t="'+k+'"]'); if(tab)tab.click(); document.getElementById('cheatsheets').scrollIntoView({behavior:'smooth'});};
+  const goCards=k=>{curCat=k; filtersEl.querySelectorAll('.fbtn').forEach(x=>x.classList.toggle('on',x.dataset.cat===curCat)); render(); document.getElementById('deck').scrollIntoView({behavior:'smooth'});};
+  $('#domtiles').querySelectorAll('.jc').forEach(a=>a.addEventListener('click',e=>{e.stopPropagation(); (a.dataset.jump==='cards'?goCards:goCheat)(a.dataset.key);}));
+  $('#domtiles').querySelectorAll('.subj-tile').forEach(t=>t.addEventListener('click',()=>goCheat(t.dataset.key)));
 }
-
 function render(){
   const q=curQuery.toLowerCase();
   const list=DECK.filter(d=>{
