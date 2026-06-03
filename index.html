@@ -493,7 +493,8 @@
     <div class="eg"><b>Example.</b> Two assets σ=20% each, ρ=0.5, equal weights. Portfolio var = 0.25·0.04+0.25·0.04+2·0.25·(0.5·0.04) = 0.02+0.01 = 0.03, so σ_p ≈ 17.3% — diversification benefit vs 20%.</div>
   </div>
 </div>
-    </div>
+    
+</div>
     <div class="cheat" data-topic="statistics">
 <div class="ck">
   <div class="ck-h">Estimators: bias, variance, MSE, consistency</div>
@@ -1125,7 +1126,9 @@
     <ul><li><code>κ(A)=σ_max/σ_min</code> (2-norm); for symmetric, <code>=|λ|_max/|λ|_min</code>.</li><li>Measures sensitivity: relative error in <code>x</code> solving <code>Ax=b</code> can be up to <code>κ(A)</code> × relative error in <code>b</code> or A.</li><li>Rule of thumb: lose about <code>log₁₀κ</code> digits of accuracy; <code>κ≈10¹⁶</code> in double precision means the answer is garbage.</li><li>Normal equations square it: <code>κ(AᵀA)=κ(A)²</code> — why QR/SVD beats forming <code>AᵀA</code> for least squares.</li><li><span class="k">High κ = nearly singular = collinear features; fix with regularization or drop/orthogonalize columns.</span></li></ul><div class="eg"><b>Example.</b> Ridge adds <code>λI</code>: solving <code>(AᵀA+λI)x</code> shifts every eigenvalue up by λ, capping κ at <code>(σ_max²+λ)/(σ_min²+λ)</code> — strictly better-conditioned.</div>
   </div>
 </div>
-<div class="cheat" data-topic="geometry">
+</div>
+
+    <div class="cheat" data-topic="geometry">
 <div class="ck">
   <div class="ck-h">Distance, Dot/Cross Product & Angle</div>
   <div class="ck-b">
@@ -1478,7 +1481,9 @@
     <ul><li>Seating n distinct people around a round table: fix one person to kill rotational symmetry, giving <code>(n−1)!</code>.</li><li>If reflections also count as the same (a bracelet): divide by 2 more, <code>(n−1)!/2</code> for n≥3.</li><li>The principle: when k arrangements are all equivalent under a symmetry, divide the linear count by k — valid only when every orbit has the SAME size.</li><li><span class="k">Divide-by-symmetry only works cleanly when no arrangement is fixed by the symmetry; when some are (e.g. symmetric necklaces), use Burnside instead.</span></li><li>Burnside (orbit-counting): distinct configs = average number of arrangements fixed by each symmetry, <code>(1/|G|)·Σ|Fix(g)|</code>.</li></ul><div class="eg"><b>Example.</b> 5 people at a round table: <code>(5−1)!=24</code>. As a flippable bracelet of 5 distinct beads: <code>4!/2=12</code>.</div>
   </div>
 </div>
-<div class="cheat" data-topic="stochastic">
+</div>
+
+    <div class="cheat" data-topic="stochastic">
 <div class="ck">
   <div class="ck-h">Markov Chains — Transition Matrix and Stationarity</div>
   <div class="ck-b">
@@ -1600,6 +1605,8 @@
     <div class="eg"><b>Example.</b> P(BM exceeds 1 sometime in [0,1]) = 2·P(W₁ ≥ 1) = 2(1 − Φ(1)) = 2·0.1587 ≈ 0.317.</div>
   </div>
 </div>
+    </div>
+
     <div class="cheat" data-topic="regression">
 <div class="ck">
   <div class="ck-h">Simple Linear Regression</div>
