@@ -353,6 +353,14 @@
   .mm-log{font-family:'Share Tech Mono',monospace; font-size:12px; color:var(--text-dim); margin-top:12px; display:flex; flex-direction:column; gap:3px; max-height:190px; overflow-y:auto}
   .subj-tile .c .jc{cursor:pointer; color:var(--neon-2)}
   .subj-tile .c .jc:hover{text-decoration:underline; color:var(--neon)}
+  .dist-grid{grid-template-columns:var(--distw,300px) 8px minmax(0,1fr)}
+  .dist-fun{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:16px; border-top:1px dashed var(--line); padding-top:14px}
+  .dist-nlab{display:flex; flex-direction:column; gap:6px; width:100%; font-family:'Share Tech Mono',monospace; font-size:10.5px; letter-spacing:1px; text-transform:uppercase; color:var(--cyan)}
+  .dist-nlab input[type=range]{width:100%; accent-color:var(--magenta)}
+  .dist-nlab span{color:var(--neon-2)}
+  .pay-readout .ro.samp{border-color:var(--magenta); color:var(--magenta)}
+  .pay-readout .ro.samp b{color:#ff7ab8}
+  .pay-desc .samp-note{color:var(--magenta)}
 </style>
 </head>
 <body>
@@ -2691,13 +2699,26 @@ auto n = std::count_if(book.begin(), book.end(),
     </div>
     </div>
     <div class="lab-panel" data-lab="dist" style="display:none">
-    <p class="sec-note">Common probability distributions — pick a family, drag its parameters, watch the density and moments update live. Continuous families draw a smooth PDF; discrete families draw a PMF as bars.</p>
-    <div class="panel">
-      <div class="pay-ctrl" id="distpick"></div>
-      <div class="pay-sliders" id="distsliders"></div>
-      <svg id="distplot" viewBox="0 0 720 320" preserveAspectRatio="xMidYMid meet" role="img" aria-label="distribution density"></svg>
-      <div class="pay-readout" id="diststats"></div>
-      <div class="pay-desc" id="distdesc"></div>
+    <p class="sec-note">Pick a distribution, tune its parameters, and watch the density (or PMF) and its moments update live. Hover the plot to read f(x) and the tail probability P(X≤x). Hit ▶ SAMPLE to throw Monte-Carlo draws at it and watch the histogram converge on the curve.</p>
+    <div class="panel pay-grid dist-grid">
+      <div class="pay-controls">
+        <div class="pay-side-h">▸ control center</div>
+        <div class="pay-ctrl" id="distpick"></div>
+        <div class="pay-sliders" id="distsliders"></div>
+        <div class="dist-fun">
+          <span class="mm-go" id="distsample">▶ sample</span>
+          <span class="mm-reset" id="distclear">clear</span>
+          <label class="dist-nlab">draws <span id="distnv">2,000</span><input type="range" id="distn" min="100" max="20000" step="100" value="2000"></label>
+        </div>
+      </div>
+      <div class="lab-resizer" data-split="dist"></div>
+      <div class="pay-output dist-output">
+        <div class="pay-side-h" style="display:flex;align-items:center;gap:8px">▸ density <span class="pin-btn pin-act" id="distpin" style="margin-left:auto">PIN view</span></div>
+        <div class="pay-cross" id="distcross"></div><div class="pay-tip" id="disttip"></div>
+        <svg id="distplot" viewBox="0 0 720 340" preserveAspectRatio="xMidYMid meet" role="img" aria-label="distribution density"></svg>
+        <div class="pay-readout" id="diststats"></div>
+        <div class="pay-desc" id="distdesc"></div>
+      </div>
     </div>
     </div>
     <div class="lab-panel" data-lab="mm" style="display:none">
@@ -3210,17 +3231,18 @@ function drawPayoff(){
 }
 function setupResizers(){
   document.querySelectorAll('.lab-resizer').forEach(rz=>{
-    const grid=rz.parentElement, which=rz.dataset.split, vn=which==='pay'?'--payw':'--repw';
+    const grid=rz.parentElement, which=rz.dataset.split, vn={pay:'--payw',rep:'--repw',dist:'--distw'}[which];
     rz.addEventListener('mousedown',e=>{
       e.preventDefault(); document.body.style.userSelect='none'; document.body.style.cursor='col-resize';
       const rect=grid.getBoundingClientRect();
       function mv(ev){let w=ev.clientX-rect.left; w=Math.max(180,Math.min(rect.width-220,w)); grid.style.setProperty(vn,w+'px');}
-      function up(){document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);document.body.style.userSelect='';document.body.style.cursor='';try{localStorage.setItem('qpl'+vn,grid.style.getPropertyValue(vn));}catch(e){} if(which==='pay')drawPayoff();}
+      function up(){document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);document.body.style.userSelect='';document.body.style.cursor='';try{localStorage.setItem('qpl'+vn,grid.style.getPropertyValue(vn));}catch(e){} if(which==='pay')drawPayoff(); else if(which==='dist')drawDist();}
       document.addEventListener('mousemove',mv); document.addEventListener('mouseup',up);
     });
   });
   try{const pw=localStorage.getItem('qpl--payw'); const pg=document.querySelector('.pay-grid'); if(pw&&pg)pg.style.setProperty('--payw',pw);
-      const rw=localStorage.getItem('qpl--repw'); const rg=document.querySelector('.repl'); if(rw&&rg)rg.style.setProperty('--repw',rw);}catch(e){}
+      const rw=localStorage.getItem('qpl--repw'); const rg=document.querySelector('.repl'); if(rw&&rg)rg.style.setProperty('--repw',rw);
+      const dw=localStorage.getItem('qpl--distw'); const dg=document.querySelector('.dist-grid'); if(dw&&dg)dg.style.setProperty('--distw',dw);}catch(e){}
 }
 function setupCrosshair(){
   const out=document.querySelector('.pay-output'); if(!out)return;
@@ -3263,93 +3285,148 @@ const DISTS={
     pdf:(x,p)=>Math.exp(-0.5*((x-p.mu)/p.sig)**2)/(p.sig*Math.sqrt(2*Math.PI)),
     range:p=>[p.mu-4*p.sig,p.mu+4*p.sig],
     mom:p=>({mean:p.mu,vr:p.sig*p.sig,skew:0,kurt:0}),
+    sample:p=>p.mu+p.sig*randn(),
     desc:'The bell curve. Symmetric, skewness 0, excess kurtosis 0 — the reference every other shape is compared against.'},
   lognormal:{name:'Lognormal',type:'cont',
     params:[{k:'mu',label:'μ',min:-1,max:1.5,step:0.05,val:0},{k:'sig',label:'σ',min:0.1,max:1.2,step:0.05,val:0.5}],
     pdf:(x,p)=>x<=0?0:Math.exp(-0.5*((Math.log(x)-p.mu)/p.sig)**2)/(x*p.sig*Math.sqrt(2*Math.PI)),
     range:p=>[0,Math.exp(p.mu+3*p.sig)],
     mom:p=>{const s2=p.sig*p.sig,e=Math.exp; return {mean:e(p.mu+s2/2),vr:(e(s2)-1)*e(2*p.mu+s2),skew:(e(s2)+2)*Math.sqrt(e(s2)-1),kurt:e(4*s2)+2*e(3*s2)+3*e(2*s2)-6};},
+    sample:p=>Math.exp(p.mu+p.sig*randn()),
     desc:'Log of the variable is normal: positive and right-skewed. The standard model for stock prices and other multiplicative quantities.'},
   expo:{name:'Exponential',type:'cont',
     params:[{k:'lam',label:'λ',min:0.2,max:3,step:0.1,val:1}],
     pdf:(x,p)=>x<0?0:p.lam*Math.exp(-p.lam*x),
     range:p=>[0,7/p.lam],
     mom:p=>({mean:1/p.lam,vr:1/(p.lam*p.lam),skew:2,kurt:6}),
+    sample:p=>-Math.log(1-Math.random())/p.lam,
     desc:'Waiting time between memoryless events. Skewness is fixed at 2 and excess kurtosis at 6, whatever λ is.'},
   uniform:{name:'Uniform',type:'cont',
     params:[{k:'a',label:'a',min:-5,max:4,step:0.1,val:0},{k:'b',label:'b',min:-4,max:6,step:0.1,val:1}],
     pdf:(x,p)=>{const a=Math.min(p.a,p.b),b=Math.max(p.a,p.b); return (x>=a&&x<=b)?1/((b-a)||1e-9):0;},
     range:p=>{const a=Math.min(p.a,p.b),b=Math.max(p.a,p.b),pad=((b-a)*0.2)||1; return [a-pad,b+pad];},
     mom:p=>{const a=Math.min(p.a,p.b),b=Math.max(p.a,p.b); return {mean:(a+b)/2,vr:(b-a)**2/12,skew:0,kurt:-1.2};},
+    sample:p=>{const a=Math.min(p.a,p.b),b=Math.max(p.a,p.b); return a+(b-a)*Math.random();},
     desc:'Flat density on [a,b]. Skewness 0, excess kurtosis −1.2 (platykurtic — flatter-tailed than the normal).'},
   poisson:{name:'Poisson',type:'disc',
     params:[{k:'lam',label:'λ',min:0.5,max:18,step:0.5,val:4}],
     pmf:(k,p)=>Math.exp(k*Math.log(p.lam)-p.lam-lgamma(k+1)),
     krange:p=>[0,Math.ceil(p.lam+4*Math.sqrt(p.lam)+3)],
     mom:p=>({mean:p.lam,vr:p.lam,skew:1/Math.sqrt(p.lam),kurt:1/p.lam}),
+    sample:p=>{const L=Math.exp(-p.lam); let k=0,pr=1; do{k++; pr*=Math.random();}while(pr>L); return k-1;},
     desc:'Counts of rare events in a fixed interval. Mean = variance = λ; skewness and kurtosis shrink as λ grows (→ normal).'},
   binom:{name:'Binomial',type:'disc',
     params:[{k:'n',label:'n',min:1,max:40,step:1,val:20},{k:'p',label:'p',min:0.02,max:0.98,step:0.02,val:0.5}],
     pmf:(k,p)=>{const n=Math.round(p.n); if(k<0||k>n)return 0; return Math.exp(lgamma(n+1)-lgamma(k+1)-lgamma(n-k+1)+k*Math.log(p.p)+(n-k)*Math.log(1-p.p));},
     krange:p=>[0,Math.round(p.n)],
     mom:p=>{const n=Math.round(p.n),q=1-p.p,v=n*p.p*q; return {mean:n*p.p,vr:v,skew:(1-2*p.p)/Math.sqrt(v),kurt:(1-6*p.p*q)/v};},
+    sample:p=>{const n=Math.round(p.n); let s=0; for(let i=0;i<n;i++) if(Math.random()<p.p)s++; return s;},
     desc:'Successes in n independent trials. Symmetric at p=0.5; skews as p departs from ½, and approaches normal as n grows.'},
   studt:{name:'Student-t',type:'cont',
     params:[{k:'nu',label:'ν',min:1,max:30,step:1,val:5}],
     pdf:(x,p)=>{const nu=p.nu; return Math.exp(lgamma((nu+1)/2)-lgamma(nu/2))/Math.sqrt(nu*Math.PI)*Math.pow(1+x*x/nu,-(nu+1)/2);},
     range:p=>[-5,5],
     mom:p=>{const nu=p.nu; return {mean:nu>1?0:NaN,vr:nu>2?nu/(nu-2):Infinity,skew:nu>3?0:NaN,kurt:nu>4?6/(nu-4):Infinity};},
+    sample:p=>{const nu=p.nu; let c=0; for(let i=0;i<nu;i++){const z=randn(); c+=z*z;} return randn()/Math.sqrt(c/nu);},
     desc:'Heavy-tailed bell. Fatter tails than the normal for small ν; variance is infinite for ν≤2 and it converges to the normal as ν→∞.'},
 };
 function fmtN(v){ if(v===Infinity)return '∞'; if(v!==v||!isFinite(v))return '—'; const a=Math.abs(v); if(a!==0&&(a<1e-3||a>=1e4))return v.toExponential(2); return (Math.round(v*1000)/1000).toString(); }
 const DS={key:'normal',p:{}};
-function loadDistParams(){const d=DISTS[DS.key]; DS.p={}; d.params.forEach(pr=>DS.p[pr.k]=pr.val);}
+let SAMP=[], sampAnim=null, distView=null;
+function loadDistParams(){const d=DISTS[DS.key]; DS.p={}; d.params.forEach(pr=>DS.p[pr.k]=pr.val); SAMP=[]; if(sampAnim){cancelAnimationFrame(sampAnim);sampAnim=null;}}
 function drawDist(){
-  const d=DISTS[DS.key], p=DS.p, W=720,H=320,padL=44,padR=16,padT=16,padB=30, baseY=H-padB;
-  const sxX=(x,lo,hi)=>padL+(x-lo)/(hi-lo)*(W-padL-padR);
+  const d=DISTS[DS.key], p=DS.p, W=720,H=340,padL=46,padR=16,padT=18,padB=34, baseY=H-padB;
   const m=d.mom(p);
   let g='<defs><linearGradient id="dgPos" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#27ff9e" stop-opacity=".30"/><stop offset="100%" stop-color="#27ff9e" stop-opacity="0"/></linearGradient></defs>';
+  const view={type:d.type,W,padL,padR,baseY};
   if(d.type==='cont'){
     let [lo,hi]=d.range(p); if(!(hi>lo))hi=lo+1;
-    const N=220, xs=[], ys=[]; for(let i=0;i<=N;i++){const x=lo+(hi-lo)*i/N; xs.push(x); ys.push(Math.max(0,d.pdf(x,p)));}
-    const ymax=Math.max(...ys,1e-9)*1.12;
+    const N=200, xs=[], ys=[]; for(let i=0;i<=N;i++){const x=lo+(hi-lo)*i/N; xs.push(x); ys.push(Math.max(0,d.pdf(x,p)));}
+    let hbars=null; const nb=30, binw=(hi-lo)/nb;
+    if(SAMP.length){ const cnt=new Array(nb).fill(0); SAMP.forEach(v=>{ if(v>=lo&&v<=hi){cnt[Math.min(nb-1,Math.floor((v-lo)/binw))]++;} }); hbars=cnt.map(c=>c/(SAMP.length*binw)); }
+    const ymax=Math.max(Math.max(...ys,1e-9), hbars?Math.max(...hbars,0):0)*1.12;
+    const sx=x=>padL+(x-lo)/(hi-lo)*(W-padL-padR);
     const sy=y=>padT+(1-y/ymax)*(H-padT-padB);
     g+=`<line x1="${padL}" y1="${baseY}" x2="${W-padR}" y2="${baseY}" stroke="#19e6ff" stroke-opacity=".5"/>`;
-    if(isFinite(m.mean)&&m.mean>=lo&&m.mean<=hi){const xm=sxX(m.mean,lo,hi); g+=`<line x1="${xm}" y1="${padT}" x2="${xm}" y2="${baseY}" stroke="#ffcb47" stroke-opacity=".6" stroke-dasharray="3 4"/><text x="${xm+3}" y="${padT+10}" fill="#ffcb47" font-family="Share Tech Mono" font-size="10">μ=${fmtN(m.mean)}</text>`;}
-    const dd=xs.map((x,i)=>`${i?'L':'M'}${sxX(x,lo,hi).toFixed(1)},${sy(ys[i]).toFixed(1)}`).join(' ');
-    g+=`<path d="${dd} L${sxX(hi,lo,hi).toFixed(1)},${baseY} L${sxX(lo,lo,hi).toFixed(1)},${baseY} Z" fill="url(#dgPos)"/>`;
+    if(hbars){ for(let i=0;i<nb;i++){ if(hbars[i]<=0)continue; const x0=sx(lo+i*binw), x1=sx(lo+(i+1)*binw), yb=sy(hbars[i]); g+=`<rect x="${(x0+0.6).toFixed(1)}" y="${yb.toFixed(1)}" width="${Math.max(0.5,x1-x0-1.2).toFixed(1)}" height="${(baseY-yb).toFixed(1)}" fill="#ff2d95" fill-opacity=".22" stroke="#ff2d95" stroke-opacity=".5"/>`; } }
+    if(isFinite(m.mean)&&m.mean>=lo&&m.mean<=hi){const xm=sx(m.mean); g+=`<line x1="${xm.toFixed(1)}" y1="${padT}" x2="${xm.toFixed(1)}" y2="${baseY}" stroke="#ffcb47" stroke-opacity=".6" stroke-dasharray="3 4"/><text x="${(xm+3).toFixed(1)}" y="${padT+10}" fill="#ffcb47" font-family="Share Tech Mono" font-size="10">μ=${fmtN(m.mean)}</text>`;}
+    const dd=xs.map((x,i)=>`${i?'L':'M'}${sx(x).toFixed(1)},${sy(ys[i]).toFixed(1)}`).join(' ');
+    g+=`<path d="${dd} L${sx(hi).toFixed(1)},${baseY} L${sx(lo).toFixed(1)},${baseY} Z" fill="url(#dgPos)"/>`;
     g+=`<path d="${dd}" fill="none" stroke="#27ff9e" stroke-width="2.3" style="filter:drop-shadow(0 0 5px rgba(39,255,158,.5))"/>`;
-    [lo,(lo+hi)/2,hi].forEach(t=>{const x=sxX(t,lo,hi); g+=`<text x="${x.toFixed(1)}" y="${baseY+16}" fill="#5fa985" font-family="Share Tech Mono" font-size="10" text-anchor="middle">${fmtN(t)}</text>`;});
+    [lo,(lo+hi)/2,hi].forEach(t=>{const x=sx(t); g+=`<text x="${x.toFixed(1)}" y="${baseY+16}" fill="#5fa985" font-family="Share Tech Mono" font-size="10" text-anchor="middle">${fmtN(t)}</text>`;});
     g+=`<text x="${padL-6}" y="${padT+9}" fill="#5fa985" font-family="Share Tech Mono" font-size="10" text-anchor="end">f(x)</text>`;
+    const cdf=[0]; for(let i=1;i<xs.length;i++) cdf.push(cdf[i-1]+0.5*(ys[i]+ys[i-1])*(xs[i]-xs[i-1]));
+    Object.assign(view,{lo,hi,xs,ys,cdf,padT});
   } else {
     let [k0,k1]=d.krange(p); k1=Math.min(k1,60); const ks=[]; for(let k=k0;k<=k1;k++)ks.push(k);
-    const ps=ks.map(k=>d.pmf(k,p)); const ymax=Math.max(...ps,1e-9)*1.12;
-    const n=ks.length, slot=(W-padL-padR)/n, bw=Math.max(1,slot*0.7);
+    const ps=ks.map(k=>d.pmf(k,p));
+    let eps=null;
+    if(SAMP.length){ const cnt={}; SAMP.forEach(v=>{cnt[v]=(cnt[v]||0)+1;}); eps=ks.map(k=>(cnt[k]||0)/SAMP.length); }
+    const ymax=Math.max(Math.max(...ps,1e-9), eps?Math.max(...eps,0):0)*1.12;
+    const n=ks.length, slot=(W-padL-padR)/n, bw=Math.max(1,slot*0.62);
+    const sy=y=>padT+(1-y/ymax)*(H-padT-padB);
     g+=`<line x1="${padL}" y1="${baseY}" x2="${W-padR}" y2="${baseY}" stroke="#19e6ff" stroke-opacity=".5"/>`;
     if(isFinite(m.mean)){const xm=padL+(m.mean-k0+0.5)*slot; if(xm>=padL&&xm<=W-padR)g+=`<line x1="${xm.toFixed(1)}" y1="${padT}" x2="${xm.toFixed(1)}" y2="${baseY}" stroke="#ffcb47" stroke-opacity=".6" stroke-dasharray="3 4"/><text x="${(xm+3).toFixed(1)}" y="${padT+10}" fill="#ffcb47" font-family="Share Tech Mono" font-size="10">μ=${fmtN(m.mean)}</text>`;}
-    ks.forEach((k,i)=>{const x=padL+i*slot+(slot-bw)/2, h=(ps[i]/ymax)*(H-padT-padB), y=baseY-h; g+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0,h).toFixed(1)}" rx="1.5" fill="#27ff9e" fill-opacity=".5" stroke="#27ff9e" stroke-opacity=".9"/>`;});
+    ks.forEach((k,i)=>{ const cx=padL+i*slot+slot/2;
+      if(eps&&eps[i]>0){ const hh=(eps[i]/ymax)*(H-padT-padB); g+=`<rect x="${(cx-bw/2).toFixed(1)}" y="${(baseY-hh).toFixed(1)}" width="${bw.toFixed(1)}" height="${hh.toFixed(1)}" rx="1.5" fill="#ff2d95" fill-opacity=".2" stroke="#ff2d95" stroke-opacity=".5"/>`; }
+      const h=(ps[i]/ymax)*(H-padT-padB); g+=`<rect x="${(cx-bw/2).toFixed(1)}" y="${(baseY-h).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0,h).toFixed(1)}" rx="1.5" fill="#27ff9e" fill-opacity=".48" stroke="#27ff9e" stroke-opacity=".9"/>`;
+    });
     const step=Math.ceil(n/16); ks.forEach((k,i)=>{ if(i%step)return; const x=padL+i*slot+slot/2; g+=`<text x="${x.toFixed(1)}" y="${baseY+16}" fill="#5fa985" font-family="Share Tech Mono" font-size="10" text-anchor="middle">${k}</text>`;});
     g+=`<text x="${padL-6}" y="${padT+9}" fill="#5fa985" font-family="Share Tech Mono" font-size="10" text-anchor="end">P(k)</text>`;
+    Object.assign(view,{k0,ks,ps,slot,padT});
   }
-  document.getElementById('distplot').outerHTML='<svg id="distplot" viewBox="0 0 720 320" preserveAspectRatio="xMidYMid meet" role="img" aria-label="distribution density">'+g+'</svg>';
+  distView=view;
+  document.getElementById('distplot').outerHTML='<svg id="distplot" viewBox="0 0 720 340" preserveAspectRatio="xMidYMid meet" role="img" aria-label="distribution density">'+g+'</svg>';
   const sd=Math.sqrt(m.vr);
-  $('#diststats').innerHTML=
-    `<span class="ro">mean <b>${fmtN(m.mean)}</b></span>`+
-    `<span class="ro">variance <b>${fmtN(m.vr)}</b></span>`+
-    `<span class="ro">std dev <b>${fmtN(sd)}</b></span>`+
-    `<span class="ro">skewness <b>${fmtN(m.skew)}</b></span>`+
-    `<span class="ro">excess kurtosis <b>${fmtN(m.kurt)}</b></span>`;
-  $('#distdesc').innerHTML=d.desc;
+  let chips=`<span class="ro">mean <b>${fmtN(m.mean)}</b></span><span class="ro">variance <b>${fmtN(m.vr)}</b></span><span class="ro">std dev <b>${fmtN(sd)}</b></span><span class="ro">skewness <b>${fmtN(m.skew)}</b></span><span class="ro">excess kurtosis <b>${fmtN(m.kurt)}</b></span>`;
+  if(SAMP.length){ const n=SAMP.length, mu=SAMP.reduce((a,b)=>a+b,0)/n, vr=SAMP.reduce((a,b)=>a+(b-mu)*(b-mu),0)/n; chips+=`<span class="ro samp">n <b>${n.toLocaleString()}</b></span><span class="ro samp">x̄ <b>${fmtN(mu)}</b></span><span class="ro samp">s² <b>${fmtN(vr)}</b></span>`; }
+  $('#diststats').innerHTML=chips;
+  $('#distdesc').innerHTML=d.desc+(SAMP.length?` <span class="samp-note">▸ magenta = ${SAMP.length.toLocaleString()} Monte-Carlo draws; watch x̄ and s² home in on the theoretical mean &amp; variance (law of large numbers).</span>`:'');
 }
 function buildDistSliders(){
   const d=DISTS[DS.key], w=$('#distsliders'); w.innerHTML='';
   d.params.forEach(pr=>{const lab=document.createElement('label'); lab.innerHTML=`${pr.label} <input type="range" data-k="${pr.k}" min="${pr.min}" max="${pr.max}" step="${pr.step}" value="${DS.p[pr.k]}"><span>${DS.p[pr.k]}</span>`; w.appendChild(lab);});
-  w.querySelectorAll('input').forEach(inp=>inp.oninput=()=>{DS.p[inp.dataset.k]=+inp.value; inp.nextElementSibling.textContent=inp.value; drawDist();});
+  w.querySelectorAll('input').forEach(inp=>inp.oninput=()=>{DS.p[inp.dataset.k]=+inp.value; inp.nextElementSibling.textContent=inp.value; SAMP=[]; if(sampAnim){cancelAnimationFrame(sampAnim);sampAnim=null;} drawDist();});
+}
+function sampleDist(){
+  const d=DISTS[DS.key], p=DS.p, target=+($('#distn').value);
+  if(sampAnim)cancelAnimationFrame(sampAnim);
+  SAMP=[]; const chunk=Math.max(1,Math.round(target/24));
+  (function step(){ const add=Math.min(chunk, target-SAMP.length); for(let i=0;i<add;i++)SAMP.push(d.sample(p)); drawDist(); sampAnim = SAMP.length<target ? requestAnimationFrame(step) : null; })();
+}
+function clearSamp(){ if(sampAnim){cancelAnimationFrame(sampAnim);sampAnim=null;} SAMP=[]; drawDist(); }
+function setupDistCrosshair(){
+  const out=document.querySelector('.dist-output'); if(!out)return;
+  const cross=document.getElementById('distcross'), tip=document.getElementById('disttip'), Wv=720;
+  out.addEventListener('mousemove',e=>{
+    const svg=out.querySelector('#distplot'), v=distView; if(!svg||!v){cross.style.display='none';tip.style.display='none';return;}
+    const r=svg.getBoundingClientRect(); const cssX=e.clientX-r.left; const vbx=cssX/r.width*Wv;
+    if(cssX<0||cssX>r.width||vbx<v.padL||vbx>Wv-v.padR){cross.style.display='none';tip.style.display='none';return;}
+    let label;
+    if(v.type==='cont'){
+      const x=v.lo+(vbx-v.padL)/(Wv-v.padL-v.padR)*(v.hi-v.lo);
+      const t=(x-v.lo)/(v.hi-v.lo)*(v.xs.length-1), i=Math.max(0,Math.min(v.xs.length-2,Math.floor(t))), fr=t-i;
+      const f=v.ys[i]+(v.ys[i+1]-v.ys[i])*fr, F=Math.min(1,Math.max(0,v.cdf[i]+(v.cdf[i+1]-v.cdf[i])*fr));
+      label='x '+fmtN(x)+'  ·  f '+fmtN(f)+'  ·  P(X≤x) '+F.toFixed(3);
+    } else {
+      const idx=Math.round((vbx-v.padL)/v.slot-0.5), ii=Math.max(0,Math.min(v.ks.length-1,idx)), k=v.k0+ii;
+      let F=0; for(let j=0;j<=ii;j++)F+=v.ps[j];
+      label='k '+k+'  ·  P(k) '+fmtN(v.ps[ii]||0)+'  ·  P(X≤k) '+Math.min(1,F).toFixed(3);
+    }
+    const o=out.getBoundingClientRect(), x=r.left-o.left+cssX, y=r.top-o.top;
+    cross.style.display='block'; cross.style.left=x+'px'; cross.style.top=y+'px'; cross.style.height=r.height+'px';
+    tip.style.display='block'; tip.style.left=x+'px'; tip.style.top=(y+4)+'px'; tip.textContent=label;
+  });
+  out.addEventListener('mouseleave',()=>{cross.style.display='none';tip.style.display='none';});
 }
 function initDist(){
   $('#distpick').innerHTML=Object.keys(DISTS).map((k,i)=>`<span class="pbtn${i===0?' on':''}" data-k="${k}">${DISTS[k].name}</span>`).join('');
   $('#distpick').querySelectorAll('.pbtn').forEach(b=>b.onclick=()=>{$('#distpick').querySelectorAll('.pbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');DS.key=b.dataset.k;loadDistParams();buildDistSliders();drawDist();});
-  loadDistParams(); buildDistSliders(); drawDist();
+  const nEl=$('#distn'); if(nEl)nEl.oninput=e=>{$('#distnv').textContent=(+e.target.value).toLocaleString();};
+  const sb=$('#distsample'); if(sb)sb.onclick=sampleDist;
+  const cb=$('#distclear'); if(cb)cb.onclick=clearSamp;
+  const pn=$('#distpin'); if(pn)pn.onclick=()=>{const nm=DISTS[DS.key].name, ps=DISTS[DS.key].params.map(pr=>pr.label+'='+DS.p[pr.k]).join(', '); pinSnapshot({type:'dist', title:'Distribution · '+nm+' ('+ps+')'+(SAMP.length?' · '+SAMP.length+' draws':''), svg:$('#distplot').outerHTML.replace('id="distplot"',''), readout:$('#diststats').innerHTML});};
+  loadDistParams(); buildDistSliders(); drawDist(); setupDistCrosshair();
 }
 
 /* ---- market-making game (dice adverse selection) ---- */
@@ -3826,6 +3903,8 @@ function renderPins(){
       inner=`<div class="ptag">${topic}</div>`+(h?h.outerHTML:'')+(b?b.outerHTML:'');
     } else if(p.type==='pay'){
       inner=`<div class="ptag">payoff lab</div><div class="q" style="font-size:14px">${p.title||'payoff'}</div>`+(p.svg||'')+`<div class="pay-readout" style="margin-top:8px">${p.readout||''}</div>`;
+    } else if(p.type==='dist'){
+      inner=`<div class="ptag">distribution lab</div><div class="q" style="font-size:14px">${p.title||'distribution'}</div>`+(p.svg||'')+`<div class="pay-readout" style="margin-top:8px">${p.readout||''}</div>`;
     } else if(p.type==='code'){
       const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
       inner=`<div class="ptag">sim · python${p.ts?' · '+p.ts:''}</div>`+
