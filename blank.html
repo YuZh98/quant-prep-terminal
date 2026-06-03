@@ -584,9 +584,8 @@
     <div class="grid g3">
       <div class="panel ws-form">
         <h3>+ Subject</h3>
-        <p class="ws-hint">Creates a new subject tile (flashcard domain) you can target below.</p>
+        <p class="ws-hint">Creates a new subject in <b>both</b> the cheatsheet and flashcard sections — they share one subject list.</p>
         <input class="ws-in" id="ws-subj" placeholder="e.g. Bayesian methods">
-        <div class="ws-seg" id="ws-subj-type"><span class="seg on" data-v="both">both</span><span class="seg" data-v="dom">flashcards</span><span class="seg" data-v="top">cheatsheet</span></div>
         <button class="ws-btn" id="ws-subj-add">add subject</button>
         <div class="ws-msg" id="subjmsg"></div>
       </div>
@@ -1512,15 +1511,12 @@ function renderAdditions(){
 }
 function initWorkshop(){
   wsRefreshLists(); renderAdditions();
-  document.querySelectorAll('#ws-subj-type .seg').forEach(sg=>sg.onclick=()=>{document.querySelectorAll('#ws-subj-type .seg').forEach(x=>x.classList.toggle('on',x===sg));});
   document.getElementById('ws-subj-add').onclick=()=>{
     const v=document.getElementById('ws-subj').value.trim(); if(!v)return wsMsg('subjmsg','enter a subject name');
-    const type=(document.querySelector('#ws-subj-type .seg.on')||{dataset:{v:'both'}}).dataset.v; const made=[];
-    if(type==='dom'||type==='both'){resolveDomain(v); made.push('flashcard domain');}
-    if(type==='top'||type==='both'){resolveTopic(v); made.push('cheatsheet topic');}
+    resolveDomain(v); resolveTopic(v);   // one subject always lands in BOTH sections (shared taxonomy)
     document.getElementById('ws-subj').value='';
     buildTiles(); buildFilters(); buildStats(); wsRefreshLists(); renderAdditions();
-    wsMsg('subjmsg','✓ "'+v+'" → '+made.join(' + '));
+    wsMsg('subjmsg','✓ "'+v+'" added to cheatsheets + flashcards');
   };
   document.getElementById('ws-card-add').onclick=()=>{
     const dom=document.getElementById('ws-card-dom').value.trim();

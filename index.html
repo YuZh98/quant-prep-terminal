@@ -440,6 +440,7 @@
       <span class="ctab" data-t="combinatorics">Combinatorics</span>
       <span class="ctab" data-t="distributions">Distributions</span>
       <span class="ctab" data-t="geometry">Geometry</span>
+      <span class="ctab" data-t="statistics">Inference</span>
       <span class="ctab" data-t="instruments">Instruments</span>
       <span class="ctab" data-t="linalg">Linear Algebra</span>
       <span class="ctab" data-t="mentalmath">Mental Math</span>
@@ -448,7 +449,6 @@
       <span class="ctab" data-t="probability">Probability</span>
       <span class="ctab" data-t="python">Python</span>
       <span class="ctab" data-t="regression">Regression</span>
-      <span class="ctab" data-t="statistics">Statistics</span>
       <span class="ctab" data-t="stochastic">Stochastic Processes</span>
       <span class="ctab" data-t="timeseries">Time Series</span>
     </div>
@@ -2910,9 +2910,8 @@ auto n = std::count_if(book.begin(), book.end(),
     <div class="grid g3">
       <div class="panel ws-form">
         <h3>+ Subject</h3>
-        <p class="ws-hint">Creates a new subject tile (flashcard domain) you can target below.</p>
+        <p class="ws-hint">Creates a new subject in <b>both</b> the cheatsheet and flashcard sections — they share one subject list.</p>
         <input class="ws-in" id="ws-subj" placeholder="e.g. Bayesian methods">
-        <div class="ws-seg" id="ws-subj-type"><span class="seg on" data-v="both">both</span><span class="seg" data-v="dom">flashcards</span><span class="seg" data-v="top">cheatsheet</span></div>
         <button class="ws-btn" id="ws-subj-add">add subject</button>
         <div class="ws-msg" id="subjmsg"></div>
       </div>
@@ -2962,7 +2961,7 @@ const DOMAINS = {
   combinatorics: {name:'Combinatorics',        glyph:'C'},
   probability:   {name:'Probability',          glyph:'∑'},
   distributions: {name:'Distributions',        glyph:'ƒ'},
-  statistics:    {name:'Statistics',           glyph:'σ'},
+  statistics:    {name:'Inference',            glyph:'σ'},
   regression:    {name:'Regression',           glyph:'β'},
   stochastic:    {name:'Stochastic Processes', glyph:'∂'},
   timeseries:    {name:'Time Series',          glyph:'≈'},
@@ -2992,14 +2991,14 @@ const DECK = [
   {dom:'probability',tag:'Probability',q:'Disease 1% prevalence, test 99% sens / 95% spec. P(disease | +)?',a:'<span class="k">≈ 16.7%.</span> Bayes: .99·.01 / (.99·.01 + .05·.99). Base rate dominates.'},
   {dom:'probability',tag:'Probability',q:'P(four-of-a-kind) in a 5-card hand?',a:'<span class="k">13·48 / C(52,5) ≈ 0.024%.</span>'},
   // ---- STATISTICS ----
-  {dom:'statistics',rep:1,tag:'Statistics',q:'Strategy Sharpe = 1.5 over 1 yr of daily returns — believe it?',a:'<span class="k">Weak — t ≈ 1.5.</span> Lo SE(Sharpe) ≈ <code>√((1+½S²)/n)</code> uses the <b>per-period</b> Sharpe matching n. Daily S=1.5/√252≈0.094, n=252 → SE≈0.063/period ≈ <code>1.0</code> annualized. So 1.5±1.0 → only ~1.5σ from zero (t≈1.5, two-sided p≈0.13) — not significant; worry multiple testing / overfitting.'},
-  {dom:'statistics',tag:'Statistics',q:'p-value in plain English?',a:'<span class="k">P(data this extreme | null true).</span> NOT P(null true).'},
-  {dom:'statistics',tag:'Statistics',q:'Standard deviation vs standard error?',a:'<span class="k">SD</span> = spread of data. <span class="k">SE</span> = SD/√n = spread of the estimate.'},
-  {dom:'statistics',tag:'Statistics',q:'Skew / kurtosis — why care in markets?',a:'Asymmetry / tail-fatness. Returns are <span class="k">negatively skewed + fat-tailed</span> → variance understates risk.'},
-  {dom:'statistics',tag:'Statistics',q:'State the Central Limit Theorem.',a:'Sum/mean of n iid (finite variance) → <span class="k">Normal</span> as n→∞; scaled by √n. Why √n shows up everywhere.'},
-  {dom:'statistics',tag:'Statistics',q:'Bias–variance tradeoff?',a:'Error = bias² + variance + irreducible. <span class="k">Simple models: high bias; flexible: high variance.</span> Tune the balance.'},
-  {dom:'statistics',tag:'Statistics',q:'MLE vs MAP?',a:'MLE maximizes likelihood; <span class="k">MAP adds a prior</span> (= MLE + regularization). MAP→MLE as data dominate the prior.'},
-  {dom:'statistics',tag:'Statistics',q:'Confidence interval vs credible interval?',a:'<span class="k">CI:</span> frequentist coverage over repeated samples. <span class="k">Credible:</span> Bayesian — P(param in interval | data). Different objects.'},
+  {dom:'statistics',rep:1,tag:'Inference',q:'Strategy Sharpe = 1.5 over 1 yr of daily returns — believe it?',a:'<span class="k">Weak — t ≈ 1.5.</span> Lo SE(Sharpe) ≈ <code>√((1+½S²)/n)</code> uses the <b>per-period</b> Sharpe matching n. Daily S=1.5/√252≈0.094, n=252 → SE≈0.063/period ≈ <code>1.0</code> annualized. So 1.5±1.0 → only ~1.5σ from zero (t≈1.5, two-sided p≈0.13) — not significant; worry multiple testing / overfitting.'},
+  {dom:'statistics',tag:'Inference',q:'p-value in plain English?',a:'<span class="k">P(data this extreme | null true).</span> NOT P(null true).'},
+  {dom:'statistics',tag:'Inference',q:'Standard deviation vs standard error?',a:'<span class="k">SD</span> = spread of data. <span class="k">SE</span> = SD/√n = spread of the estimate.'},
+  {dom:'statistics',tag:'Inference',q:'Skew / kurtosis — why care in markets?',a:'Asymmetry / tail-fatness. Returns are <span class="k">negatively skewed + fat-tailed</span> → variance understates risk.'},
+  {dom:'statistics',tag:'Inference',q:'State the Central Limit Theorem.',a:'Sum/mean of n iid (finite variance) → <span class="k">Normal</span> as n→∞; scaled by √n. Why √n shows up everywhere.'},
+  {dom:'statistics',tag:'Inference',q:'Bias–variance tradeoff?',a:'Error = bias² + variance + irreducible. <span class="k">Simple models: high bias; flexible: high variance.</span> Tune the balance.'},
+  {dom:'statistics',tag:'Inference',q:'MLE vs MAP?',a:'MLE maximizes likelihood; <span class="k">MAP adds a prior</span> (= MLE + regularization). MAP→MLE as data dominate the prior.'},
+  {dom:'statistics',tag:'Inference',q:'Confidence interval vs credible interval?',a:'<span class="k">CI:</span> frequentist coverage over repeated samples. <span class="k">Credible:</span> Bayesian — P(param in interval | data). Different objects.'},
   // ---- OPTIONS ----
   {dom:'options',rep:1,tag:'Options & Vol',q:'When exercise an American option early?',a:'Call on non-div stock: <span class="k">never</span> (sell). Call: only just before a big dividend. Put: deep-ITM can be optimal (interest on strike). <span class="k">Call/put asymmetry is the point.</span>'},
   {dom:'options',tag:'Options & Vol',q:'Long ATM straddle — long/short what?',a:'≈delta-flat; <span class="k">long gamma, long vega, short theta.</span> Thesis = realized vs implied.'},
@@ -3051,17 +3050,17 @@ const DECK = [
   {dom:'stochastic',rep:1,tag:'Stochastic Processes',q:'Write the Ornstein–Uhlenbeck SDE; why mean-reverting?',a:'<code>dX = κ(θ−X)dt + σ dW</code>. Drift pulls X toward θ at rate κ; <span class="k">stationary N(θ, σ²/2κ)</span> — Gaussian, unlike GBM.'},
   {dom:'stochastic',tag:'Stochastic Processes',q:'Feynman–Kac in one line.',a:'A PDE solution = an <span class="k">expectation along a diffusion</span>: u(t,x)=E[e^{−∫r}·payoff(X_T)|X_t=x]. The PDE ↔ Monte-Carlo bridge; why Black–Scholes can be priced either way.'},
   {dom:'stochastic',tag:'Stochastic Processes',q:'Is e^{σW_t − ½σ²t} a martingale? Why care?',a:'<span class="k">Yes — the stochastic exponential, E[·]=1.</span> Its zero drift (−½σ²t cancels the Itô correction) is the Radon–Nikodym density in Girsanov.'},
-  {dom:'statistics',rep:1,tag:'Statistics',q:'Type I vs Type II error and power?',a:'<span class="k">Type I = false positive (α), Type II = false negative (β).</span> Power = <code>1−β</code> = P(reject | effect real); rises with effect size, n, α.'},
-  {dom:'statistics',rep:1,tag:'Statistics',q:'Test 100 strategies at α=0.05 — how many false positives, and the fix?',a:'<span class="k">~5 by chance.</span> Bonferroni uses <code>α/m</code> → controls FWER = P(any false positive), but is conservative and kills power. Benjamini–Hochberg controls the <span class="k">FDR</span> = expected fraction of discoveries that are false — far more power for many tests.'},
+  {dom:'statistics',rep:1,tag:'Inference',q:'Type I vs Type II error and power?',a:'<span class="k">Type I = false positive (α), Type II = false negative (β).</span> Power = <code>1−β</code> = P(reject | effect real); rises with effect size, n, α.'},
+  {dom:'statistics',rep:1,tag:'Inference',q:'Test 100 strategies at α=0.05 — how many false positives, and the fix?',a:'<span class="k">~5 by chance.</span> Bonferroni uses <code>α/m</code> → controls FWER = P(any false positive), but is conservative and kills power. Benjamini–Hochberg controls the <span class="k">FDR</span> = expected fraction of discoveries that are false — far more power for many tests.'},
   {dom:'regression',rep:1,tag:'Regression',q:'Gauss–Markov: when is OLS BLUE?',a:'<span class="k">Linearity, exogeneity (E[ε|X]=0), homoskedasticity, no autocorrelation.</span> Then OLS is Best Linear Unbiased — <b>normality NOT required</b> (only for exact small-sample t/F).'},
   {dom:'regression',rep:1,tag:'Regression',q:'R² vs adjusted R²?',a:'R² always rises with more regressors. <span class="k">Adjusted R² penalizes parameters</span> (<code>1−(1−R²)(n−1)/(n−p−1)</code>) so it can fall — use it to compare different-size models.'},
   {dom:'regression',rep:1,tag:'Regression',q:'L1 vs L2 regularization?',a:'<span class="k">L1 (Lasso) → sparsity</span> (coefs exactly 0, feature selection); <span class="k">L2 (Ridge) → shrinkage</span> (small, handles collinearity). L1 penalizes |β|, L2 penalizes β².'},
-  {dom:'statistics',tag:'Statistics',q:'What does k-fold cross-validation estimate, and the time-series catch?',a:'<span class="k">Out-of-sample error.</span> Train on k−1 folds, test on 1, average. <b>For time series use walk-forward</b> — random k-fold leaks the future into the past.'},
-  {dom:'statistics',tag:'Statistics',q:'MLE vs method of moments for a Normal?',a:'<span class="k">For the Normal they coincide: μ̂=x̄, σ̂²=(1/n)Σ(xᵢ−x̄)²</span> (both divide by n → biased). MoM matches sample to population moments — in general easier to compute but less efficient than MLE; for the Normal there is no efficiency loss.'},
-  {dom:'statistics',tag:'Statistics',q:'What is the bootstrap and when do you use it?',a:'<span class="k">Resample with replacement</span> to approximate a statistic\'s sampling distribution. Use when no closed-form SE exists (median, Sharpe, ratios). Breaks under strong dependence.'},
-  {dom:'statistics',rep:1,tag:'Statistics',q:'Covariance vs correlation?',a:'<span class="k">Correlation = normalized covariance</span>: <code>ρ = Cov(X,Y)/(σ_X σ_Y)</code> ∈ [−1,1], unitless. Covariance is scale-dependent.'},
-  {dom:'statistics',tag:'Statistics',q:'Simpson\'s paradox?',a:'<span class="k">A trend within every subgroup reverses when pooled</span> — driven by a confounder / unequal group sizes. Condition on the right variable.'},
-  {dom:'statistics',rep:1,tag:'Statistics',q:'Why annualize Sharpe by √252, and what breaks it?',a:'<span class="k">SR_annual = SR_daily × √252</span>: mean scales with horizon, vol with √horizon. <b>Assumes iid</b> — positive autocorrelation inflates it, overstating a trending strategy.'},
+  {dom:'statistics',tag:'Inference',q:'What does k-fold cross-validation estimate, and the time-series catch?',a:'<span class="k">Out-of-sample error.</span> Train on k−1 folds, test on 1, average. <b>For time series use walk-forward</b> — random k-fold leaks the future into the past.'},
+  {dom:'statistics',tag:'Inference',q:'MLE vs method of moments for a Normal?',a:'<span class="k">For the Normal they coincide: μ̂=x̄, σ̂²=(1/n)Σ(xᵢ−x̄)²</span> (both divide by n → biased). MoM matches sample to population moments — in general easier to compute but less efficient than MLE; for the Normal there is no efficiency loss.'},
+  {dom:'statistics',tag:'Inference',q:'What is the bootstrap and when do you use it?',a:'<span class="k">Resample with replacement</span> to approximate a statistic\'s sampling distribution. Use when no closed-form SE exists (median, Sharpe, ratios). Breaks under strong dependence.'},
+  {dom:'statistics',rep:1,tag:'Inference',q:'Covariance vs correlation?',a:'<span class="k">Correlation = normalized covariance</span>: <code>ρ = Cov(X,Y)/(σ_X σ_Y)</code> ∈ [−1,1], unitless. Covariance is scale-dependent.'},
+  {dom:'statistics',tag:'Inference',q:'Simpson\'s paradox?',a:'<span class="k">A trend within every subgroup reverses when pooled</span> — driven by a confounder / unequal group sizes. Condition on the right variable.'},
+  {dom:'statistics',rep:1,tag:'Inference',q:'Why annualize Sharpe by √252, and what breaks it?',a:'<span class="k">SR_annual = SR_daily × √252</span>: mean scales with horizon, vol with √horizon. <b>Assumes iid</b> — positive autocorrelation inflates it, overstating a trending strategy.'},
   {dom:'options',rep:1,tag:'Options & Vol',q:'Gamma–theta relationship for a delta-neutral book?',a:'At r=0, <code>θ ≈ −½·Γ·σ²·S²</code>. <span class="k">Theta is the rent you pay for gamma</span> — long gamma ⇒ negative theta; they offset when realized = implied vol.'},
   {dom:'options',rep:1,tag:'Options & Vol',q:'Why is a market-maker short gamma after selling options?',a:'Selling options ⇒ <span class="k">short gamma:</span> hedging forces buy-high / sell-low into moves, bleeding on realized variance. You collect theta + the variance risk premium as pay.'},
   {dom:'options',rep:1,tag:'Options & Vol',q:'What is pin risk?',a:'Spot finishing right at the strike near expiry: <span class="k">you don\'t know if you\'ll be assigned</span>, so post-expiry delta is uncertain (0 or ±1). Gamma explodes at the strike.'},
@@ -3126,8 +3125,8 @@ const DECK = [
   {dom:'distributions',tag:'Distributions',q:'Min of independent Exp(λ₁) and Exp(λ₂): distribution, and P(first is the λ₁ one)?',a:'<span class="k">Min ~ Exp(λ₁+λ₂); P(source 1 first)=λ₁/(λ₁+λ₂).</span> Survival of the min is the product e^(−(λ₁+λ₂)t); the winner probability is the rate share.',rep:0},
   {dom:'distributions',tag:'Distributions',q:'X is the sum of n iid Exp(λ). Name the distribution and give its mean and variance.',a:'<span class="k">Gamma(n, 1/λ) (Erlang): mean n/λ, variance n/λ².</span> MGFs multiply: (λ/(λ−t))ⁿ. It\'s the waiting time to the n-th Poisson(λ) arrival.',rep:0},
   {dom:'distributions',tag:'Distributions',q:'You sum 12 iid Uniform(0,1) and subtract 6. Roughly what distribution, and why is this used?',a:'<span class="k">Approximately N(0,1).</span> Each U has mean 1/2, var 1/12; sum has mean 6, var 12·(1/12)=1, so Σ−6 has mean 0, var 1. CLT makes it near-Gaussian — an old quick-and-dirty normal generator.',rep:0},
-  {dom:'statistics',tag:'Statistics',q:'Why divide by n−1 instead of n in the sample variance?',a:'<span class="k">n−1 (Bessel\'s correction) makes s² unbiased for σ²; dividing by n underestimates it.</span> Deviations are measured from the sample mean x̄, which is fit from the same data, so they\'re systematically smaller than deviations from the true μ — one degree of freedom is spent estimating the mean.',rep:0},
-  {dom:'statistics',tag:'Statistics',q:'Likelihood vs probability — what\'s the difference?',a:'<span class="k">Probability fixes the parameter and varies the data; likelihood fixes the observed data and varies the parameter.</span> Same expression <code>f(x;θ)</code>, read two ways. Likelihood is a function of θ, doesn\'t integrate to 1, and is what MLE maximizes.',rep:0},
+  {dom:'statistics',tag:'Inference',q:'Why divide by n−1 instead of n in the sample variance?',a:'<span class="k">n−1 (Bessel\'s correction) makes s² unbiased for σ²; dividing by n underestimates it.</span> Deviations are measured from the sample mean x̄, which is fit from the same data, so they\'re systematically smaller than deviations from the true μ — one degree of freedom is spent estimating the mean.',rep:0},
+  {dom:'statistics',tag:'Inference',q:'Likelihood vs probability — what\'s the difference?',a:'<span class="k">Probability fixes the parameter and varies the data; likelihood fixes the observed data and varies the parameter.</span> Same expression <code>f(x;θ)</code>, read two ways. Likelihood is a function of θ, doesn\'t integrate to 1, and is what MLE maximizes.',rep:0},
   {dom:'regression',tag:'Regression',q:'What is leverage in regression, and how does it differ from an influential point?',a:'<span class="k">Leverage <code>hᵢᵢ</code> (the i-th diagonal of the hat matrix H) measures how far xᵢ is from the predictor mean; influence measures how much dropping the point actually moves the fit.</span> High leverage is necessary but not sufficient for influence — a high-leverage point on the fitted line has little influence. Combine leverage with residual size via Cook\'s distance to flag genuinely influential points. Σhᵢᵢ = k (number of params).',rep:0},
   {dom:'regression',tag:'Regression',q:'What is the dummy-variable trap and how do you avoid it?',a:'<span class="k">Including a dummy for every category plus an intercept makes X columns linearly dependent (they sum to the intercept), so XᵀX is singular and OLS has no unique solution.</span> Drop one category as the baseline; each coefficient is then the contrast vs that baseline. Alternatively drop the intercept and keep all dummies. This is exact (not approximate) multicollinearity.',rep:0},
   {dom:'regression',tag:'Regression',q:'In y = β₀+β₁x+β₂z+β₃(x·z), how do you interpret β₁ and β₃?',a:'<span class="k">β₁ is the effect of x only when z=0; β₃ is how the slope of x changes per unit increase in z (∂y/∂x = β₁+β₃z).</span> With an interaction present, never read β₁ as "the" effect of x — it is conditional on z=0, which may not even be in the data. Center variables so the main effect is interpreted at the mean.',rep:0},
@@ -4171,15 +4170,12 @@ function renderAdditions(){
 }
 function initWorkshop(){
   wsRefreshLists(); renderAdditions();
-  document.querySelectorAll('#ws-subj-type .seg').forEach(sg=>sg.onclick=()=>{document.querySelectorAll('#ws-subj-type .seg').forEach(x=>x.classList.toggle('on',x===sg));});
   document.getElementById('ws-subj-add').onclick=()=>{
     const v=document.getElementById('ws-subj').value.trim(); if(!v)return wsMsg('subjmsg','enter a subject name');
-    const type=(document.querySelector('#ws-subj-type .seg.on')||{dataset:{v:'both'}}).dataset.v; const made=[];
-    if(type==='dom'||type==='both'){resolveDomain(v); made.push('flashcard domain');}
-    if(type==='top'||type==='both'){resolveTopic(v); made.push('cheatsheet topic');}
+    resolveDomain(v); resolveTopic(v);   // one subject always lands in BOTH sections (shared taxonomy)
     document.getElementById('ws-subj').value='';
     buildTiles(); buildFilters(); buildStats(); wsRefreshLists(); renderAdditions();
-    wsMsg('subjmsg','✓ "'+v+'" → '+made.join(' + '));
+    wsMsg('subjmsg','✓ "'+v+'" added to cheatsheets + flashcards');
   };
   document.getElementById('ws-card-add').onclick=()=>{
     const dom=document.getElementById('ws-card-dom').value.trim();
