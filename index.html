@@ -148,6 +148,7 @@
   .fbtn:hover{color:var(--text); border-color:var(--neon-dim)}
   .fbtn.on{background:var(--neon); color:#04140d; border-color:var(--neon); box-shadow:var(--shadow-neon); font-weight:700}
   .fbtn .n{opacity:.6; margin-left:4px}
+  .ctab[data-n]::after{content:attr(data-n); opacity:.55; margin-left:5px; font-weight:400}
   .cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:16px}
   .card{perspective:1400px; height:236px; cursor:pointer; position:relative}
   /* pinning */
@@ -373,15 +374,7 @@
   .dist-fun .seg{font-family:'Share Tech Mono',monospace; font-size:12px; cursor:pointer; padding:7px 12px; border-radius:22px; border:1px solid var(--line); background:var(--panel); color:var(--text-dim); transition:.15s}
   .dist-fun .seg:hover{color:var(--text); border-color:var(--neon-dim)}
   .dist-fun .seg.on{background:var(--neon); color:#04140d; border-color:var(--neon); font-weight:700}
-  /* cyberpunk subject buttons (cheat tabs + flashcard filter pills) */
-  .ctab,.fbtn{border-radius:2px; letter-spacing:.06em; position:relative; overflow:hidden;
-    clip-path:polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 9px 100%, 0 calc(100% - 9px));
-    transition:color .16s, background .16s, box-shadow .16s, transform .12s, border-color .16s}
-  .ctab::before,.fbtn::before{content:''; position:absolute; left:0; top:0; height:100%; width:2px; background:var(--neon-dim); opacity:.5; transition:.16s}
-  .ctab:hover,.fbtn:hover{transform:translateY(-1px); border-color:var(--neon); box-shadow:0 0 13px rgba(39,255,158,.22), inset 0 0 0 1px rgba(39,255,158,.12)}
-  .ctab:hover::before,.fbtn:hover::before{width:3px; opacity:1; box-shadow:0 0 8px var(--neon)}
-  .ctab.on,.fbtn.on{transform:translateY(-1px); text-shadow:none}
-  .ctab.on::before,.fbtn.on::before{background:#04140d; opacity:.55; width:3px; box-shadow:none}
+  html{overflow-anchor:none}  /* deterministic scroll: renderPins() compensates height changes manually */
 </style>
 </head>
 <body>
@@ -3367,6 +3360,17 @@ function buildStats(){
      <div class="stat" data-jump="lab"><b>▶</b><span>LAB</span></div>`;
   $('#stats').querySelectorAll('.stat').forEach(s=>s.addEventListener('click',()=>{const t=document.getElementById(s.dataset.jump); if(t)t.scrollIntoView({behavior:'smooth'});}));
   $('#built').textContent=`cards: ${DECK.length} · cheats: ${blocks} · pinned: ${pins.length}`;
+  decorateCheatTabs();
+}
+function decorateCheatTabs(){
+  const nav=document.getElementById('cheatnav'); if(!nav)return;
+  let total=0;
+  nav.querySelectorAll('.ctab').forEach(t=>{
+    if(t.dataset.t==='__all')return;
+    const n=document.querySelectorAll('.cheat-wrap .cheat[data-topic="'+t.dataset.t+'"] .ck').length;
+    total+=n; t.dataset.n=n;
+  });
+  const all=nav.querySelector('.ctab[data-t="__all"]'); if(all)all.dataset.n=total;
 }
 
 /* ---- payoff lab ---- */
@@ -4211,6 +4215,18 @@ function addCkPins(){document.querySelectorAll('.cheat-wrap .ck').forEach(ck=>{
   ck.appendChild(btn);
 });}
 function renderPins(){
+  // Keep the page from jumping when the (top-of-page) pinboard changes height:
+  // measure its height delta across the rebuild and offset the scroll by it.
+  const wrap=$('#pinboard');
+  const before=wrap?wrap.offsetHeight:0;
+  renderPinsBody();
+  const after=wrap?wrap.offsetHeight:0;
+  const delta=after-before;
+  // behavior:'instant' overrides the page's CSS scroll-behavior:smooth, so the
+  // compensation is a silent jump rather than a visible 300ms drift.
+  if(delta) window.scrollBy({top:delta, left:0, behavior:'instant'});
+}
+function renderPinsBody(){
   const wrap=$('#pinboard'); if(!wrap)return;
   if(!pins.length){wrap.innerHTML='<div class="pin-empty">// nothing pinned yet — hit PIN on any cheatsheet card or flashcard below to collect it here</div>'; return;}
   wrap.innerHTML='';
