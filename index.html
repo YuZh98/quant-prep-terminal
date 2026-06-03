@@ -1272,6 +1272,7 @@
     Conventions stated explicitly (the usual trap is geometric/neg-binomial counting).
     <table>
       <tr><th>Dist</th><th>pmf</th><th>Mean</th><th>Variance</th><th>Use</th></tr>
+      <tr><td>DiscreteUniform{1..N}</td><td><code>1/N, k=1..N</code></td><td><code>(N+1)/2</code></td><td><code>(N²−1)/12</code></td><td>fair die (N=6), random index</td></tr>
       <tr><td>Bernoulli(p)</td><td><code>P(1)=p, P(0)=1−p</code></td><td><code>p</code></td><td><code>p(1−p)</code></td><td>single yes/no trial</td></tr>
       <tr><td>Binomial(n,p)</td><td><code>C(n,k) pᵏ(1−p)ⁿ⁻ᵏ</code></td><td><code>np</code></td><td><code>np(1−p)</code></td><td># successes in n trials</td></tr>
       <tr><td>Geometric(p) — # trials</td><td><code>(1−p)ᵏ⁻¹ p, k≥1</code></td><td><code>1/p</code></td><td><code>(1−p)/p²</code></td><td>trial of 1st success</td></tr>
@@ -1357,15 +1358,24 @@
   </div>
 </div>
 <div class="ck">
-  <div class="ck-h">Order Statistics and the Uniform</div>
+  <div class="ck-h">Order Statistics — General Formula, Uniform &amp; Discrete Uniform</div>
   <div class="ck-b">
-    For n iid Uniform(0,1), the k-th order statistic U₍ₖ₎ ~ Beta(k, n−k+1), mean <code>k/(n+1)</code>.
+    <b>General pdf.</b> For n iid draws with cdf F and pdf f, the k-th smallest X₍ₖ₎ has density
+    <code>f₍ₖ₎(x) = [n! / ((k−1)!(n−k)!)] · F(x)ᵏ⁻¹ · (1−F(x))ⁿ⁻ᵏ · f(x)</code>
+    — pick which sample is the k-th (the count factor), k−1 fall below it, n−k above, one sits at x.
     <ul>
-      <li>Max U₍ₙ₎: cdf <code>xⁿ</code>, mean <code>n/(n+1)</code>.</li>
-      <li>Min U₍₁₎: mean <code>1/(n+1)</code>.</li>
+      <li>Continuous Uniform(0,1): U₍ₖ₎ ~ Beta(k, n−k+1), mean <code>k/(n+1)</code>; max mean <code>n/(n+1)</code>, min mean <code>1/(n+1)</code>.</li>
       <li>Probability integral transform: F(X) ~ Uniform(0,1); inverse-cdf F⁻¹(U) generates any distribution.</li>
     </ul>
-    <div class="eg"><b>Example.</b> 9 iid Uniform(0,1) samples. Expected median = order stat k=5: 5/(9+1) = 0.5. Expected max = 9/10 = 0.9.</div>
+    <b>Discrete Uniform{1,…,N} — m DISTINCT draws (without replacement).</b> The k-th smallest satisfies
+    <code>E[X₍ₖ₎] = k(N+1)/(m+1)</code> and <code>Var(X₍ₖ₎) = k(m+1−k)(N+1)(N−m) / [(m+1)²(m+2)]</code>
+    (the discrete analog of the Beta result; note m is the sample size, N the population top).
+    <ul>
+      <li>Max (k=m): <code>E = m(N+1)/(m+1)</code> — the <b>German tank problem</b>; invert for N̂ = max·(m+1)/m − 1.</li>
+      <li>Sanity: m=1 → mean (N+1)/2, var (N²−1)/12 (one uniform draw); m=N → X₍ₖ₎=k exactly (the N−m factor kills the variance).</li>
+      <li>With replacement (iid) there is no clean closed form — E[max] = N − N⁻ᵐ·Σⱼ₌₀^(N−1) jᵐ.</li>
+    </ul>
+    <div class="eg"><b>Example.</b> 9 iid Uniform(0,1): expected median (k=5) = 5/10 = 0.5, expected max = 9/10 = 0.9. Discrete, 5 distinct draws from {1,…,100}: expected max = 5·101/6 ≈ 84.2, so German-tank N̂ ≈ max·6/5 − 1.</div>
   </div>
 </div>
 <div class="ck">
