@@ -17,12 +17,12 @@ So I put the whole loop — read it, drill it, simulate it, repeat until it stic
 ## What's inside
 
 ### Cheatsheets — for the formula you'll absolutely blank on
-Eleven domains: calculus, linear algebra, geometry, probability distributions, combinatorics, stochastic processes, regression, options, financial instruments, Python, and C++. Bite-size cards with worked examples, because "I knew the formula, I just couldn't *recall* it under pressure" is not a thing you get to say in the actual interview. One search box covers all of them.
+Eighteen subjects across five groups — math (calculus, linear algebra, geometry, combinatorics), probability & statistics (probability, distributions, statistics, regression, stochastic processes, time series), finance (options & vol, instruments, microstructure), programming (Python, C++, algorithms), and reasoning (brainteasers, mental math). Bite-size cards with worked examples, because "I knew the formula, I just couldn't *recall* it under pressure" is not a thing you get to say in the actual interview. One search box covers all of them.
 
 ![Cheatsheets](docs/02-cheatsheets.png)
 
 ### Flashcards — flip, panic, flip back, pretend you knew it
-100+ real interview questions. Search them, filter by topic, shuffle so you can't cheat by memorizing the order. Flip to check yourself, then **pin** the ones that humble you, **archive** the ones you've genuinely nailed, and mark cards **done** for the session so the pile visibly shrinks. (The dopamine is free too.)
+300+ real interview questions (100+ reported from actual quant loops — Glassdoor, Wall Street Oasis, Heard on the Street). Search them, filter by topic, shuffle so you can't cheat by memorizing the order. Flip to check yourself, then **pin** the ones that humble you, **archive** the ones you've genuinely nailed, and mark cards **done** for the session so the pile visibly shrinks. (The dopamine is free too.)
 
 ![Flashcards](docs/03-flashcards.png)
 
