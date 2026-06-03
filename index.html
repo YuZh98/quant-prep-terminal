@@ -2711,6 +2711,8 @@ function createCheatTopic(k,label){
   if(document.querySelector('#cheatnav .ctab[data-t="'+k+'"]'))return;
   const t=document.createElement('span'); t.className='ctab'; t.dataset.t=k; t.textContent=label; document.getElementById('cheatnav').appendChild(t);
   const p=document.createElement('div'); p.className='cheat'; p.dataset.topic=k; document.querySelector('.cheat-wrap').appendChild(p);
+  // fresh-start: with no active panel (e.g. blank.html), surface the first topic so its card is visible immediately
+  if(!document.querySelector('.cheat-wrap .cheat.on')){ t.classList.add('on'); p.classList.add('on'); const hint=document.querySelector('.cheat-wrap > .empty'); if(hint)hint.remove(); }
 }
 function uid(){return 'u'+Date.now().toString(36)+Math.floor(Math.random()*1e4);}
 function addCheatCardDOM(k,title,body,u){
