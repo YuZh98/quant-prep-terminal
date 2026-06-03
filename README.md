@@ -27,7 +27,13 @@ Eleven domains: calculus, linear algebra, geometry, probability distributions, c
 ![Flashcards](docs/03-flashcards.png)
 
 ### Lab — see it, simulate it, believe it
-Build an option payoff leg by leg — Black–Scholes-priced, with a live breakeven, max profit/loss, and a P&L crosshair that chases your cursor. Or open the Python sandbox and run a *real* simulation in the browser. When the interviewer raises an eyebrow and says "you sure E[flips to get HH] is 6?", you can say "ran it 200,000 times, yeah." That's not arrogance. That's a confidence interval.
+Five tools in one tabbed workbench:
+
+- **Payoff explorer** — build an option position leg by leg, Black–Scholes-priced, with a live breakeven, max profit/loss, and a P&L crosshair that chases your cursor.
+- **Distribution explorer** — pick from seven distributions (normal, lognormal, exponential, uniform, Poisson, binomial, Student-t), drag the parameters, and watch the density and its moments move.
+- **Market maker** — a dice market-making game: quote a bid/ask, get picked off by informed flow or paid by noise, and learn the hard way why tight isn't always smart.
+- **Regression simulator** — set a true line, crank the noise, and watch OLS try to find it. R², residuals, the works.
+- **Python sandbox** — run a *real* simulation in the browser. When the interviewer raises an eyebrow and says "you sure E[flips to get HH] is 6?", you can say "ran it 200,000 times, yeah." That's not arrogance. That's a confidence interval.
 
 ![Lab — payoff explorer](docs/04-lab.png)
 
