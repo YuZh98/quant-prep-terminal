@@ -14,6 +14,20 @@
        Subject keys live in DOMAINS{} (18 subjects, grouped in GROUPS[]) — add a key there to open a new track.
     2. Add a cheatsheet  → add a <div class="ck"> block inside the matching <div class="cheat" data-topic="KEY"> panel.
     3. Everything else (counts, Browse tiles, filters) updates itself from DECK[] / the cheat panels.
+
+  CANONICAL CHEATSHEET CARD STYLE (keep every card consistent — lint: tools/lint-cheats.py):
+    <div class="ck">                       (.ck.wide only if it holds a wide table)
+      <div class="ck-h">Title</div>
+      <div class="ck-b">
+        Plain lead — one sentence framing the topic.   ← NEVER open with <span class="k"> or a bare <code>
+        <ul><li>supporting points…</li></ul>           ← <code>…</code> for formulas/identifiers
+        <div class="eg"><b>Example.</b> one worked example.</div>
+      </div>
+    </div>
+    • The body's FIRST rendered text must be plain (not green, not a fully-green first bullet).
+    • Green <span class="k">…</span> = exactly ONE short key phrase (the takeaway), placed AFTER some plain text — never the lead.
+    • <b>…</b> = sub-labels/emphasis (stays text-colored). <code>…</code> = formulas & code tokens.
+
   Keep it accurate. No fabricated numbers. Cite nothing you can't defend out loud.
   ════════════════════════════════════════════════════════════════════
 -->
@@ -705,55 +719,55 @@
 <div class="ck">
   <div class="ck-h">Big-O: the rules that actually get tested</div>
   <div class="ck-b">
-    <ul><li><span class="k">Big-O is an upper bound on growth as n→∞; drop constants and lower-order terms.</span></li><li>Sum rule: sequential blocks → take the max, <code>O(n)+O(n²)=O(n²)</code>. Product rule: nested loops multiply, <code>O(n)·O(m)=O(nm)</code>.</li><li>Recurrences via Master theorem: <code>T(n)=2T(n/2)+O(n)→O(n log n)</code> (mergesort); <code>T(n)=2T(n/2)+O(1)→O(n)</code> (heapify-style).</li><li>Logs from halving (<code>O(log n)</code> binary search) or from balanced-tree depth; base of the log is a constant, so omit it.</li><li>Watch hidden costs: string concat, slicing, and <code>in</code> on a list are each <code>O(n)</code> inside a loop → quietly <code>O(n²)</code>.</li></ul><div class="eg"><b>Example.</b> Building a result by <code>s += c</code> over n chars is <code>O(n²)</code> (each concat copies); join a list once for <code>O(n)</code>.</div>
+    <ul><li>Big-O is an upper bound on growth as n→∞; <span class="k">drop constants and lower-order terms</span>.</li><li>Sum rule: sequential blocks → take the max, <code>O(n)+O(n²)=O(n²)</code>. Product rule: nested loops multiply, <code>O(n)·O(m)=O(nm)</code>.</li><li>Recurrences via Master theorem: <code>T(n)=2T(n/2)+O(n)→O(n log n)</code> (mergesort); <code>T(n)=2T(n/2)+O(1)→O(n)</code> (heapify-style).</li><li>Logs from halving (<code>O(log n)</code> binary search) or from balanced-tree depth; base of the log is a constant, so omit it.</li><li>Watch hidden costs: string concat, slicing, and <code>in</code> on a list are each <code>O(n)</code> inside a loop → quietly <code>O(n²)</code>.</li></ul><div class="eg"><b>Example.</b> Building a result by <code>s += c</code> over n chars is <code>O(n²)</code> (each concat copies); join a list once for <code>O(n)</code>.</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Hashing: how it works and when it breaks</div>
   <div class="ck-b">
-    <ul><li><span class="k">Average O(1) insert/lookup; degrades to O(n) when keys collide into one bucket or the table never resizes.</span></li><li>Collision handling: chaining (linked list/bucket per slot) vs open addressing (probe to next slot). Load factor α = items/buckets drives performance.</li><li>Resize (rehash) when α exceeds a threshold; this is what makes growth amortized O(1), not per-op O(1).</li><li>Degradation triggers: adversarial keys all hashing to one bucket, a weak hash function, or hashing mutable objects whose value changes after insertion.</li><li>Sets/dicts give O(1) membership; ordered structures (balanced BST) give O(log n) but keep sorted order and range queries.</li></ul><div class="eg"><b>Example.</b> Two-sum: one pass storing <code>target−x</code> in a hash set is O(n); the brute nested loop is O(n²).</div>
+    <ul><li>Average <span class="k">O(1) insert/lookup</span>; degrades to O(n) when keys collide into one bucket or the table never resizes.</li><li>Collision handling: chaining (linked list/bucket per slot) vs open addressing (probe to next slot). Load factor α = items/buckets drives performance.</li><li>Resize (rehash) when α exceeds a threshold; this is what makes growth amortized O(1), not per-op O(1).</li><li>Degradation triggers: adversarial keys all hashing to one bucket, a weak hash function, or hashing mutable objects whose value changes after insertion.</li><li>Sets/dicts give O(1) membership; ordered structures (balanced BST) give O(log n) but keep sorted order and range queries.</li></ul><div class="eg"><b>Example.</b> Two-sum: one pass storing <code>target−x</code> in a hash set is O(n); the brute nested loop is O(n²).</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Quicksort vs mergesort vs heapsort</div>
   <div class="ck-b">
-    <ul><li><span class="k">All average O(n log n); they differ on worst case, stability, memory, and constant factors.</span></li><li><table><tr><th></th><th>avg</th><th>worst</th><th>space</th><th>stable</th></tr><tr><td>quicksort</td><td>n log n</td><td>n²</td><td>O(log n)</td><td>no</td></tr><tr><td>mergesort</td><td>n log n</td><td>n log n</td><td>O(n)</td><td>yes</td></tr><tr><td>heapsort</td><td>n log n</td><td>n log n</td><td>O(1)</td><td>no</td></tr></table></li><li>Quicksort worst case n² hits on bad pivots (already-sorted with naive first-element pivot); randomized or median-of-three pivots fix it in practice.</li><li>Mergesort guarantees n log n and is stable → preferred for linked lists and external/disk sorts; cost is the O(n) auxiliary buffer.</li><li>Quicksort wins on arrays despite equal asymptotics due to cache locality and in-place partitioning (small constants).</li></ul>
+    <ul><li>All average <span class="k">O(n log n)</span>; they differ on worst case, stability, memory, and constant factors.</li><li><table><tr><th></th><th>avg</th><th>worst</th><th>space</th><th>stable</th></tr><tr><td>quicksort</td><td>n log n</td><td>n²</td><td>O(log n)</td><td>no</td></tr><tr><td>mergesort</td><td>n log n</td><td>n log n</td><td>O(n)</td><td>yes</td></tr><tr><td>heapsort</td><td>n log n</td><td>n log n</td><td>O(1)</td><td>no</td></tr></table></li><li>Quicksort worst case n² hits on bad pivots (already-sorted with naive first-element pivot); randomized or median-of-three pivots fix it in practice.</li><li>Mergesort guarantees n log n and is stable → preferred for linked lists and external/disk sorts; cost is the O(n) auxiliary buffer.</li><li>Quicksort wins on arrays despite equal asymptotics due to cache locality and in-place partitioning (small constants).</li></ul>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Heaps and the top-k pattern</div>
   <div class="ck-b">
-    <ul><li><span class="k">A binary heap gives O(1) peek-min, O(log n) push/pop; build-heap from n items is O(n), not O(n log n).</span></li><li>Array-backed: parent of i is <code>(i−1)/2</code>, children <code>2i+1</code> and <code>2i+2</code>; no pointers needed.</li><li>Top-k largest of a stream: keep a <b>min</b>-heap of size k; push, then pop the smallest if size>k. Cost O(n log k), space O(k).</li><li>Use a max-heap to repeatedly extract the largest; use two heaps (max-heap of low half + min-heap of high half) to track a running median.</li><li>Heapsort = build-heap then repeatedly extract; in-place but not stable and worse cache behavior than quicksort.</li></ul><div class="eg"><b>Example.</b> k-th largest in n items: size-k min-heap → O(n log k), beats sorting's O(n log n) when k≪n.</div>
+    <ul><li>A binary heap gives O(1) peek-min, O(log n) push/pop; <span class="k">build-heap from n items is O(n), not O(n log n)</span>.</li><li>Array-backed: parent of i is <code>(i−1)/2</code>, children <code>2i+1</code> and <code>2i+2</code>; no pointers needed.</li><li>Top-k largest of a stream: keep a <b>min</b>-heap of size k; push, then pop the smallest if size>k. Cost O(n log k), space O(k).</li><li>Use a max-heap to repeatedly extract the largest; use two heaps (max-heap of low half + min-heap of high half) to track a running median.</li><li>Heapsort = build-heap then repeatedly extract; in-place but not stable and worse cache behavior than quicksort.</li></ul><div class="eg"><b>Example.</b> k-th largest in n items: size-k min-heap → O(n log k), beats sorting's O(n log n) when k≪n.</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Two-pointer and sliding window</div>
   <div class="ck-b">
-    <ul><li><span class="k">Replace an O(n²) nested scan with one linear pass by moving two indices that never backtrack.</span></li><li>Opposite-ends two-pointer needs a <b>sorted</b> array or a monotonic property (e.g. pair-sum: move left up if sum too small, right down if too big).</li><li>Sliding window fits contiguous subarray/substring problems: expand the right edge, shrink the left while a constraint is violated. Amortized O(n) since each index enters and leaves once.</li><li>Fast/slow pointers detect cycles and find midpoints in a single pass with O(1) extra space (Floyd).</li><li>Pitfall: the window technique assumes monotonic feasibility (e.g. all-positive values); negatives can break the shrink invariant — switch to prefix-sum + hash.</li></ul><div class="eg"><b>Example.</b> Longest substring without repeats: window + last-seen hash map, advance left past the duplicate → O(n).</div>
+    <ul><li>Replace an O(n²) nested scan with <span class="k">one linear pass</span> by moving two indices that never backtrack.</li><li>Opposite-ends two-pointer needs a <b>sorted</b> array or a monotonic property (e.g. pair-sum: move left up if sum too small, right down if too big).</li><li>Sliding window fits contiguous subarray/substring problems: expand the right edge, shrink the left while a constraint is violated. Amortized O(n) since each index enters and leaves once.</li><li>Fast/slow pointers detect cycles and find midpoints in a single pass with O(1) extra space (Floyd).</li><li>Pitfall: the window technique assumes monotonic feasibility (e.g. all-positive values); negatives can break the shrink invariant — switch to prefix-sum + hash.</li></ul><div class="eg"><b>Example.</b> Longest substring without repeats: window + last-seen hash map, advance left past the duplicate → O(n).</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Dedup: choosing the right technique</div>
   <div class="ck-b">
-    <ul><li><span class="k">Hash set = O(n) time / O(n) space; sort-then-scan = O(n log n) time / O(1) extra; pick by whether order, memory, or stability matters.</span></li><li>A single pass with a seen-set preserves first-seen order and is fastest, but needs space proportional to distinct items — bad for huge/streaming data.</li><li>Sort then drop adjacent equals uses no extra structure but destroys original order and is slower.</li><li>Find duplicates without extra space when values are bounded in [1,n]: index-as-hash (negate <code>arr[abs(x)−1]</code>) or cycle detection on the value-as-pointer graph.</li><li>At scale (data won't fit in memory): external sort, or approximate membership with a Bloom filter (false positives, no false negatives).</li></ul><div class="eg"><b>Example.</b> First duplicate in a stream: one pass, add to set, return on first re-seen element → O(n)/O(n).</div>
+    <ul><li>Hash set = O(n) time / O(n) space; sort-then-scan = O(n log n) time / O(1) extra; <span class="k">pick by whether order, memory, or stability matters</span>.</li><li>A single pass with a seen-set preserves first-seen order and is fastest, but needs space proportional to distinct items — bad for huge/streaming data.</li><li>Sort then drop adjacent equals uses no extra structure but destroys original order and is slower.</li><li>Find duplicates without extra space when values are bounded in [1,n]: index-as-hash (negate <code>arr[abs(x)−1]</code>) or cycle detection on the value-as-pointer graph.</li><li>At scale (data won't fit in memory): external sort, or approximate membership with a Bloom filter (false positives, no false negatives).</li></ul><div class="eg"><b>Example.</b> First duplicate in a stream: one pass, add to set, return on first re-seen element → O(n)/O(n).</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Reservoir sampling</div>
   <div class="ck-b">
-    <ul><li><span class="k">Sample k items uniformly from a stream of unknown length in one pass, O(k) memory.</span></li><li>Algorithm R: keep the first k; for the i-th item (i>k) keep it with probability <code>k/i</code>, evicting a uniformly random current holder.</li><li>Correctness: induction shows every seen item retains probability <code>k/n</code> after n items — the early-vs-late asymmetry exactly cancels.</li><li>k=1 case: replace the held item with probability <code>1/i</code>; trivial to state and a common warm-up.</li><li>Use it when you can't store or count the data first (logs, ticks, network streams); weighted variants use the exponential-jump (A-ExpJ) trick.</li></ul><div class="eg"><b>Example.</b> P(item 1 survives n draws, k=1) = <code>1·½·⅔···(n−1)/n = 1/n</code> — uniform, as required.</div>
+    <ul><li>Sample k items uniformly from a stream of unknown length in <span class="k">one pass, O(k) memory</span>.</li><li>Algorithm R: keep the first k; for the i-th item (i>k) keep it with probability <code>k/i</code>, evicting a uniformly random current holder.</li><li>Correctness: induction shows every seen item retains probability <code>k/n</code> after n items — the early-vs-late asymmetry exactly cancels.</li><li>k=1 case: replace the held item with probability <code>1/i</code>; trivial to state and a common warm-up.</li><li>Use it when you can't store or count the data first (logs, ticks, network streams); weighted variants use the exponential-jump (A-ExpJ) trick.</li></ul><div class="eg"><b>Example.</b> P(item 1 survives n draws, k=1) = <code>1·½·⅔···(n−1)/n = 1/n</code> — uniform, as required.</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Dynamic programming: state, transition, order</div>
   <div class="ck-b">
-    <ul><li><span class="k">DP = overlapping subproblems + optimal substructure; define the state, the transition, the base case, and a valid evaluation order.</span></li><li>Top-down memoization: recursion + cache; only computes reachable states, easy to write. Bottom-up tabulation: iterative fill, no recursion overhead, enables space rolling.</li><li>Rolling array: if a transition only reads the previous row, keep O(width) instead of O(n·width) memory.</li><li>Classic templates: knapsack (weight-capacity state), longest common subsequence (2-D grid), edit distance, coin change (min-count), interval DP.</li><li>Pitfall: greedy fails when a locally optimal choice blocks a global optimum — DP enumerates all consistent choices; prove substructure before trusting greedy.</li></ul><div class="eg"><b>Example.</b> Coin change min coins: <code>dp[a]=min(dp[a−c]+1)</code> over coins c; O(amount·#coins), 1-D array.</div>
+    <ul><li>DP = <span class="k">overlapping subproblems + optimal substructure</span>; define the state, the transition, the base case, and a valid evaluation order.</li><li>Top-down memoization: recursion + cache; only computes reachable states, easy to write. Bottom-up tabulation: iterative fill, no recursion overhead, enables space rolling.</li><li>Rolling array: if a transition only reads the previous row, keep O(width) instead of O(n·width) memory.</li><li>Classic templates: knapsack (weight-capacity state), longest common subsequence (2-D grid), edit distance, coin change (min-count), interval DP.</li><li>Pitfall: greedy fails when a locally optimal choice blocks a global optimum — DP enumerates all consistent choices; prove substructure before trusting greedy.</li></ul><div class="eg"><b>Example.</b> Coin change min coins: <code>dp[a]=min(dp[a−c]+1)</code> over coins c; O(amount·#coins), 1-D array.</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Pattern map: problem signature → technique</div>
   <div class="ck-b">
-    <ul><li><span class="k">Most interview problems are a known pattern in disguise; match the signature first, then code.</span></li><li>"Sorted array / find a pair or bound" → two pointers or binary search.</li><li>"Contiguous subarray/substring with a constraint" → sliding window or prefix-sum + hash.</li><li>"k largest/smallest, or running order statistic" → heap (size-k or two-heap median).</li><li>"Count/optimize over choices with reuse" → DP; "min answer satisfying a monotonic predicate" → binary search on the answer.</li><li>"Membership / first duplicate / group-by-key" → hash set/map; "cycle or midpoint in a list" → fast-slow pointers.</li></ul><div class="eg"><b>Example.</b> "Min capacity to ship in D days" reads as optimization but the feasibility is monotonic → binary-search the capacity, O(n log range).</div>
+    <ul><li>Most interview problems are a known pattern in disguise; <span class="k">match the signature first, then code</span>.</li><li>"Sorted array / find a pair or bound" → two pointers or binary search.</li><li>"Contiguous subarray/substring with a constraint" → sliding window or prefix-sum + hash.</li><li>"k largest/smallest, or running order statistic" → heap (size-k or two-heap median).</li><li>"Count/optimize over choices with reuse" → DP; "min answer satisfying a monotonic predicate" → binary search on the answer.</li><li>"Membership / first duplicate / group-by-key" → hash set/map; "cycle or midpoint in a list" → fast-slow pointers.</li></ul><div class="eg"><b>Example.</b> "Min capacity to ship in D days" reads as optimization but the feasibility is monotonic → binary-search the capacity, O(n log range).</div>
   </div>
 </div>
     </div>
@@ -761,55 +775,55 @@
 <div class="ck">
   <div class="ck-h">The Brainteaser Attack Plan</div>
   <div class="ck-b">
-    <ul><li><span class="k">Before computing, restate the rules out loud and ask what's being optimized — half of teasers are won by clarifying constraints.</span></li><li>Try the smallest / most extreme case first: n=1, n=2 often reveals the pattern or invariant.</li><li>Hunt for an <b>invariant</b> (something that never changes) or a <b>monovariant</b> (something that only moves one way) — these prove impossibility or bound the answer.</li><li>Work <b>backward</b> from the end state when the last move is forced (induction, endgames, pirate splits).</li><li>Think out loud and narrate your search — the interviewer scores your process, not just the final number.</li></ul><div class="eg"><b>Example.</b> "Can a knight visit every square of a 5×5 board and return to start?" Color the board: a closed knight's tour alternates colors, needing equal black/white, but 25 squares can't split evenly — invariant kills it instantly.</div>
+    <ul><li>Before computing, restate the rules out loud and ask what's being optimized — <span class="k">half of teasers are won by clarifying constraints</span>.</li><li>Try the smallest / most extreme case first: n=1, n=2 often reveals the pattern or invariant.</li><li>Hunt for an <b>invariant</b> (something that never changes) or a <b>monovariant</b> (something that only moves one way) — these prove impossibility or bound the answer.</li><li>Work <b>backward</b> from the end state when the last move is forced (induction, endgames, pirate splits).</li><li>Think out loud and narrate your search — the interviewer scores your process, not just the final number.</li></ul><div class="eg"><b>Example.</b> "Can a knight visit every square of a 5×5 board and return to start?" Color the board: a closed knight's tour alternates colors, needing equal black/white, but 25 squares can't split evenly — invariant kills it instantly.</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Parity & Invariants</div>
   <div class="ck-b">
-    <ul><li><span class="k">If every legal move flips a quantity by a fixed parity, the reachable states are exactly those matching that parity — use it to prove a goal is impossible.</span></li><li>Checkerboard coloring: a domino always covers one black + one white square, so a board with unequal colors can't be tiled.</li><li>Mutilated chessboard: remove two opposite (same-color) corners → 32 vs 30 squares → no domino tiling.</li><li>Light-switch / coin-flip puzzles: track the parity of "heads" or "on" switches; an odd invariant blocks the all-off state.</li><li>Splitting a coin into two known-count groups: separate N coins from the dark, flip those N — both groups end with equal heads regardless of which were heads.</li></ul><div class="eg"><b>Example.</b> 100 coins, 10 heads, you're blindfolded. Split into a pile of 10 and a pile of 90, then flip every coin in the pile of 10. If the small pile took k heads, it now has 10−k heads and the big pile has 10−k heads — equal, guaranteed.</div>
+    <ul><li>If every legal move flips a quantity by a fixed parity, the reachable states are exactly those matching that parity — <span class="k">use it to prove a goal is impossible</span>.</li><li>Checkerboard coloring: a domino always covers one black + one white square, so a board with unequal colors can't be tiled.</li><li>Mutilated chessboard: remove two opposite (same-color) corners → 32 vs 30 squares → no domino tiling.</li><li>Light-switch / coin-flip puzzles: track the parity of "heads" or "on" switches; an odd invariant blocks the all-off state.</li><li>Splitting a coin into two known-count groups: separate N coins from the dark, flip those N — both groups end with equal heads regardless of which were heads.</li></ul><div class="eg"><b>Example.</b> 100 coins, 10 heads, you're blindfolded. Split into a pile of 10 and a pile of 90, then flip every coin in the pile of 10. If the small pile took k heads, it now has 10−k heads and the big pile has 10−k heads — equal, guaranteed.</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Hat-Color Logic via Parity</div>
   <div class="ck-b">
-    <ul><li><span class="k">One announced parity bit lets everyone behind deduce their own color — the first speaker sacrifices himself to broadcast the XOR of all hats he sees.</span></li><li>N prisoners in a line, each sees only those ahead; back-most counts (say) red hats mod 2 and shouts that parity.</li><li>Each subsequent prisoner counts reds still ahead, compares to the running parity announced, and infers his own hat.</li><li>Guarantees N−1 saved; the first has a 50% guess. No probability needed — it's pure parity bookkeeping.</li><li>Generalizes to colors mod k: announce the sum of all visible hats mod k.</li></ul><div class="eg"><b>Example.</b> Back prisoner sees 7 red hats → odd → shouts "red." Next sees 6 red → even → the parity dropped by his own, so his hat is red. He says red; everyone updates the parity and continues.</div>
+    <ul><li>One announced parity bit lets everyone behind deduce their own color — the first speaker sacrifices himself to broadcast <span class="k">the XOR of all hats he sees</span>.</li><li>N prisoners in a line, each sees only those ahead; back-most counts (say) red hats mod 2 and shouts that parity.</li><li>Each subsequent prisoner counts reds still ahead, compares to the running parity announced, and infers his own hat.</li><li>Guarantees N−1 saved; the first has a 50% guess. No probability needed — it's pure parity bookkeeping.</li><li>Generalizes to colors mod k: announce the sum of all visible hats mod k.</li></ul><div class="eg"><b>Example.</b> Back prisoner sees 7 red hats → odd → shouts "red." Next sees 6 red → even → the parity dropped by his own, so his hat is red. He says red; everyone updates the parity and continues.</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Weighing Puzzles: the 3ᵏ Bound</div>
   <div class="ck-b">
-    <ul><li><span class="k">A balance has 3 outcomes per weighing (left&lt;right, =, &gt;), so k weighings distinguish at most 3ᵏ states — set up that information budget first.</span></li><li>12 coins, one fake of unknown direction: 24 possibilities < 3³=27, so 3 weighings suffice; design each weighing to split outcomes as evenly as possible.</li><li>Classic 3-weighing 12-coin split: weigh 4 vs 4, then branch on the result, keeping every outcome equally informative.</li><li>A one-pan scale (reads exact weight) gives far more info — that's the regime for the bottle-counterfeit-coin puzzle (take 1,2,3,… coins).</li><li>Always count outcomes vs states before constructing the scheme; if states > 3ᵏ it's provably impossible.</li></ul><div class="eg"><b>Example.</b> 10 stacks, each coin 10g except one stack of 9g coins. One weighing on a scale: take 1 coin from stack 1, 2 from stack 2, …; the deficit below the expected total (in grams) names the bad stack.</div>
+    <ul><li>A balance has 3 outcomes per weighing (left&lt;right, =, &gt;), so <span class="k">k weighings distinguish at most 3ᵏ states</span> — set up that information budget first.</li><li>12 coins, one fake of unknown direction: 24 possibilities < 3³=27, so 3 weighings suffice; design each weighing to split outcomes as evenly as possible.</li><li>Classic 3-weighing 12-coin split: weigh 4 vs 4, then branch on the result, keeping every outcome equally informative.</li><li>A one-pan scale (reads exact weight) gives far more info — that's the regime for the bottle-counterfeit-coin puzzle (take 1,2,3,… coins).</li><li>Always count outcomes vs states before constructing the scheme; if states > 3ᵏ it's provably impossible.</li></ul><div class="eg"><b>Example.</b> 10 stacks, each coin 10g except one stack of 9g coins. One weighing on a scale: take 1 coin from stack 1, 2 from stack 2, …; the deficit below the expected total (in grams) names the bad stack.</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Binary Encoding: Bottles & Testers</div>
   <div class="ck-b">
-    <ul><li><span class="k">To identify 1 poisoned item among N with parallel yes/no testers, each item gets a binary ID and tester i drinks every item whose bit i is 1 — needs ⌈log₂N⌉ testers.</span></li><li>1000 bottles, 1 poison, one test round: 2¹⁰=1024 ≥ 1000, so 10 testers; the pattern of deaths reads off the poisoned bottle's 10-bit index.</li><li>Key requirements: tests run in parallel (one round) and the result is per-tester binary (sick / not).</li><li>If you have multiple sequential rounds instead, the budget grows multiplicatively — re-derive the base accordingly.</li><li>Same trick labels prisoners or switches: assign IDs, let each "channel" carry one bit.</li></ul><div class="eg"><b>Example.</b> Bottle 731 = 1011011011₂. Testers at bit-positions {0,1,3,4,6,7,9} drink it; if exactly those testers die, the binary pattern of deaths reconstructs 731.</div>
+    <ul><li>To identify 1 poisoned item among N with parallel yes/no testers, each item gets a binary ID and tester i drinks every item whose bit i is 1 — <span class="k">needs ⌈log₂N⌉ testers</span>.</li><li>1000 bottles, 1 poison, one test round: 2¹⁰=1024 ≥ 1000, so 10 testers; the pattern of deaths reads off the poisoned bottle's 10-bit index.</li><li>Key requirements: tests run in parallel (one round) and the result is per-tester binary (sick / not).</li><li>If you have multiple sequential rounds instead, the budget grows multiplicatively — re-derive the base accordingly.</li><li>Same trick labels prisoners or switches: assign IDs, let each "channel" carry one bit.</li></ul><div class="eg"><b>Example.</b> Bottle 731 = 1011011011₂. Testers at bit-positions {0,1,3,4,6,7,9} drink it; if exactly those testers die, the binary pattern of deaths reconstructs 731.</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Backward Induction: Pirates & Endgames</div>
   <div class="ck-b">
-    <ul><li><span class="k">When the last decision is forced, solve the final subgame first and induct backward — each player anticipates that everyone after them plays optimally.</span></li><li>Pirate split (5 pirates, 100 coins, ≥50% incl. proposer's own vote needed, else proposer dies): solve the 2-pirate case, then 3, 4, 5.</li><li>With 2 left, the senior keeps all (his own vote = 50%); knowing that, with 3 the proposer buys the cheapest vote with 1 coin, etc.</li><li>Result for 5: proposer keeps 98, gives 1 each to the two pirates who'd get nothing in the next subgame.</li><li>Pirates are rational, greedy, and prefer killing only when indifferent — clarify the tie-break rule before answering.</li></ul><div class="eg"><b>Example.</b> 5 pirates (A senior…E): A proposes 98-0-1-0-1. C and E accept because if A dies, B's plan gives them 0; A's own vote + C + E = 3/5 ≥ majority. A survives with 98.</div>
+    <ul><li>When the last decision is forced, <span class="k">solve the final subgame first and induct backward</span> — each player anticipates that everyone after them plays optimally.</li><li>Pirate split (5 pirates, 100 coins, ≥50% incl. proposer's own vote needed, else proposer dies): solve the 2-pirate case, then 3, 4, 5.</li><li>With 2 left, the senior keeps all (his own vote = 50%); knowing that, with 3 the proposer buys the cheapest vote with 1 coin, etc.</li><li>Result for 5: proposer keeps 98, gives 1 each to the two pirates who'd get nothing in the next subgame.</li><li>Pirates are rational, greedy, and prefer killing only when indifferent — clarify the tie-break rule before answering.</li></ul><div class="eg"><b>Example.</b> 5 pirates (A senior…E): A proposes 98-0-1-0-1. C and E accept because if A dies, B's plan gives them 0; A's own vote + C + E = 3/5 ≥ majority. A survives with 98.</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Nim & Combinatorial Games</div>
   <div class="ck-b">
-    <ul><li><span class="k">A Nim position is losing for the player to move iff the XOR (nim-sum) of all pile sizes is 0; otherwise move to make it 0.</span></li><li>Identify P-positions (previous player wins / mover loses) — these are the targets you hand your opponent.</li><li>Winning move: pick a pile, reduce it so the total XOR becomes 0; such a move always exists when XOR ≠ 0.</li><li>For non-Nim games, compute Grundy numbers (mex of reachable positions' Grundy values); a sum of games XORs their Grundy values (Sprague–Grundy).</li><li>Misère Nim differs only near the end: play normal Nim until all heaps are size 1, then flip parity.</li></ul><div class="eg"><b>Example.</b> Piles 3,4,5: 3⊕4⊕5 = 011⊕100⊕101 = 010 = 2 ≠ 0, so the mover wins. Reduce the pile of 3 to 1 (since 1⊕4⊕5=0), handing a losing position to the opponent.</div>
+    <ul><li>A Nim position is losing for the player to move iff <span class="k">the XOR (nim-sum) of all pile sizes is 0</span>; otherwise move to make it 0.</li><li>Identify P-positions (previous player wins / mover loses) — these are the targets you hand your opponent.</li><li>Winning move: pick a pile, reduce it so the total XOR becomes 0; such a move always exists when XOR ≠ 0.</li><li>For non-Nim games, compute Grundy numbers (mex of reachable positions' Grundy values); a sum of games XORs their Grundy values (Sprague–Grundy).</li><li>Misère Nim differs only near the end: play normal Nim until all heaps are size 1, then flip parity.</li></ul><div class="eg"><b>Example.</b> Piles 3,4,5: 3⊕4⊕5 = 011⊕100⊕101 = 010 = 2 ≠ 0, so the mover wins. Reduce the pile of 3 to 1 (since 1⊕4⊕5=0), handing a losing position to the opponent.</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Optimal Stopping: the Secretary Rule</div>
   <div class="ck-b">
-    <ul><li><span class="k">To pick the single best of N candidates seen one-at-a-time with no recall, reject the first ~N/e (37%) automatically, then take the first one better than everyone so far.</span></li><li>The first phase only calibrates a threshold (the best-so-far); the second phase commits on the first record-breaker.</li><li>Probability of landing the very best converges to 1/e ≈ 37% as N grows — cite the result; the integral derivation lives in Probability.</li><li>Variants change the cutoff: maximizing expected rank, or allowing a few picks, shifts the threshold — state which objective you're optimizing.</li><li>Watch the framing trap: this maximizes P(get the absolute best), not expected value of the chosen candidate.</li></ul><div class="eg"><b>Example.</b> 100 applicants: interview and reject the first 37 (remember the best of them), then hire the first applicant who beats that bar. ~37% chance you hired the true #1.</div>
+    <ul><li>To pick the single best of N candidates seen one-at-a-time with no recall, <span class="k">reject the first ~N/e (37%)</span> automatically, then take the first one better than everyone so far.</li><li>The first phase only calibrates a threshold (the best-so-far); the second phase commits on the first record-breaker.</li><li>Probability of landing the very best converges to 1/e ≈ 37% as N grows — cite the result; the integral derivation lives in Probability.</li><li>Variants change the cutoff: maximizing expected rank, or allowing a few picks, shifts the threshold — state which objective you're optimizing.</li><li>Watch the framing trap: this maximizes P(get the absolute best), not expected value of the chosen candidate.</li></ul><div class="eg"><b>Example.</b> 100 applicants: interview and reject the first 37 (remember the best of them), then hire the first applicant who beats that bar. ~37% chance you hired the true #1.</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">100 Prisoners & the Boxes</div>
   <div class="ck-b">
-    <ul><li><span class="k">Each prisoner follows the cycle: open the box labeled with his number, then the box numbered by the slip he finds, repeating — survival hinges on no permutation cycle exceeding 50.</span></li><li>100 prisoners, boxes hold a random permutation of 1–100; each may open 50 boxes and must find his own number; all must succeed.</li><li>Naive random search → survival ≈ (1/2)¹⁰⁰, essentially zero. Cycle-following ties everyone's fate to one event: "longest cycle ≤ 50."</li><li>That event's probability is about 31% (≈ 1 − ln 2 in the limit) — cite it; the harmonic-sum derivation belongs to Probability.</li><li>The trick is that following slips means a prisoner traverses exactly the cycle containing his own number, and he finds it iff that cycle has length ≤ 50.</li></ul><div class="eg"><b>Example.</b> Prisoner 7 opens box 7 → finds 23 → opens box 23 → finds 7: a 2-cycle, found in 2 opens. He's safe as long as his cycle's length is ≤ 50.</div>
+    <ul><li>Each prisoner follows the cycle: open the box labeled with his number, then the box numbered by the slip he finds, repeating — <span class="k">survival hinges on no permutation cycle exceeding 50</span>.</li><li>100 prisoners, boxes hold a random permutation of 1–100; each may open 50 boxes and must find his own number; all must succeed.</li><li>Naive random search → survival ≈ (1/2)¹⁰⁰, essentially zero. Cycle-following ties everyone's fate to one event: "longest cycle ≤ 50."</li><li>That event's probability is about 31% (≈ 1 − ln 2 in the limit) — cite it; the harmonic-sum derivation belongs to Probability.</li><li>The trick is that following slips means a prisoner traverses exactly the cycle containing his own number, and he finds it iff that cycle has length ≤ 50.</li></ul><div class="eg"><b>Example.</b> Prisoner 7 opens box 7 → finds 23 → opens box 23 → finds 7: a 2-cycle, found in 2 opens. He's safe as long as his cycle's length is ≤ 50.</div>
   </div>
 </div>
     </div>
@@ -828,55 +842,55 @@
 <div class="ck">
   <div class="ck-h">Percent of: x% of y = y% of x</div>
   <div class="ck-b">
-    <ul><li><span class="k">x% of y equals y% of x — swap to whichever is easier.</span></li><li>Hard: <code>16% of 25</code>. Swap: <code>25% of 16 = 4</code>.</li><li>Build any percent from <code>10%</code> (move decimal), <code>5%</code> (half of 10%), <code>1%</code> (move twice).</li><li>Basis points: <code>1bp = 0.01% = 0.0001</code>; <code>100bp = 1%</code>.</li><li>Tip-style: <code>15% = 10% + 5%</code>; <code>17.5% = 10%+5%+2.5%</code>.</li></ul><div class="eg"><b>Example.</b> <code>8% of 50 = 50% of 8 = 4</code>. And <code>35bp of $20M = 0.0035×20M = $70k</code>.</div>
+    <ul><li>x% of y equals y% of x — <span class="k">swap to whichever is easier</span>.</li><li>Hard: <code>16% of 25</code>. Swap: <code>25% of 16 = 4</code>.</li><li>Build any percent from <code>10%</code> (move decimal), <code>5%</code> (half of 10%), <code>1%</code> (move twice).</li><li>Basis points: <code>1bp = 0.01% = 0.0001</code>; <code>100bp = 1%</code>.</li><li>Tip-style: <code>15% = 10% + 5%</code>; <code>17.5% = 10%+5%+2.5%</code>.</li></ul><div class="eg"><b>Example.</b> <code>8% of 50 = 50% of 8 = 4</code>. And <code>35bp of $20M = 0.0035×20M = $70k</code>.</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Fraction → decimal cheat table</div>
   <div class="ck-b">
-    <ul><li><span class="k">Memorize eighths, sixteenths, and 1/7 — they recur in odds, ticks, and yields.</span></li><li>Halving chain: <code>1/2=.5, 1/4=.25, 1/8=.125, 1/16=.0625</code>.</li><li>Sixteenths: <code>3/16=.1875, 5/16=.3125, 7/16=.4375</code> (odd k: <code>k/16</code>).</li><li>Sevenths cycle <code>142857</code>: <code>1/7=.142857</code>, <code>2/7=.285714</code>, … (rotate the block).</li><li>Useful: <code>1/3=.3̄, 1/6=.16̄, 1/9=.1̄, 1/11=.0909, 1/12=.0833</code>.</li></ul><div class="eg"><b>Example.</b> <code>3/7 = .428571</code> — same six digits as 1/7, started at the right spot (3×.142857).</div>
+    <ul><li>Memorize eighths, sixteenths, and 1/7 — <span class="k">they recur in odds, ticks, and yields</span>.</li><li>Halving chain: <code>1/2=.5, 1/4=.25, 1/8=.125, 1/16=.0625</code>.</li><li>Sixteenths: <code>3/16=.1875, 5/16=.3125, 7/16=.4375</code> (odd k: <code>k/16</code>).</li><li>Sevenths cycle <code>142857</code>: <code>1/7=.142857</code>, <code>2/7=.285714</code>, … (rotate the block).</li><li>Useful: <code>1/3=.3̄, 1/6=.16̄, 1/9=.1̄, 1/11=.0909, 1/12=.0833</code>.</li></ul><div class="eg"><b>Example.</b> <code>3/7 = .428571</code> — same six digits as 1/7, started at the right spot (3×.142857).</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Squaring tricks: ends-in-5, near a base</div>
   <div class="ck-b">
-    <ul><li><span class="k">n5² = n(n+1) followed by 25.</span> So <code>35² = 3·4|25 = 1225</code>.</li><li>Near a base b: <code>n² = (n+d)(n−d) + d²</code> where <code>d = n−b</code>.</li><li>Near 50: <code>53² = (50+3)² → 2500 + 100·3 + 9 = 2809</code>.</li><li>Near 100: <code>97² = (100−3)² = 10000 − 600 + 9 = 9409</code>.</li><li>General: <code>(a±b)² = a² ± 2ab + b²</code> — pick <code>a</code> as a round anchor.</li></ul><div class="eg"><b>Example.</b> <code>48² = (50−2)² = 2500 − 200 + 4 = 2304</code>.</div>
+    <ul><li>Ends-in-5 shortcut: <span class="k">n5² = n(n+1) followed by 25</span>. So <code>35² = 3·4|25 = 1225</code>.</li><li>Near a base b: <code>n² = (n+d)(n−d) + d²</code> where <code>d = n−b</code>.</li><li>Near 50: <code>53² = (50+3)² → 2500 + 100·3 + 9 = 2809</code>.</li><li>Near 100: <code>97² = (100−3)² = 10000 − 600 + 9 = 9409</code>.</li><li>General: <code>(a±b)² = a² ± 2ab + b²</code> — pick <code>a</code> as a round anchor.</li></ul><div class="eg"><b>Example.</b> <code>48² = (50−2)² = 2500 − 200 + 4 = 2304</code>.</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Fast multiplication: difference of squares & ×11</div>
   <div class="ck-b">
-    <ul><li><span class="k">For symmetric pairs, ab = (mid)² − (gap)².</span></li><li><code>17×19 = 18² − 1² = 324 − 1 = 323</code>; <code>38×42 = 40² − 2² = 1600 − 4 = 1596</code>.</li><li>×11: write the digits with their sum between, carrying: <code>11×34 = 3|3+4|4 = 374</code>.</li><li>×5 = ×10 ÷2; ×25 = ÷4 ×100; ×9 = ×10 − itself.</li><li>Break-apart: <code>23×14 = 23×10 + 23×4 = 230 + 92 = 322</code>.</li></ul><div class="eg"><b>Example.</b> <code>54×46 = 50² − 4² = 2500 − 16 = 2484</code> (pair averages 50, gap 4).</div>
+    <ul><li>For symmetric pairs, <span class="k">ab = (mid)² − (gap)²</span>.</li><li><code>17×19 = 18² − 1² = 324 − 1 = 323</code>; <code>38×42 = 40² − 2² = 1600 − 4 = 1596</code>.</li><li>×11: write the digits with their sum between, carrying: <code>11×34 = 3|3+4|4 = 374</code>.</li><li>×5 = ×10 ÷2; ×25 = ÷4 ×100; ×9 = ×10 − itself.</li><li>Break-apart: <code>23×14 = 23×10 + 23×4 = 230 + 92 = 322</code>.</li></ul><div class="eg"><b>Example.</b> <code>54×46 = 50² − 4² = 2500 − 16 = 2484</code> (pair averages 50, gap 4).</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Square roots by digit-pairing</div>
   <div class="ck-b">
-    <ul><li><span class="k">Pair digits from the decimal point; each pair → one result digit, so count pairs to fix the magnitude.</span></li><li>Anchor squares: <code>√2≈1.414, √3≈1.732, √5≈2.236, √7≈2.646</code>.</li><li><code>√10≈3.162</code> (= √2·√5); <code>√12 = 2√3 ≈ 3.464</code>.</li><li>Refine with one Newton step: <code>√S ≈ (g + S/g)/2</code> for guess <code>g</code>.</li><li>Scaling: <code>√(100x) = 10√x</code>; move the decimal in pairs, not singly.</li></ul><div class="eg"><b>Example.</b> <code>√50</code>: guess 7, <code>(7 + 50/7)/2 = (7 + 7.14)/2 ≈ 7.07</code> (true 7.071).</div>
+    <ul><li>Pair digits from the decimal point; <span class="k">each pair → one result digit</span>, so count pairs to fix the magnitude.</li><li>Anchor squares: <code>√2≈1.414, √3≈1.732, √5≈2.236, √7≈2.646</code>.</li><li><code>√10≈3.162</code> (= √2·√5); <code>√12 = 2√3 ≈ 3.464</code>.</li><li>Refine with one Newton step: <code>√S ≈ (g + S/g)/2</code> for guess <code>g</code>.</li><li>Scaling: <code>√(100x) = 10√x</code>; move the decimal in pairs, not singly.</li></ul><div class="eg"><b>Example.</b> <code>√50</code>: guess 7, <code>(7 + 50/7)/2 = (7 + 7.14)/2 ≈ 7.07</code> (true 7.071).</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Rule of 72 (and when it's exact)</div>
   <div class="ck-b">
-    <ul><li><span class="k">Doubling time ≈ 72 / rate(%); the pure log answer is ln2×100 ≈ 69.3, but 72 corrects upward for discrete compounding and has more clean divisors.</span></li><li>Near-exact at 8%: <code>72/8 = 9.0</code> vs true <code>9.01</code> yr.</li><li>Slightly long at 7%: <code>72/7 = 10.29</code> vs true <code>10.24</code> yr.</li><li>Use 69–70 for continuous compounding (<code>ln2 = .693</code>); 72 has more clean divisors.</li><li>Tripling: from <code>ln3 ≈ 1.10</code>, time ≈ <code>110/rate</code> (e.g. 6% → ~18 yr).</li></ul><div class="eg"><b>Example.</b> At 6%, money doubles in <code>72/6 = 12</code> yr; true value 11.9 yr.</div>
+    <ul><li>Rule of 72: <span class="k">doubling time ≈ 72 / rate(%)</span>; the pure log answer is ln2×100 ≈ 69.3, but 72 corrects upward for discrete compounding and has more clean divisors.</li><li>Near-exact at 8%: <code>72/8 = 9.0</code> vs true <code>9.01</code> yr.</li><li>Slightly long at 7%: <code>72/7 = 10.29</code> vs true <code>10.24</code> yr.</li><li>Use 69–70 for continuous compounding (<code>ln2 = .693</code>); 72 has more clean divisors.</li><li>Tripling: from <code>ln3 ≈ 1.10</code>, time ≈ <code>110/rate</code> (e.g. 6% → ~18 yr).</li></ul><div class="eg"><b>Example.</b> At 6%, money doubles in <code>72/6 = 12</code> yr; true value 11.9 yr.</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Compounding & chained returns</div>
   <div class="ck-b">
-    <ul><li><span class="k">(1+x)ⁿ ≈ 1 + nx for small x — but the dropped term is +n(n−1)x²/2, always positive, so you under-count.</span></li><li><code>+x then −x = (1+x)(1−x) = 1 − x²</code> — always a net loss of <code>x²</code>.</li><li>Compounding beats simple: <code>0.5%/mo</code> → <code>1.005¹² = 1.0617</code> (6.17%, not 6%).</li><li>Returns chain multiplicatively: total <code>= ∏(1+rᵢ) − 1</code>, never add unless tiny.</li><li>Small-return shortcut: sum the logs, <code>ln(1+r) ≈ r</code>.</li></ul><div class="eg"><b>Example.</b> <code>+10% then −10% = 1 − .01 = 0.99</code> → down 1%, not flat.</div>
+    <ul><li>Binomial approximation: <span class="k">(1+x)ⁿ ≈ 1 + nx</span> for small x — but the dropped term is +n(n−1)x²/2, always positive, so you under-count.</li><li><code>+x then −x = (1+x)(1−x) = 1 − x²</code> — always a net loss of <code>x²</code>.</li><li>Compounding beats simple: <code>0.5%/mo</code> → <code>1.005¹² = 1.0617</code> (6.17%, not 6%).</li><li>Returns chain multiplicatively: total <code>= ∏(1+rᵢ) − 1</code>, never add unless tiny.</li><li>Small-return shortcut: sum the logs, <code>ln(1+r) ≈ r</code>.</li></ul><div class="eg"><b>Example.</b> <code>+10% then −10% = 1 − .01 = 0.99</code> → down 1%, not flat.</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Log & exp approximations</div>
   <div class="ck-b">
-    <ul><li><span class="k">eˣ ≈ 1 + x + x²/2 and ln(1+x) ≈ x − x²/2 for small x.</span></li><li>Key logs: <code>ln2 ≈ .693, ln10 ≈ 2.303</code>; <code>log₁₀2 = .301, log₁₀3 = .477, log₁₀7 = .845</code>.</li><li>Get the rest by addition: <code>log₁₀5 = 1 − .301 = .699</code>; <code>log₁₀6 = .301+.477 = .778</code>.</li><li><code>e ≈ 2.718</code>; <code>e² ≈ 7.39</code>; doubling-decibel sense: +3dB ≈ ×2 since <code>10^.3 ≈ 2</code>.</li><li>Convert bases: <code>ln x = 2.303 · log₁₀ x</code>.</li></ul><div class="eg"><b>Example.</b> <code>ln1.1 ≈ .1 − .005 = .095</code> (true .0953); so 10%/yr doubles in <code>.693/.095 ≈ 7.3</code> yr.</div>
+    <ul><li>For small x: <span class="k">eˣ ≈ 1 + x + x²/2</span> and ln(1+x) ≈ x − x²/2.</li><li>Key logs: <code>ln2 ≈ .693, ln10 ≈ 2.303</code>; <code>log₁₀2 = .301, log₁₀3 = .477, log₁₀7 = .845</code>.</li><li>Get the rest by addition: <code>log₁₀5 = 1 − .301 = .699</code>; <code>log₁₀6 = .301+.477 = .778</code>.</li><li><code>e ≈ 2.718</code>; <code>e² ≈ 7.39</code>; doubling-decibel sense: +3dB ≈ ×2 since <code>10^.3 ≈ 2</code>.</li><li>Convert bases: <code>ln x = 2.303 · log₁₀ x</code>.</li></ul><div class="eg"><b>Example.</b> <code>ln1.1 ≈ .1 − .005 = .095</code> (true .0953); so 10%/yr doubles in <code>.693/.095 ≈ 7.3</code> yr.</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Annualization & quick P&L arithmetic</div>
   <div class="ck-b">
-    <ul><li><span class="k">Daily vol → annual: ×√252 ≈ 16, so 1% daily vol ≈ 16% annual (because 16²=256≈252).</span></li><li>Monthly → annual vol: <code>×√12 ≈ 3.46</code>; weekly: <code>×√52 ≈ 7.2</code>.</li><li>Sharpe annualizes the same way: daily Sharpe <code>×√252</code>, monthly <code>×√12</code>.</li><li>Volatility scales with <code>√time</code>, return scales with <code>time</code> — that gap is why Sharpe grows.</li><li>P&L: <code>notional × move</code>; in bps, <code>$X × bp/10000</code>.</li></ul><div class="eg"><b>Example.</b> +35bp on $20M = <code>20M × .0035 = $70k</code>. A 0.8% daily-vol book ≈ <code>0.8×16 = 12.8%</code> annual vol.</div>
+    <ul><li>Daily vol → annual: <span class="k">×√252 ≈ 16</span>, so 1% daily vol ≈ 16% annual (because 16²=256≈252).</li><li>Monthly → annual vol: <code>×√12 ≈ 3.46</code>; weekly: <code>×√52 ≈ 7.2</code>.</li><li>Sharpe annualizes the same way: daily Sharpe <code>×√252</code>, monthly <code>×√12</code>.</li><li>Volatility scales with <code>√time</code>, return scales with <code>time</code> — that gap is why Sharpe grows.</li><li>P&L: <code>notional × move</code>; in bps, <code>$X × bp/10000</code>.</li></ul><div class="eg"><b>Example.</b> +35bp on $20M = <code>20M × .0035 = $70k</code>. A 0.8% daily-vol book ≈ <code>0.8×16 = 12.8%</code> annual vol.</div>
   </div>
 </div>
     </div>
@@ -1279,7 +1293,7 @@
 <div class="ck">
   <div class="ck-h">Triangle Area: Shoelace, Heron & Cross-Product</div>
   <div class="ck-b">
-    <ul><li><span class="k">Shoelace is the fastest area formula given coordinates — memorize it.</span></li><li>Coordinates: <code>Area = ½|x_A(y_B−y_C)+x_B(y_C−y_A)+x_C(y_A−y_B)|</code>. Equivalent to <code>½|(B−A)×(C−A)|</code> in 2D.</li><li>Heron (sides only): <code>s=(a+b+c)/2</code>, <code>Area=√(s(s−a)(s−b)(s−c))</code>.</li><li>Two sides + included angle: <code>Area=½·a·b·sinθ</code>.</li><li>3D triangle: <code>Area=½‖(B−A)×(C−A)‖</code> — the cross-product magnitude is twice the area.</li><li>Sign of the shoelace (before abs) gives orientation: <code>+</code> counterclockwise, <code>−</code> clockwise. Collinear ⟺ area 0.</li></ul><div class="eg"><b>Example.</b> A=(0,0), B=(4,0), C=(1,3). Shoelace: <code>½|0(0−3)+4(3−0)+1(0−0)| = ½·12 = 6</code>.</div>
+    <ul><li>Shoelace is the fastest area formula given coordinates — <span class="k">memorize it</span>.</li><li>Coordinates: <code>Area = ½|x_A(y_B−y_C)+x_B(y_C−y_A)+x_C(y_A−y_B)|</code>. Equivalent to <code>½|(B−A)×(C−A)|</code> in 2D.</li><li>Heron (sides only): <code>s=(a+b+c)/2</code>, <code>Area=√(s(s−a)(s−b)(s−c))</code>.</li><li>Two sides + included angle: <code>Area=½·a·b·sinθ</code>.</li><li>3D triangle: <code>Area=½‖(B−A)×(C−A)‖</code> — the cross-product magnitude is twice the area.</li><li>Sign of the shoelace (before abs) gives orientation: <code>+</code> counterclockwise, <code>−</code> clockwise. Collinear ⟺ area 0.</li></ul><div class="eg"><b>Example.</b> A=(0,0), B=(4,0), C=(1,3). Shoelace: <code>½|0(0−3)+4(3−0)+1(0−0)| = ½·12 = 6</code>.</div>
   </div>
 </div>
 <div class="ck">
@@ -1298,7 +1312,7 @@
     <div class="ck">
   <div class="ck-h">Vector Projections & Point-to-Line/Plane Distance</div>
   <div class="ck-b">
-    <ul><li><span class="k">Projection of a onto b: <code>(a·b/‖b‖²)·b</code>; its length is <code>|a·b|/‖b‖</code>.</span></li><li>Point P to line through A with direction d (any dim): <code>dist = ‖(P−A) − proj_d(P−A)‖</code>. In 2D/3D: <code>‖(P−A)×d‖/‖d‖</code>.</li><li>Point P to plane <code>n·x=c</code>: <code>dist = |n·P − c|/‖n‖</code> (signed if you drop the abs — sign tells which side).</li><li>Closest point on the line/plane = P minus the perpendicular component; reflect P by subtracting twice that component.</li><li>Distance between two skew lines: <code>|(A₂−A₁)·(d₁×d₂)|/‖d₁×d₂‖</code>.</li></ul><div class="eg"><b>Example.</b> Distance from P=(1,2,3) to plane <code>2x−y+2z=3</code>: <code>|2−2+6−3|/√(4+1+4) = 3/3 = 1</code>.</div>
+    <ul><li>Projection of a onto b: <span class="k"><code>(a·b/‖b‖²)·b</code></span>; its length is <code>|a·b|/‖b‖</code>.</li><li>Point P to line through A with direction d (any dim): <code>dist = ‖(P−A) − proj_d(P−A)‖</code>. In 2D/3D: <code>‖(P−A)×d‖/‖d‖</code>.</li><li>Point P to plane <code>n·x=c</code>: <code>dist = |n·P − c|/‖n‖</code> (signed if you drop the abs — sign tells which side).</li><li>Closest point on the line/plane = P minus the perpendicular component; reflect P by subtracting twice that component.</li><li>Distance between two skew lines: <code>|(A₂−A₁)·(d₁×d₂)|/‖d₁×d₂‖</code>.</li></ul><div class="eg"><b>Example.</b> Distance from P=(1,2,3) to plane <code>2x−y+2z=3</code>: <code>|2−2+6−3|/√(4+1+4) = 3/3 = 1</code>.</div>
   </div>
 </div>
     </div>
@@ -2022,7 +2036,7 @@
 <div class="ck">
   <div class="ck-h">Early Exercise — American Call/Put Asymmetry</div>
   <div class="ck-b">
-    <span class="k">Never optimal to early-exercise an American call on a non-dividend stock</span> — you'd throw away remaining time value and the interest on K; better to sell the option. So American call = European call here.
+    Never optimal to early-exercise an American call on a non-dividend stock — you'd throw away remaining time value and the interest on K; better to sell the option. <span class="k">So American call = European call here.</span>
     <ul>
       <li><b>Calls:</b> only exercise early to capture a dividend (just before ex-date if the dividend exceeds the remaining time value + carry).</li>
       <li><b>Puts:</b> can be optimal to exercise early even with no dividends — exercising a deep-ITM put frees up cash K to earn interest now; the deeper ITM and higher r, the stronger the case. So American put &gt; European put strictly.</li>
@@ -2311,7 +2325,7 @@ def good(x, acc=None):
 <div class="ck">
   <div class="ck-h">copy vs deepcopy; is vs ==</div>
   <div class="ck-b">
-    <span class="k"><code>==</code> compares values; <code>is</code> compares identity (same object).</span> Assignment never copies — it binds another name to the same object.
+    Equality vs identity: <code>==</code> compares values, <code>is</code> compares <span class="k">identity (same object)</span>. Assignment never copies — it binds another name to the same object.
 <pre class="code">import copy
 a = [[1, 2], [3, 4]]
 b = a                  # alias: b is a -&gt; True
@@ -2389,7 +2403,7 @@ f"{px=}"           # 'px=1234.5678'  (debug: name + value, 3.8+)</pre>
 <div class="ck">
   <div class="ck-h">Must-know interview snippets</div>
   <div class="ck-b">
-    <span class="k">Two-sum with a dict, Counter, and reservoir sampling come up constantly.</span>
+    Two-sum with a dict, Counter, and reservoir sampling <span class="k">come up constantly</span>.
 <pre class="code"># Two-sum: O(n) using a hash map of value -&gt; index
 def two_sum(nums, target):
     seen = {}
@@ -2442,7 +2456,7 @@ math.fsum([0.1]*3) == 0.3    # True (exact summation)</pre>
 <div class="ck">
   <div class="ck-h">itertools &amp; collections highlights</div>
   <div class="ck-b">
-    <span class="k">These turn 10-line loops into one expressive, lazy line.</span>
+    These turn 10-line loops into <span class="k">one expressive, lazy line</span>.
 <pre class="code">import itertools as it
 from collections import defaultdict, deque, Counter, OrderedDict
 
@@ -2462,7 +2476,7 @@ dq = deque(maxlen=3)             # ring buffer; oldest drops on overflow</pre>
 <div class="ck">
   <div class="ck-h">Big-O of common operations (quick recall)</div>
   <div class="ck-b">
-    <span class="k">Know the amortized vs worst-case distinction.</span>
+    Know the <span class="k">amortized vs worst-case</span> distinction.
     <ul>
       <li><code>list.append</code> O(1) amortized; occasional resize is O(n) but rare.</li>
       <li><code>list.insert(0, x)</code> / <code>pop(0)</code> O(n) — shifts everything; use <code>deque</code>.</li>
@@ -2500,7 +2514,7 @@ def topk(stream, k):
 <div class="ck">
   <div class="ck-h">Subtle gotchas: closures, interning, sort keys</div>
   <div class="ck-b">
-    <ul><li><span class="k">Late binding:</span> closures capture the variable, not its value. <code>[lambda: i for i in range(3)]</code> all return <code>2</code>; fix with a default arg <code>lambda i=i: i</code>.</li><li><code>−5..256</code> and short string literals are interned, so <code>is</code> can <em>accidentally</em> match <code>==</code> — never rely on it (identity vs value lives in the copies card).</li><li><code>sorted(..., key=...)</code> sorts by the key; it is <span class="k">stable</span>, so equal keys keep input order — chain sorts least-significant-key first.</li><li><code>dict</code> preserves insertion order (3.7+); equality ignores order, iteration respects it.</li><li><code>a += b</code> on a list mutates in place (<code>extend</code>); <code>a = a + b</code> rebinds to a new list.</li></ul><div class="eg"><b>Example.</b> Sort trades by price desc, ties by time asc: <code>sorted(t, key=lambda x:(-x.px, x.t))</code> — pack the key as a tuple rather than sorting twice.</div>
+    <ul><li><b>Late binding:</b> closures capture the variable, not its value. <code>[lambda: i for i in range(3)]</code> all return <code>2</code>; fix with a default arg <code>lambda i=i: i</code>.</li><li><code>−5..256</code> and short string literals are interned, so <code>is</code> can <em>accidentally</em> match <code>==</code> — never rely on it (identity vs value lives in the copies card).</li><li><code>sorted(..., key=...)</code> sorts by the key; it is <span class="k">stable</span>, so equal keys keep input order — chain sorts least-significant-key first.</li><li><code>dict</code> preserves insertion order (3.7+); equality ignores order, iteration respects it.</li><li><code>a += b</code> on a list mutates in place (<code>extend</code>); <code>a = a + b</code> rebinds to a new list.</li></ul><div class="eg"><b>Example.</b> Sort trades by price desc, ties by time asc: <code>sorted(t, key=lambda x:(-x.px, x.t))</code> — pack the key as a tuple rather than sorting twice.</div>
   </div>
 </div>
     </div>
@@ -2509,7 +2523,7 @@ def topk(stream, k):
 <div class="ck">
   <div class="ck-h">Value vs reference vs pointer</div>
   <div class="ck-b">
-    <span class="k">Value = a copy; reference = an alias to an existing object; pointer = an address that can be null and reseated.</span>
+    Value = a copy; reference = an alias to an existing object; pointer = an address that can be <span class="k">null and reseated</span>.
 <pre class="code">void by_val(int x)  { x = 9; }   // local copy; caller unchanged
 void by_ref(int&amp; x) { x = 9; }   // edits caller's object
 void by_ptr(int* p) { if (p) *p = 9; }   // may be null; deref carefully
@@ -2529,7 +2543,7 @@ by_ptr(&amp;a); // a == 9</pre>
 <div class="ck">
   <div class="ck-h">const &amp; const-correctness</div>
   <div class="ck-b">
-    <span class="k">Mark everything that doesn't mutate as <code>const</code> — it documents intent, enables optimization, and lets callers pass temporaries/const objects.</span>
+    Mark everything that doesn't mutate as <code>const</code> — it <span class="k">documents intent</span>, enables optimization, and lets callers pass temporaries/const objects.
 <pre class="code">int sum(const std::vector&lt;int&gt;&amp; v);   // won't modify v; avoids a copy
 
 const int* p;        // pointer to const int  (can't change *p)
@@ -2550,7 +2564,7 @@ struct Px {
 <div class="ck">
   <div class="ck-h">RAII &amp; smart pointers</div>
   <div class="ck-b">
-    <span class="k">RAII: a resource's lifetime is tied to an object's scope — the destructor frees it, so there are no leaks even on exceptions.</span>
+    RAII: a resource's lifetime is tied to an object's scope — the destructor frees it, so there are <span class="k">no leaks even on exceptions</span>.
 <pre class="code">#include &lt;memory&gt;
 auto u = std::make_unique&lt;Order&gt;(id);   // sole owner; freed at scope exit
 auto s = std::make_shared&lt;Book&gt;();      // ref-counted shared ownership
@@ -2572,7 +2586,7 @@ void f() {
 <div class="ck">
   <div class="ck-h">STL containers + complexity</div>
   <div class="ck-b">
-    <span class="k"><code>map</code>/<code>set</code> are red-black trees (ordered, O(log n)); <code>unordered_*</code> are hash tables (O(1) average).</span>
+    Ordered vs hashed is the core choice: <code>map</code>/<code>set</code> are red-black trees (ordered, O(log n)); <code>unordered_*</code> are hash tables (<span class="k">O(1) average</span>).
     <table>
       <tr><th>Container</th><th>Lookup</th><th>Insert</th><th>Ordered?</th></tr>
       <tr><td><code>vector</code></td><td>O(1) index / O(n) find</td><td>O(1) amort. push_back</td><td>—</td></tr>
@@ -2593,7 +2607,7 @@ if (it != px.end()) use(it-&gt;second);</pre>
 <div class="ck">
   <div class="ck-h">Iterators &amp; range-for</div>
   <div class="ck-b">
-    <span class="k">Iterators generalize pointers; range-for is the clean way to traverse.</span>
+    Iterators generalize pointers; <span class="k">range-for</span> is the clean way to traverse.
 <pre class="code">std::vector&lt;int&gt; v{1, 2, 3};
 
 for (int x : v)        { /* copy each element */ }
@@ -2613,7 +2627,7 @@ for (auto it = v.begin(); it != v.end(); ++it)
 <div class="ck">
   <div class="ck-h">Templates (generic code)</div>
   <div class="ck-b">
-    <span class="k">Templates generate type-specialized code at compile time — zero runtime dispatch cost, full type safety.</span>
+    Templates generate type-specialized code at compile time — <span class="k">zero runtime dispatch cost</span>, full type safety.
 <pre class="code">template &lt;typename T&gt;
 T max_of(const T&amp; a, const T&amp; b) {
     return (a &lt; b) ? b : a;
@@ -2635,7 +2649,7 @@ auto mean(It first, It last) {
 <div class="ck">
   <div class="ck-h">Move semantics vs copy</div>
   <div class="ck-b">
-    <span class="k">A move steals the guts of a temporary (pointer/buffer) instead of deep-copying — O(1) vs O(n) for containers.</span>
+    A move steals the guts of a temporary (pointer/buffer) instead of deep-copying — <span class="k">O(1) vs O(n)</span> for containers.
 <pre class="code">std::vector&lt;int&gt; make();        // returns a big vector
 std::vector&lt;int&gt; a = make();    // move (or RVO) -- no deep copy
 
@@ -2653,7 +2667,7 @@ std::vector&lt;int&gt; c = std::move(a);  // MOVE: c takes a's buffer
 <div class="ck">
   <div class="ck-h">Pass-by-const-ref vs by-value</div>
   <div class="ck-b">
-    <span class="k">For non-trivial types, take <code>const T&amp;</code> to avoid a copy; for small/cheap types (<code>int</code>, <code>double</code>, pointers) pass by value.</span>
+    For non-trivial types, take <code>const T&amp;</code> to <span class="k">avoid a copy</span>; for small/cheap types (<code>int</code>, <code>double</code>, pointers) pass by value.
 <pre class="code">double price(const std::string&amp; sym);   // no copy of the string
 double price(int id);                   // cheap; by value is fine
 
@@ -2669,7 +2683,7 @@ void inspect(const std::vector&lt;int&gt;&amp; v); // read-only, no copy</pre>
 <div class="ck">
   <div class="ck-h">Stack vs heap</div>
   <div class="ck-b">
-    <span class="k">Stack allocation is a pointer bump (nearly free) and auto-freed at scope exit; heap (<code>new</code>/<code>malloc</code>) is slower and must be managed.</span>
+    Stack allocation is a <span class="k">pointer bump (nearly free)</span> and auto-freed at scope exit; heap (<code>new</code>/<code>malloc</code>) is slower and must be managed.
 <pre class="code">void f() {
     int x = 5;                 // stack: freed automatically
     std::array&lt;int, 64&gt; buf;    // stack: fixed size, fast
@@ -2687,7 +2701,7 @@ void inspect(const std::vector&lt;int&gt;&amp; v); // read-only, no copy</pre>
 <div class="ck">
   <div class="ck-h">Why C++ for low latency</div>
   <div class="ck-b">
-    <span class="k">No garbage collector, predictable deterministic destruction, and control over memory layout for cache efficiency.</span>
+    No garbage collector, deterministic destruction, and <span class="k">control over memory layout</span> for cache efficiency.
     <ul>
       <li><b>No GC pauses:</b> deallocation is deterministic (destructor at scope end), so there are no unpredictable stop-the-world stalls.</li>
       <li><b>Cache locality:</b> <code>vector</code>/<code>array</code> store data contiguously; sequential access prefetches well — node-based structures chase pointers and miss cache.</li>
@@ -2701,7 +2715,7 @@ void inspect(const std::vector&lt;int&gt;&amp; v); // read-only, no copy</pre>
 <div class="ck">
   <div class="ck-h">Idiomatic example: sort with a lambda</div>
   <div class="ck-b">
-    <span class="k">A lambda is an inline callable; the compiler can inline the comparator, so it's as fast as a hand-written loop.</span>
+    A lambda is an inline callable; the compiler can inline the comparator, so it's <span class="k">as fast as a hand-written loop</span>.
 <pre class="code">#include &lt;algorithm&gt;
 #include &lt;vector&gt;
 struct Quote { std::string sym; double px; };
@@ -2735,13 +2749,13 @@ auto n = std::count_if(book.begin(), book.end(),
 <div class="ck">
   <div class="ck-h">Copy elision, RVO & perfect forwarding</div>
   <div class="ck-b">
-    <ul><li><span class="k">RVO/copy elision lets the compiler construct a returned object directly in the caller's slot — zero copies or moves.</span> Since C++17 it is <b>mandatory</b> for returning a pure prvalue (e.g. <code>return T{...};</code>).</li><li>So <code>return std::move(local);</code> on a return statement is an anti-pattern — it blocks elision and forces a move. Just <code>return local;</code>.</li><li>A forwarding (universal) reference <code>T&&</code> in a deduced template binds to lvalues and rvalues; <code>std::forward&lt;T&gt;(x)</code> preserves the original value category.</li><li><code>std::move</code> is just a cast to rvalue ref — it moves nothing by itself; the move happens in the chosen overload.</li></ul><div class="eg"><b>Example.</b> <code>template&lt;class T&gt; void push(T&amp;&amp; x){ v.emplace_back(std::forward&lt;T&gt;(x)); }</code> — an lvalue arg copies, an rvalue arg moves, one function handles both with no extra temporary.</div>
+    <ul><li>RVO/copy elision lets the compiler construct a returned object directly in the caller's slot — <span class="k">zero copies or moves</span>. Since C++17 it is <b>mandatory</b> for returning a pure prvalue (e.g. <code>return T{...};</code>).</li><li>So <code>return std::move(local);</code> on a return statement is an anti-pattern — it blocks elision and forces a move. Just <code>return local;</code>.</li><li>A forwarding (universal) reference <code>T&&</code> in a deduced template binds to lvalues and rvalues; <code>std::forward&lt;T&gt;(x)</code> preserves the original value category.</li><li><code>std::move</code> is just a cast to rvalue ref — it moves nothing by itself; the move happens in the chosen overload.</li></ul><div class="eg"><b>Example.</b> <code>template&lt;class T&gt; void push(T&amp;&amp; x){ v.emplace_back(std::forward&lt;T&gt;(x)); }</code> — an lvalue arg copies, an rvalue arg moves, one function handles both with no extra temporary.</div>
   </div>
 </div>
 <div class="ck">
   <div class="ck-h">Iterator invalidation by container</div>
   <div class="ck-b">
-    <ul><li><span class="k">A reallocation or rehash invalidates iterators/pointers/references into a container; know which ops trigger it per type.</span></li><li><table><tr><th>Container</th><th>Insert invalidates</th><th>Erase invalidates</th></tr><tr><td>vector</td><td>all if capacity grows, else from insert point</td><td>at/after erased</td></tr><tr><td>deque</td><td>all iterators (refs to ends survive)</td><td>all unless an end</td></tr><tr><td>list</td><td>none</td><td>only the erased</td></tr><tr><td>map/set</td><td>none</td><td>only the erased</td></tr><tr><td>unordered_*</td><td>iterators on rehash; refs survive</td><td>only the erased</td></tr></table></li><li><code>vector::reserve(n)</code> up front avoids growth reallocations and keeps iterators stable.</li></ul><div class="eg"><b>Example.</b> Erasing in a loop: <code>for(auto it=v.begin(); it!=v.end();) it = v.erase(it);</code> — capture the returned iterator; never <code>++it</code> after erasing it.</div>
+    <ul><li>A reallocation or rehash invalidates iterators/pointers/references into a container; <span class="k">know which ops trigger it per type</span>.</li><li><table><tr><th>Container</th><th>Insert invalidates</th><th>Erase invalidates</th></tr><tr><td>vector</td><td>all if capacity grows, else from insert point</td><td>at/after erased</td></tr><tr><td>deque</td><td>all iterators (refs to ends survive)</td><td>all unless an end</td></tr><tr><td>list</td><td>none</td><td>only the erased</td></tr><tr><td>map/set</td><td>none</td><td>only the erased</td></tr><tr><td>unordered_*</td><td>iterators on rehash; refs survive</td><td>only the erased</td></tr></table></li><li><code>vector::reserve(n)</code> up front avoids growth reallocations and keeps iterators stable.</li></ul><div class="eg"><b>Example.</b> Erasing in a loop: <code>for(auto it=v.begin(); it!=v.end();) it = v.erase(it);</code> — capture the returned iterator; never <code>++it</code> after erasing it.</div>
   </div>
 </div>
     </div>

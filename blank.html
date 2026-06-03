@@ -14,6 +14,20 @@
        Subject keys live in DOMAINS{} (18 subjects, grouped in GROUPS[]) — add a key there to open a new track.
     2. Add a cheatsheet  → add a <div class="ck"> block inside the matching <div class="cheat" data-topic="KEY"> panel.
     3. Everything else (counts, Browse tiles, filters) updates itself from DECK[] / the cheat panels.
+
+  CANONICAL CHEATSHEET CARD STYLE (keep every card consistent — lint: tools/lint-cheats.py):
+    <div class="ck">                       (.ck.wide only if it holds a wide table)
+      <div class="ck-h">Title</div>
+      <div class="ck-b">
+        Plain lead — one sentence framing the topic.   ← NEVER open with <span class="k"> or a bare <code>
+        <ul><li>supporting points…</li></ul>           ← <code>…</code> for formulas/identifiers
+        <div class="eg"><b>Example.</b> one worked example.</div>
+      </div>
+    </div>
+    • The body's FIRST rendered text must be plain (not green, not a fully-green first bullet).
+    • Green <span class="k">…</span> = exactly ONE short key phrase (the takeaway), placed AFTER some plain text — never the lead.
+    • <b>…</b> = sub-labels/emphasis (stays text-colored). <code>…</code> = formulas & code tokens.
+
   Keep it accurate. No fabricated numbers. Cite nothing you can't defend out loud.
   ════════════════════════════════════════════════════════════════════
 -->
